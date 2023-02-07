@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Karoo Collab',
+      title: 'Karoo Collab Demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.grey,
       ),
-      home: const MyHomePage(title: 'Karoo Collab'),
+      home: const MyHomePage(title: 'Karoo Collab Demo'),
     );
   }
 }
@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle( color: Colors.black)),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
       ),
       body: Center(
@@ -96,18 +96,279 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-                TextButton(onPressed: (){}, child: const Align(
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const ConnectionsPage(title: 'Connections')),
+                );
+              },
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Connections")
-                )),
-                TextButton(onPressed: (){}, child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Alerts")
-                )),
+                  child: ListTile(
+                      title: Text("Connections"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) =>
+                //           const ProfilePage(title: 'Profile')),
+                // );
+              },
+              icon: Icon(
+                Icons.alarm,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Connections"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
 
+class ConnectionsPage extends StatefulWidget {
+  const ConnectionsPage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<ConnectionsPage> createState() => _ConnectionsPage();
+}
+
+class _ConnectionsPage extends State<ConnectionsPage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const ProfilePage(title: 'Profile')),
+                  );
+                },
+                icon: Icon(
+                  Icons.person,
+                ),
+                label: const Align(
+                    alignment: Alignment.centerLeft, child: Text("Aimee"))),
+          ],
+        ),
+      ),
+      persistentFooterButtons: [
+        IconButton(
+          icon: Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          alignment: Alignment.bottomLeft,
+        ),
+        SizedBox(width: 100),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {},
+          alignment: Alignment.bottomRight,
+        ),
+      ],
+      persistentFooterAlignment: AlignmentDirectional.bottomStart,
+    );
+  }
+}
+
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePage();
+}
+
+class _ProfilePage extends State<ProfilePage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const PairingPage(title: 'Pairing with Partner')),
+                  );
+                },
+                icon: Icon(
+                  Icons.bluetooth,
+                ),
+                label: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Pair with Parter"))),
+          ],
+        ),
+      ),
+      persistentFooterButtons: [
+        IconButton(
+          icon: Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          alignment: Alignment.bottomLeft,
+        ),
+        SizedBox(width: 100),
+      ],
+      persistentFooterAlignment: AlignmentDirectional.bottomStart,
+    );
+  }
+}
+
+class PairingPage extends StatefulWidget {
+  const PairingPage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<PairingPage> createState() => _PairingPage();
+}
+
+class _PairingPage extends State<PairingPage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            TextButton.icon(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.bluetooth,
+                ),
+                label: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Pair with Parter"))),
+          ],
+        ),
+      ),
+      persistentFooterButtons: [
+        IconButton(
+          icon: Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          alignment: Alignment.bottomLeft,
+        ),
+        SizedBox(width: 100),
+      ],
+      persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
 }
