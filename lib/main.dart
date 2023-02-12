@@ -4,6 +4,33 @@ void main() {
   runApp(const MyApp());
 }
 
+Widget _buildPopupDialog(BuildContext context) {
+  return new AlertDialog(
+    title: const Text('Popup example'),
+    content: new Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("Hello"),
+      ],
+    ),
+    actions: <Widget>[
+      new TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Cancel'),
+      ),
+      new TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Confirm'),
+      ),
+    ],
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -116,12 +143,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton.icon(
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) =>
-                //           const ProfilePage(title: 'Profile')),
-                // );
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => _buildPopupDialog(context),
+                );
               },
               icon: Icon(
                 Icons.alarm,
@@ -129,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
-                      title: Text("Connections"),
+                      title: Text("Alerts"),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
           ],
@@ -198,7 +223,10 @@ class _ConnectionsPage extends State<ConnectionsPage> {
                   Icons.person,
                 ),
                 label: const Align(
-                    alignment: Alignment.centerLeft, child: Text("Aimee"))),
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Aimee"),
+                      trailing: Icon(Icons.drag_handle))),
           ],
         ),
       ),
@@ -211,11 +239,20 @@ class _ConnectionsPage extends State<ConnectionsPage> {
           alignment: Alignment.bottomLeft,
         ),
         SizedBox(width: 100),
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () {},
-          alignment: Alignment.bottomRight,
-        ),
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => _buildPopupDialog(context),
+            );
+          },
+          child: Icon(Icons.add),
+          style: ElevatedButton.styleFrom(
+            fixedSize: const Size(50, 50),
+            shape: const CircleBorder(),
+            backgroundColor: Colors.blueGrey,
+          ),
+        )
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
@@ -281,8 +318,10 @@ class _ProfilePage extends State<ProfilePage> {
                   Icons.bluetooth,
                 ),
                 label: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Pair with Parter"))),
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Pair with Partner"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
           ],
         ),
       ),
@@ -295,6 +334,20 @@ class _ProfilePage extends State<ProfilePage> {
           alignment: Alignment.bottomLeft,
         ),
         SizedBox(width: 100),
+         ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => _buildPopupDialog(context),
+            );
+          },
+          child: Icon(Icons.play_arrow),
+          style: ElevatedButton.styleFrom(
+            fixedSize: const Size(50, 50),
+            shape: const CircleBorder(),
+            backgroundColor: Colors.yellow,
+          ),
+        )
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
