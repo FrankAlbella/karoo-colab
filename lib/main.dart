@@ -226,7 +226,7 @@ class _ConnectionsPage extends State<ConnectionsPage> {
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("Aimee"),
-                      trailing: Icon(Icons.drag_handle))),
+                      trailing: Icon(Icons.drag_handle)))),
           ],
         ),
       ),
@@ -321,7 +321,7 @@ class _ProfilePage extends State<ProfilePage> {
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("Pair with Partner"),
-                      trailing: Icon(Icons.keyboard_arrow_right))),
+                      trailing: Icon(Icons.keyboard_arrow_right)))),
           ],
         ),
       ),
