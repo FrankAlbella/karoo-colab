@@ -30,7 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_bluetooth_serial: ^0.3.2
+  flutter_bluetooth_serial:
+    git:
+      url: https://github.com/JordanHanley/flutter_bluetooth_serial.git
 
 
   # The following adds the Cupertino Icons font to your application.
