@@ -5,6 +5,33 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:karoo_collab/rounded_button.dart';
 import 'BluetoothManager.dart';
 
+Widget _buildPopupDialog(BuildContext context) {
+  return AlertDialog(
+    title: const Text('Popup example'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const <Widget>[
+        Text("Hello"),
+      ],
+    ),
+    actions: <Widget>[
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Cancel'),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Confirm'),
+      ),
+    ],
+  );
+}
+
 class PairingPage extends StatefulWidget {
   const PairingPage({super.key, required this.title});
 
@@ -48,7 +75,7 @@ class _PairingPage extends State<PairingPage> {
 
   //starts scanning for other nearby bluetooth devices
   void startScan() async {
-    if (scanning) {
+    if(scanning) {
       return;
     }
 
@@ -60,16 +87,16 @@ class _PairingPage extends State<PairingPage> {
             text: event.device.name ?? "no name",
             height: 40,
             width: 40,
-            onPressed: () =>
-                {BluetoothManager.instance.connectToDevice(event.device)});
+            onPressed: () => {
+              BluetoothManager.instance.connectToDevice(event.device)
+            }
+        );
         devices = [...devices, textWidget];
       });
     });
 
     //set state to now scanning
-    setState(() {
-      scanning = true;
-    });
+    setState(() {scanning = true;});
   }
 
   //sends a randomly generated number to all currently connected devices
@@ -81,46 +108,52 @@ class _PairingPage extends State<PairingPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      backgroundColor: Colors.black,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+      ),
       body: Center(
-                child: Container(
-                    color: Colors.black,
-                    height: 92,
-                    width: 92,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Container(
-                          color: Colors.black,
-                          height: 92,
-                          width: 92,
-                          child: ListView(
-                            children: devices,
-                          ),
-                        ),
-                        RoundedButton(
-                          text: "Start Server",
-                          height: 40,
-                          width: 92 + 10,
-                          onPressed: startBluetoothServer,
-                        ),
-                        RoundedButton(
-                          text: "Scan for other Devices",
-                          height: 40,
-                          width: 92 + 10,
-                          onPressed: startScan,
-                        ),
-                        RoundedButton(
-                          text: "Say Hi",
-                          height: 40,
-                          width: 92 + 10,
-                          onPressed: sayHi,
-                        ),
-                      ],
-                    )
-                )
-      )
-  );
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            TextButton.icon(
+              onPressed: startBluetoothServer,
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Start Bluetooth Server"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+            TextButton.icon(
+              onPressed: startScan,
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Start Scan"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+            TextButton.icon(
+              onPressed: sayHi,
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Say Hi"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

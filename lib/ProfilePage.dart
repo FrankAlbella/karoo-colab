@@ -1,5 +1,16 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'BluetoothManager.dart';
 import 'PairingPage.dart';
+
+Random random = Random();
+
+void sayHi() async {
+  final int randomNum = random.nextInt(100);
+  String dataStr = "randomNum:$randomNum";
+  print("Broadcasting data: $dataStr");
+  BluetoothManager.instance.broadcastString(dataStr);
+}
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
@@ -91,6 +102,19 @@ class _ProfilePage extends State<ProfilePage> {
                     child: ListTile(
                         title: Text("Pair with Partner"),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
+
+            TextButton.icon(
+              onPressed: sayHi,
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Say Hi"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+
           ],
         ),
       ),
