@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:karoo_collab/rounded_button.dart';
+import 'BluetoothDeviceListEntry.dart';
 import 'BluetoothManager.dart';
 
 Widget _buildPopupDialog(BuildContext context) {
@@ -60,6 +61,14 @@ class _PairingPage extends State<PairingPage> {
   Stream<BluetoothDiscoveryResult>? discoveryStream;
   StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
 
+  @override
+  void initState() {
+    super.initState();
+
+    startBluetoothServer();
+    //startScan();
+  }
+
   //make the device discoverable and also
   //listen for bluetooth serial connections
   void startBluetoothServer() async {
@@ -83,15 +92,25 @@ class _PairingPage extends State<PairingPage> {
 
     final subscription = discoveryStream?.listen((event) {
       setState(() {
-        final textWidget = RoundedButton(
-            text: event.device.name ?? "no name",
-            height: 40,
-            width: 40,
-            onPressed: () => {
-              BluetoothManager.instance.connectToDevice(event.device)
-            }
+        String deviceName = event.device.name ?? "没有名字";
+
+        final textWidget = TextButton.icon(
+          onPressed: () => {
+            BluetoothManager.instance.connectToDevice(event.device)
+          },
+          icon: const Icon(
+            Icons.people,
+          ),
+          label: Align(
+              alignment: Alignment.centerLeft,
+              child: ListTile(
+                  title: Text(deviceName),
+                  trailing: const Icon(Icons.keyboard_arrow_right))),
         );
-        devices = [...devices, textWidget];
+
+        if(deviceName.contains("Karoo")) {
+          devices = [...devices, textWidget];
+        }
       });
     });
 
@@ -114,45 +133,21 @@ class _PairingPage extends State<PairingPage> {
         title: Text(widget.title, style: const TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+      body: ListView(
           children: <Widget>[
             TextButton.icon(
-              onPressed: startBluetoothServer,
-              icon: Icon(
-                Icons.people,
-              ),
-              label: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: ListTile(
-                      title: Text("Start Bluetooth Server"),
-                      trailing: Icon(Icons.keyboard_arrow_right))),
-            ),
-            TextButton.icon(
               onPressed: startScan,
-              icon: Icon(
-                Icons.people,
+              icon: const Icon(
+                Icons.bluetooth,
               ),
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("Start Scan"),
-                      trailing: Icon(Icons.keyboard_arrow_right))),
+                      trailing: Icon(Icons.smoke_free))),
             ),
-            TextButton.icon(
-              onPressed: sayHi,
-              icon: Icon(
-                Icons.people,
-              ),
-              label: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: ListTile(
-                      title: Text("Say Hi"),
-                      trailing: Icon(Icons.keyboard_arrow_right))),
-            ),
-          ],
-        ),
+            ...devices
+          ]
       ),
     );
   }
