@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import './BluetoothDeviceListEntry.dart';
-
+import 'package:karoo_collab/rounded_button.dart';
+import 'BluetoothManager.dart';
 
 class PairingPage extends StatefulWidget {
   const PairingPage({super.key, required this.title});
@@ -20,173 +19,108 @@ class PairingPage extends StatefulWidget {
 
   final String title;
 
-
   @override
   State<PairingPage> createState() => _PairingPage();
 }
 
 class _PairingPage extends State<PairingPage> {
-  StreamSubscription<BluetoothDiscoveryResult>? _streamSubscription;
-  List<BluetoothDiscoveryResult> results = List<BluetoothDiscoveryResult>.empty(growable: true);
-  bool isDiscovering = true;
+  //random object for sending random numbers to connections
+  Random random = Random();
 
-  @override
-  void initState() {
-    super.initState();
+  List<Widget> devices = [];
+  bool scanning = false;
 
-    if (isDiscovering) {
-      _startDiscovery();
-      requestDiscoverable(120);
+  Stream<BluetoothDiscoveryResult>? discoveryStream;
+  StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
+
+  //make the device discoverable and also
+  //listen for bluetooth serial connections
+  void startBluetoothServer() async {
+    int? res = await BluetoothManager.instance.requestDiscoverable(120);
+
+    if (res == null) {
+      print("was not able to make device discoverable");
+      return;
     }
+
+    await BluetoothManager.instance.listenForConnections("peer-cycle", 120);
   }
 
-  @override
-  void dispose() {
-    // Avoid memory leak (`setState` after dispose) and cancel discovery
-    _streamSubscription?.cancel();
+  //starts scanning for other nearby bluetooth devices
+  void startScan() async {
+    if (scanning) {
+      return;
+    }
 
-    super.dispose();
-  }
+    discoveryStream = await BluetoothManager.instance.startDeviceDiscovery();
 
-  void _restartDiscovery() {
-    setState(() {
-      results.clear();
-      isDiscovering = true;
-    });
-
-    _startDiscovery();
-  }
-
-  Future<int?> requestDiscoverable(int seconds) async {
-    return FlutterBluetoothSerial.instance.requestDiscoverable(seconds);
-  }
-
-  void _startDiscovery() {
-    _streamSubscription =
-        FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
-          setState(() {
-            final existingIndex = results.indexWhere(
-                    (element) => element.device.address == r.device.address);
-            if (existingIndex >= 0) {
-              results[existingIndex] = r;
-            } else {
-              results.add(r);
-            }
-          });
-        });
-
-    _streamSubscription!.onDone(() {
+    final subscription = discoveryStream?.listen((event) {
       setState(() {
-        isDiscovering = false;
+        final textWidget = RoundedButton(
+            text: event.device.name ?? "no name",
+            height: 40,
+            width: 40,
+            onPressed: () =>
+                {BluetoothManager.instance.connectToDevice(event.device)});
+        devices = [...devices, textWidget];
       });
+    });
+
+    //set state to now scanning
+    setState(() {
+      scanning = true;
     });
   }
 
-  Future<void> connectToAddress(String? address) async {
-    try {
-      BluetoothConnection connection = await BluetoothConnection.toAddress(address);
-      print('Connected to the device');
-
-      connection.input?.listen((Uint8List data) {
-        print('Data incoming: ${ascii.decode(data)}');
-        connection.output.add(data); // Sending data
-
-        if (ascii.decode(data).contains('!')) {
-          connection.finish(); // Closing connection
-          print('Disconnecting by local host');
-        }
-      }).onDone(() {
-        print('Disconnected by remote request');
-      });
-    }
-    catch (exception) {
-      print('Cannot connect, exception occured');
-    }
+  //sends a randomly generated number to all currently connected devices
+  void sayHi() async {
+    final int randomNum = random.nextInt(100);
+    String dataStr = "randomNum:$randomNum";
+    print("Broadcasting data: $dataStr");
+    BluetoothManager.instance.broadcastString(dataStr);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-      ),
-      body: ListView.builder(
-        itemCount: results.length,
-        itemBuilder: (BuildContext context, index) {
-          BluetoothDiscoveryResult result = results[index];
-          final device = result.device;
-          final address = device.address;
-          return BluetoothDeviceListEntry(
-            device: device,
-            rssi: result.rssi,
-            onTap: () {
-              Navigator.of(context).pop(result.device);
-            },
-            onLongPress: () async {
-              try {
-                bool bonded = false;
-                if (device.isBonded) {
-                  print('Unbonding from ${device.address}...');
-                  await FlutterBluetoothSerial.instance
-                      .removeDeviceBondWithAddress(address);
-                  print('Unbonding from ${device.address} has succeed');
-                } else {
-                  print('Bonding with ${device.address}...');
-                  bonded = (await FlutterBluetoothSerial.instance
-                      .bondDeviceAtAddress(address))!;
-                  print(
-                      'Bonding with ${device.address} has ${bonded ? 'succeed' : 'failed'}.');
-                }
-                setState(() {
-                  results[results.indexOf(result)] = BluetoothDiscoveryResult(
-                      device: BluetoothDevice(
-                        name: device.name ?? '',
-                        address: address,
-                        type: device.type,
-                        bondState: bonded
-                            ? BluetoothBondState.bonded
-                            : BluetoothBondState.none,
-                      ),
-                      rssi: result.rssi);
-                });
-              } catch (ex) {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Error occurred while bonding'),
-                      content: Text(ex.toString()),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text("Close"),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+  Widget build(BuildContext context) => Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+                child: Container(
+                    color: Colors.black,
+                    height: 92,
+                    width: 92,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Container(
+                          color: Colors.black,
+                          height: 92,
+                          width: 92,
+                          child: ListView(
+                            children: devices,
+                          ),
+                        ),
+                        RoundedButton(
+                          text: "Start Server",
+                          height: 40,
+                          width: 92 + 10,
+                          onPressed: startBluetoothServer,
+                        ),
+                        RoundedButton(
+                          text: "Scan for other Devices",
+                          height: 40,
+                          width: 92 + 10,
+                          onPressed: startScan,
+                        ),
+                        RoundedButton(
+                          text: "Say Hi",
+                          height: 40,
+                          width: 92 + 10,
+                          onPressed: sayHi,
                         ),
                       ],
-                    );
-                  },
-                );
-              }
-            },
-          );
-        },
-      ),
-      persistentFooterButtons: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          alignment: Alignment.bottomLeft,
-        ),
-        const SizedBox(width: 100),
-      ],
-      persistentFooterAlignment: AlignmentDirectional.bottomStart,
-    );
-  }
+                    )
+                )
+      )
+  );
 }
