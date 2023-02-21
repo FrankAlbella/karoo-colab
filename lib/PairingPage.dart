@@ -66,6 +66,9 @@ class _PairingPage extends State<PairingPage> {
     super.initState();
 
     startBluetoothServer();
+    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+      print('got data from a connection: $dataMap');
+    });
     //startScan();
   }
 
@@ -92,30 +95,34 @@ class _PairingPage extends State<PairingPage> {
 
     final subscription = discoveryStream?.listen((event) {
       setState(() {
-        String deviceName = event.device.name ?? "没有名字";
+        final device = event.device;
+        final deviceName = device.name ?? "没有名字";
+        final address = device.address;
 
-        final textWidget = TextButton.icon(
-          onPressed: () => {
-            BluetoothManager.instance.connectToDevice(event.device)
+
+        final textWidget = BluetoothDeviceListEntry(
+          device: event.device,
+          rssi: event.rssi,
+          onTap: () {
+            BluetoothManager.instance.connectToDevice(event.device);
           },
-          icon: const Icon(
-            Icons.people,
-          ),
-          label: Align(
-              alignment: Alignment.centerLeft,
-              child: ListTile(
-                  title: Text(deviceName),
-                  trailing: const Icon(Icons.keyboard_arrow_right))),
         );
-
         if(deviceName.contains("Karoo")) {
           devices = [...devices, textWidget];
         }
       });
+    }, onDone: () {
+      setState(() {
+        print("Scanning set to false");
+        scanning = false;
+      });
     });
 
     //set state to now scanning
-    setState(() {scanning = true;});
+    setState(() {
+      print("Scanning set to true");
+      scanning = true;
+    });
   }
 
   //sends a randomly generated number to all currently connected devices
