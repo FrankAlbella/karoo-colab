@@ -17,6 +17,7 @@ import android.os.Build.VERSION_CODES;
 
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL = "edu.uf.karoo_collab";
+  private static int pHR;
 
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -24,7 +25,7 @@ public class MainActivity extends FlutterActivity {
             .setMethodCallHandler(
                     (call, result) -> {
                       if (call.method.equals("getBatteryLevel")) {
-                        int batteryLevel = getBatteryLevel();
+                        int batteryLevel = getBatteryLevel(call.argument("HR"));
 
                         if (batteryLevel != -1) {
                           result.success(batteryLevel);
@@ -37,7 +38,9 @@ public class MainActivity extends FlutterActivity {
                     }
             );
   }
-  private int getBatteryLevel() {
+  private int getBatteryLevel(int HR) {
+    pHR = HR;
+    System.out.println(HR);
     int batteryLevel = -1;
     if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
       BatteryManager batteryManager = (BatteryManager) getSystemService(BATTERY_SERVICE);
@@ -49,6 +52,11 @@ public class MainActivity extends FlutterActivity {
               intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
     }
 
-    return batteryLevel;
+    return HR;
+  }
+  public static int getHR()
+  {
+    System.out.println(pHR);
+    return pHR;
   }
 }
