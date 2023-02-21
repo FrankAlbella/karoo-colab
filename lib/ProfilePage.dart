@@ -75,7 +75,7 @@ class _ProfilePage extends State<ProfilePage> {
 
     int percentageBattery=0;
     try {
-      final int result = await platform.invokeMethod('getBatteryLevel');
+      final int result = await platform.invokeMethod('getBatteryLevel', {"HR": 69});
       print(result);
       batteryLevel = ' $result % ';
       percentageBattery=result;

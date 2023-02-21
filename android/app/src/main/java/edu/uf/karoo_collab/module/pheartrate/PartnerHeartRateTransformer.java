@@ -1,5 +1,7 @@
 package edu.uf.karoo_collab.module.pheartrate;
 
+import edu.uf.karoo_collab.MainActivity;
+
 import androidx.annotation.NonNull;
 
 import java.util.Map;
@@ -15,6 +17,8 @@ public class PartnerHeartRateTransformer extends SdkTransformer {
 
     @Override
     public double onDependencyChange(long l, @NonNull Map<Dependency, Double> map) {
-        return Math.random() * (200 - 70 + 1) + 70;
+   
+        return MainActivity.getHR();
+        //return Math.random() * (200 - 70 + 1) + 70;
     }
 }
