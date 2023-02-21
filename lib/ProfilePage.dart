@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'PairingPage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
+
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
@@ -48,6 +53,33 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePage extends State<ProfilePage> {
   int _counter = 0;
+  static const platform = const MethodChannel('edu.uf.karoo_collab');
+
+  String _batteryLevel = 'Unknown battery level';
+  double _indicatorWidth=0;
+
+  Future<void> _getBatteryLevel() async {
+    print("got in");
+    String batteryLevel;
+
+    int percentageBattery=0;
+    try {
+      final int result = await platform.invokeMethod('getBatteryLevel');
+      print(result);
+      batteryLevel = ' $result % ';
+      percentageBattery=result;
+
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+
+    setState(() {
+      _batteryLevel = batteryLevel;
+      _indicatorWidth=(percentageBattery)*1.9;
+
+
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -105,10 +137,8 @@ class _ProfilePage extends State<ProfilePage> {
         SizedBox(width: 100),
         ElevatedButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => _buildPopupDialog(context),
-            );
+           _getBatteryLevel();
+           print("pressed");
           },
           child: Icon(Icons.play_arrow),
           style: ElevatedButton.styleFrom(
