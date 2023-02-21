@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:karoo_collab/rounded_button.dart';
 import 'BluetoothDeviceListEntry.dart';
 import 'BluetoothManager.dart';
 
