@@ -60,16 +60,16 @@ class _PairingPage extends State<PairingPage> {
   Stream<BluetoothDiscoveryResult>? discoveryStream;
   StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
 
-  @override
-  void initState() {
-    super.initState();
-
-    startBluetoothServer();
-    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-      print('got data from a connection: $dataMap');
-    });
-    //startScan();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   startBluetoothServer();
+  //   BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+  //     print('got data from a connection: $dataMap');`
+  //   });
+  //   //startScan();
+  // }
 
   //make the device discoverable and also
   //listen for bluetooth serial connections
@@ -142,6 +142,18 @@ class _PairingPage extends State<PairingPage> {
       body: ListView(
           children: <Widget>[
             TextButton.icon(
+              onPressed: startBluetoothServer,
+
+              icon: const Icon(
+                Icons.bluetooth,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Start Server"),
+                      trailing: Icon(Icons.smoke_free))),
+            ),
+            TextButton.icon(
               onPressed: startScan,
               icon: const Icon(
                 Icons.bluetooth,
@@ -152,6 +164,7 @@ class _PairingPage extends State<PairingPage> {
                       title: Text("Start Scan"),
                       trailing: Icon(Icons.smoke_free))),
             ),
+
             ...devices
           ]
       ),
