@@ -103,6 +103,7 @@ class BluetoothManager {
   Future<bool> listenForConnections(String sdpName, int timeout) async {
     try {
       // Connect the device
+      
       BluetoothConnection connection =
       await BluetoothConnection.listenForConnections(sdpName, timeout);
       _connections[lastConnectionId] = connection;

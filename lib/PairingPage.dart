@@ -60,16 +60,16 @@ class _PairingPage extends State<PairingPage> {
   Stream<BluetoothDiscoveryResult>? discoveryStream;
   StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   startBluetoothServer();
-  //   BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-  //     print('got data from a connection: $dataMap');`
-  //   });
-  //   //startScan();
-  // }
+  @override
+  void initState() {
+    super.initState();
+  
+    startBluetoothServer();
+    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+      print('got data from a connection: $dataMap');
+    });
+    //startScan();
+  }
 
   //make the device discoverable and also
   //listen for bluetooth serial connections
@@ -80,8 +80,8 @@ class _PairingPage extends State<PairingPage> {
       print("was not able to make device discoverable");
       return;
     }
-
-    await BluetoothManager.instance.listenForConnections("peer-cycle", 120);
+  
+    print(await BluetoothManager.instance.listenForConnections("peer-cycle", 120000));
   }
 
   //starts scanning for other nearby bluetooth devices
@@ -104,6 +104,7 @@ class _PairingPage extends State<PairingPage> {
           rssi: event.rssi,
           onTap: () {
             BluetoothManager.instance.connectToDevice(event.device);
+            
           },
         );
         if(deviceName.contains("Karoo")) {
