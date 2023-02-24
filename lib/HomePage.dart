@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ConnectionsPage.dart';
-import 'PartnerData.dart';
+import 'RiderData.dart';
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
