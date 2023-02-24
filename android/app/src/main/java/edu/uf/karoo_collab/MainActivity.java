@@ -91,8 +91,8 @@ public class MainActivity extends FlutterActivity {
     {
         return partnerHR;
     }
-    private void setPartnerPower(double hr) {
-        partnerPower = hr;
+    private void setPartnerPower(double power) {
+        partnerPower = power;
     }
     public static double getPartnerPower()
     {
