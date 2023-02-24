@@ -19,7 +19,12 @@ import android.os.Build.VERSION_CODES;
 
 public class MainActivity extends FlutterActivity {
     private static final String CHANNEL = "edu.uf.karoo_collab";
-    private static int pHR;
+
+    private static double myHR = 0;
+    private static double myPower = 0;
+
+    private static double partnerHR = 0;
+    private static double partnerPower = 0;
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -28,38 +33,71 @@ public class MainActivity extends FlutterActivity {
                 .setMethodCallHandler(
                         (call, result) -> {
                             if (call.method.equals("getBatteryLevel")) {
-                                int batteryLevel = getBatteryLevel(call.argument("HR"));
+                                int batteryLevel = getBatteryLevel();
 
                                 if (batteryLevel != -1) {
                                     result.success(batteryLevel);
                                 } else {
                                     result.error("UNAVAILABLE", "Battery level not available.", null);
                                 }
+                            } else if (call.method.equals("setPartnerHR")){
+                                setPartnerHR(call.argument("hr"));
+                                result.success(null);
+                            } else if (call.method.equals("setPartnerPower")){
+                                setPartnerPower(call.argument("power"));
+                                result.success(null);
+                            } else if (call.method.equals("getMyHR")){
+                                double hr = getMyHR();
+                                result.success(hr);
+                            } else if (call.method.equals("getMyPower")){
+                                double hr = getMyHR();
+                                result.success(hr);
                             } else {
                                 result.notImplemented();
                             }
                         }
                 );
     }
-    private int getBatteryLevel(int HR) {
-        pHR = HR;
-        System.out.println(HR);
+    private int getBatteryLevel() {
         int batteryLevel = -1;
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            BatteryManager batteryManager = (BatteryManager) getSystemService(BATTERY_SERVICE);
-            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        } else {
-            Intent intent = new ContextWrapper(getApplicationContext()).
-                    registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-            batteryLevel = (intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100) /
-                    intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        }
 
-        return HR;
+        // this assumes we are >= Android Lollipop (5.0)
+        BatteryManager batteryManager = (BatteryManager) getSystemService(BATTERY_SERVICE);
+        batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+
+        return batteryLevel;
     }
-    public static int getHR()
+
+    public static void setMyHR(double hr) {
+        myHR = hr;
+    }
+
+    public static double getMyHR() {
+        return myHR;
+    }
+
+    public static void setMyPower(double power) {
+        myPower = power;
+    }
+
+    public static double getMyPower() {
+        return myPower;
+    }
+
+    private void setPartnerHR(double hr) {
+        partnerHR = hr;
+    }
+    public static double getPartnerHR()
     {
-        System.out.println(pHR);
-        return pHR;
+        return partnerHR;
     }
+    private void setPartnerPower(double hr) {
+        partnerPower = hr;
+    }
+    public static double getPartnerPower()
+    {
+        return partnerPower;
+    }
+
+
 }

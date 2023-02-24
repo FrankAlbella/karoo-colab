@@ -17,8 +17,8 @@ public class PartnerHeartRateTransformer extends SdkTransformer {
 
     @Override
     public double onDependencyChange(long l, @NonNull Map<Dependency, Double> map) {
-   
-        return MainActivity.getHR();
-        //return Math.random() * (200 - 70 + 1) + 70;
+        Double myHR = map.get(Dependency.HEART_RATE);
+        MainActivity.setMyPower(myHR);
+        return MainActivity.getPartnerHR();
     }
 }

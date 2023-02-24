@@ -67,7 +67,7 @@ class _ProfilePage extends State<ProfilePage> {
   static const platform = const MethodChannel('edu.uf.karoo_collab');
 
   String _batteryLevel = 'Unknown battery level';
-  double _indicatorWidth=0;
+  double _indicatorWidth = 0;
 
   Future<void> _getBatteryLevel() async {
     print("got in");
@@ -87,8 +87,6 @@ class _ProfilePage extends State<ProfilePage> {
     setState(() {
       _batteryLevel = batteryLevel;
       _indicatorWidth=(percentageBattery)*1.9;
-
-
     });
   }
 
