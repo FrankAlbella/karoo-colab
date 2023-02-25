@@ -130,24 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       title: Text("Alerts"),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
-            TextButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                      const PartnerData(title: 'Data Test Updated Edition')),
-                );
-              },
-              icon: Icon(
-                Icons.people,
-              ),
-              label: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: ListTile(
-                      title: Text("Data Test Updated Edition"),
-                      trailing: Icon(Icons.keyboard_arrow_right))),
-            ),
           ],
         ),
       ),
