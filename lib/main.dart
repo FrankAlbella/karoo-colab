@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'HomePage.dart';
@@ -28,8 +29,28 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.grey,
       ),
-      home: const MyHomePage(title: 'Karoo Collab Demo'),
+      home: const KarooScreen(),
     );
+  }
+}
+
+class KarooScreen extends StatelessWidget {
+  const KarooScreen({super.key});
+
+  final platform = const MethodChannel('edu.uf.karoo_collab');
+
+  @override
+  Widget build(BuildContext context){
+    return WillPopScope(
+        onWillPop: () async {
+          if(Navigator.of(context).canPop()) {
+            return true;
+          } else {
+            platform.invokeMethod("sendToBackground");
+            return false;
+          }
+    },
+        child: const MyHomePage(title: 'Karoo Collab'));
   }
 }
 
