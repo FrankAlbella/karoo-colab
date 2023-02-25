@@ -2,6 +2,7 @@ package edu.uf.karoo_collab.module;
 
 import androidx.annotation.NonNull;
 
+import edu.uf.karoo_collab.module.battery.BatteryDataType;
 import edu.uf.karoo_collab.module.pheartrate.PartnerHeartRateDataType;
 
 import java.util.Arrays;
@@ -41,7 +42,8 @@ public class TestModule extends Module {
     @Override
     protected List<SdkDataType> provideDataTypes() {
         return Arrays.asList(
-                new PartnerHeartRateDataType(getContext())
+                new PartnerHeartRateDataType(getContext()),
+                new BatteryDataType(getContext())
         );
     }
 }
