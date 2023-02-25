@@ -5,6 +5,7 @@ import io.flutter.embedding.android.FlutterActivity;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
@@ -28,8 +29,12 @@ public class MainActivity extends FlutterActivity {
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        super.configureFlutterEngine(flutterEngine);
         GeneratedPluginRegistrant.registerWith(flutterEngine);
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+
+        BinaryMessenger binaryMessenger = flutterEngine.getDartExecutor().getBinaryMessenger();
+
+        new MethodChannel(binaryMessenger, CHANNEL)
                 .setMethodCallHandler(
                         (call, result) -> {
                             if (call.method.equals("getBatteryLevel")) {
@@ -49,16 +54,19 @@ public class MainActivity extends FlutterActivity {
                             } else if (call.method.equals("getMyHR")){
                                 double hr = getMyHR();
                                 result.success(hr);
-                            } else if (call.method.equals("getMyPower")){
+                            } else if (call.method.equals("getMyPower")) {
                                 double hr = getMyHR();
                                 result.success(hr);
+                            } else if (call.method.equals("sendToBackground")) {
+                                moveTaskToBack(true);
+                                result.success(null);
                             } else {
                                 result.notImplemented();
                             }
                         }
                 );
     }
-    private int getBatteryLevel() {
+    public int getBatteryLevel() {
         int batteryLevel = -1;
 
         // this assumes we are >= Android Lollipop (5.0)
