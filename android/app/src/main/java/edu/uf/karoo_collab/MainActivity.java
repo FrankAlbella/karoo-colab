@@ -21,12 +21,6 @@ import android.os.Build.VERSION_CODES;
 public class MainActivity extends FlutterActivity {
     private static final String CHANNEL = "edu.uf.karoo_collab";
 
-    private static double myHR = 0;
-    private static double myPower = 0;
-
-    private static double partnerHR = 0;
-    private static double partnerPower = 0;
-
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
@@ -77,34 +71,36 @@ public class MainActivity extends FlutterActivity {
     }
 
     public static void setMyHR(double hr) {
-        myHR = hr;
+        RiderStats.setMyHR(hr);
     }
 
     public static double getMyHR() {
-        return myHR;
+        //System.out.println("myHR got as: " + myHR);
+        return RiderStats.getMyHR();
     }
 
     public static void setMyPower(double power) {
-        myPower = power;
+        RiderStats.setMyPower(power);
     }
 
     public static double getMyPower() {
-        return myPower;
+        return RiderStats.getMyPower();
     }
 
     private void setPartnerHR(double hr) {
-        partnerHR = hr;
+        RiderStats.setPartnerHR(hr);
+        //System.out.println("partnerHR is set to: " + partnerHR);
     }
     public static double getPartnerHR()
     {
-        return partnerHR;
+        return RiderStats.getPartnerHR();
     }
     private void setPartnerPower(double power) {
-        partnerPower = power;
+        RiderStats.setPartnerPower(power);
     }
     public static double getPartnerPower()
     {
-        return partnerPower;
+        return RiderStats.getPartnerPower();
     }
 
 
