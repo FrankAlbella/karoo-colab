@@ -1,6 +1,6 @@
 package edu.uf.karoo_collab.module.pheartrate;
 
-import edu.uf.karoo_collab.MainActivity;
+import edu.uf.karoo_collab.RiderStats;
 
 import androidx.annotation.NonNull;
 
@@ -18,7 +18,17 @@ public class PartnerHeartRateTransformer extends SdkTransformer {
     @Override
     public double onDependencyChange(long l, @NonNull Map<Dependency, Double> map) {
         Double myHR = map.get(Dependency.HEART_RATE);
-        MainActivity.setMyPower(myHR);
-        return MainActivity.getPartnerHR();
+
+        if(!(myHR == null || myHR == MISSING_VALUE))
+           RiderStats.setMyHR(myHR);
+
+        Double partnerHR = RiderStats.getPartnerHR();
+
+        // System.out.println("Transformer: Dependency.HEART_RATE = " + myHR);
+        // System.out.println("Transformer: MainActivity.getPartnerHR() = " + partnerHR);
+
+        Double preset = 105.0;
+
+        return partnerHR;
     }
 }
