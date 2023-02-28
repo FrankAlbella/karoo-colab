@@ -97,7 +97,7 @@ class _PairingPage extends State<PairingPage> {
             partnerHR = double.parse(map[key] ?? "-1");
             try {
               platform.invokeListMethod('setPartnerHR', {"hr": partnerHR});
-              Logger.root.info('Partner HR set to $partnerHR');
+              //Logger.root.info('Partner HR set to $partnerHR');
             } on PlatformException catch (e) {
               Logger.root.severe('Failed to set partner HR: $e');
             }
@@ -106,7 +106,7 @@ class _PairingPage extends State<PairingPage> {
             partnerPower = double.parse(map[key] ?? "-1");
             try {
               platform.invokeListMethod('setPartnerPower', {"power": partnerPower});
-              Logger.root.info('Partner power set to $partnerPower');
+              //Logger.root.info('Partner power set to $partnerPower');
             } on PlatformException catch (e) {
               Logger.root.severe('Failed to set partner power: $e');
             }
@@ -115,7 +115,7 @@ class _PairingPage extends State<PairingPage> {
             partnerSpeed = double.parse(map[key] ?? "-1");
             try {
               platform.invokeListMethod('setPartnerSpeed', {"speed": partnerSpeed});
-              Logger.root.info('Partner power set to $partnerSpeed');
+              //Logger.root.info('Partner power set to $partnerSpeed');
             } on PlatformException catch (e) {
               Logger.root.severe('Failed to set partner speed: $e');
             }
@@ -219,7 +219,7 @@ class _PairingPage extends State<PairingPage> {
   void sayHi() async {
     final int randomNum = random.nextInt(100);
     String dataStr = "randomNum:$randomNum";
-    print("Broadcasting data: $dataStr");
+    //print("Broadcasting data: $dataStr");
     BluetoothManager.instance.broadcastString(dataStr);
   }
 
