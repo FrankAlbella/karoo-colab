@@ -75,7 +75,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     public static double getMyHR() {
-        //System.out.println("myHR got as: " + myHR);
+        System.out.println("mainactivity hr got as: " + RiderStats.getMyHR());
         return RiderStats.getMyHR();
     }
 

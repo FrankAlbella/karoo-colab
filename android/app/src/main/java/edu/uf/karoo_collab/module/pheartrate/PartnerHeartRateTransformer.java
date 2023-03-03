@@ -19,16 +19,16 @@ public class PartnerHeartRateTransformer extends SdkTransformer {
     public double onDependencyChange(long l, @NonNull Map<Dependency, Double> map) {
         Double myHR = map.get(Dependency.HEART_RATE);
 
-        if(!(myHR == null || myHR == MISSING_VALUE))
-           RiderStats.setMyHR(myHR);
+        //if(!(myHR == null || myHR == MISSING_VALUE))
+           //RiderStats.setMyHR(myHR);
 
-        Double partnerHR = RiderStats.getPartnerHR();
+        // Double partnerHR = RiderStats.getPartnerHR();
 
         // System.out.println("Transformer: Dependency.HEART_RATE = " + myHR);
         // System.out.println("Transformer: MainActivity.getPartnerHR() = " + partnerHR);
 
         Double preset = 105.0;
 
-        return partnerHR;
+        return RiderStats.getMyHR()+10;
     }
 }

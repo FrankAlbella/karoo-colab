@@ -2,7 +2,11 @@ package edu.uf.karoo_collab.module.pheartrate;
 
 import androidx.annotation.NonNull;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.hammerhead.sdk.v0.SdkContext;
+import io.hammerhead.sdk.v0.datatype.Dependency;
 import io.hammerhead.sdk.v0.datatype.SdkDataType;
 import io.hammerhead.sdk.v0.datatype.formatter.BuiltInFormatter;
 import io.hammerhead.sdk.v0.datatype.formatter.SdkFormatter;
@@ -31,6 +35,12 @@ public class PartnerHeartRateDataType extends SdkDataType {
     @Override
     public String getTypeId() {
         return "partner-hr";
+    }
+
+    @NonNull
+    @Override
+    public List<Dependency> getDependencies() {
+        return Arrays.asList(Dependency.HEART_RATE);
     }
 
     @NonNull

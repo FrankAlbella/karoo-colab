@@ -2,19 +2,20 @@ package edu.uf.karoo_collab;
 
 public class RiderStats {
 
-    private static double myHR = 11.0;
+    private static double myHR = 12.0;
     private static double myPower = 0.0;
 
     private static double partnerHR = 205.0;
     private static double partnerPower = 0.0;
 
     public static void setMyHR(double hr) {
-        //System.out.println("setMyHR: myHR is set to: " + myHR);
+       
         myHR = hr;
+        System.out.println("setMyHR: myHR is set to: " + myHR);
     }
 
     public static double getMyHR() {
-        //System.out.println("myHR got as: " + myHR);
+        System.out.println("myHR got as: " + myHR);
         return myHR;
     }
 
