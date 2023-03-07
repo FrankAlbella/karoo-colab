@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'BluetoothManager.dart';
-import 'SensorsPage.dart';
 import 'PairingPage.dart';
 import 'monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,8 +10,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'ble_sensor_device.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-
-Random random = Random();
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
@@ -41,8 +38,8 @@ Widget _buildPopupDialog(BuildContext context) {
   );
 }
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key, required this.title});
+class SensorsPage extends StatefulWidget {
+  const SensorsPage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -56,13 +53,19 @@ class ProfilePage extends StatefulWidget {
   final String title;
 
   @override
-  State<ProfilePage> createState() => _ProfilePage();
+  State<SensorsPage> createState() => _SensorsPage();
 }
 
-class _ProfilePage extends State<ProfilePage> {
+class _SensorsPage extends State<SensorsPage> {
+  final flutterReactiveBle = FlutterReactiveBle();
+  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
+  late double dialogWidth = MediaQuery.of(context).size.width * 0.9;
+  late double dialogHeight = MediaQuery.of(context).size.height * .60;
+  final LayerLink layerLink = LayerLink();
+  late OverlayEntry overlayEntry;
+  late Offset dialogOffset;
 
   int _counter = 0;
-
 
   void _incrementCounter() {
     setState(() {
@@ -90,39 +93,19 @@ class _ProfilePage extends State<ProfilePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                        const PairingPage(title: 'Pairing with Partner')),
-                  );
-                },
-                icon: Icon(
-                  Icons.bluetooth,
-                ),
-                label: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: ListTile(
-                        title: Text("Pair with Partner"),
-                        trailing: Icon(Icons.keyboard_arrow_right)))),
-            TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                        const SensorsPage(title: 'Sensors')),
-                  );
-                },
-                icon: Icon(
-                  Icons.bluetooth,
-                ),
-                label: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: ListTile(
-                        title: Text("Sensors"),
-                        trailing: Icon(Icons.keyboard_arrow_right)))),
+              onPressed: () {
+                showConnectMonitorsDialog();
+              },
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Sensors"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+
           ],
         ),
       ),
@@ -138,5 +121,35 @@ class _ProfilePage extends State<ProfilePage> {
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
+  }
+
+  void showConnectMonitorsDialog() {
+    overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Stack(
+            children: <Widget>[
+              Positioned(
+                width: dialogWidth,
+                height: dialogHeight,
+                top: 0.0,
+                left: 0.0,
+                child: MonitorConnect(
+                    flutterReactiveBle: flutterReactiveBle,
+                    callback: (deviceList)=> setState(() {
+                      connectedDevices = deviceList;
+                    }),
+                    connectedDevices: connectedDevices,
+                    offset: dialogOffset,
+                    link: layerLink,
+                    dialogWidth: dialogWidth,
+                    dialogHeight: dialogHeight,
+                    overlayEntry: overlayEntry
+                ),
+              )
+            ]
+        );
+      },
+    );
+    Overlay.of(context)?.insert(overlayEntry);
   }
 }
