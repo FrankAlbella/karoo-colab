@@ -215,14 +215,6 @@ class _PairingPage extends State<PairingPage> {
     });
   }
 
-  //sends a randomly generated number to all currently connected devices
-  void sayHi() async {
-    final int randomNum = random.nextInt(100);
-    String dataStr = "randomNum:$randomNum";
-    //print("Broadcasting data: $dataStr");
-    BluetoothManager.instance.broadcastString(dataStr);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

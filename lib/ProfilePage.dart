@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'BluetoothManager.dart';
-import 'SensorsPage.dart';
 import 'PairingPage.dart';
 import 'monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +12,13 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 Random random = Random();
+
+void sayHi() async {
+  final int randomNum = random.nextInt(100);
+  String dataStr = "randomNum:$randomNum";
+  print("Broadcasting data: $dataStr");
+  BluetoothManager.instance.broadcastString(dataStr);
+}
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
@@ -60,9 +66,40 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePage extends State<ProfilePage> {
+  final flutterReactiveBle = FlutterReactiveBle();
+  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
+  late double dialogWidth = MediaQuery.of(context).size.width * 1;
+  late double dialogHeight = MediaQuery.of(context).size.height * 1;
+  final LayerLink layerLink = LayerLink();
+  late OverlayEntry overlayEntry;
+  late Offset dialogOffset;
 
   int _counter = 0;
+  static const platform = const MethodChannel('edu.uf.karoo_collab');
 
+  String _batteryLevel = 'Unknown battery level';
+  double _indicatorWidth = 0;
+
+  Future<void> _getBatteryLevel() async {
+    print("got in");
+    String batteryLevel;
+
+    int percentageBattery=0;
+    try {
+      final int result = await platform.invokeMethod('getBatteryLevel', {"HR": 69});
+      print(result);
+      batteryLevel = ' $result % ';
+      percentageBattery=result;
+
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+
+    setState(() {
+      _batteryLevel = batteryLevel;
+      _indicatorWidth=(percentageBattery)*1.9;
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -106,23 +143,32 @@ class _ProfilePage extends State<ProfilePage> {
                     child: ListTile(
                         title: Text("Pair with Partner"),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
+
             TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                        const SensorsPage(title: 'Sensors')),
-                  );
-                },
-                icon: Icon(
-                  Icons.bluetooth,
-                ),
-                label: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: ListTile(
-                        title: Text("Sensors"),
-                        trailing: Icon(Icons.keyboard_arrow_right)))),
+              onPressed: sayHi,
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Say Hi"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                showConnectMonitorsDialog();
+              },
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Sensors"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+
           ],
         ),
       ),
@@ -135,8 +181,64 @@ class _ProfilePage extends State<ProfilePage> {
           alignment: Alignment.bottomLeft,
         ),
         SizedBox(width: 100),
+        ElevatedButton(
+          onPressed: () {
+            _getBatteryLevel();
+            print("pressed");
+          },
+          child: Icon(Icons.play_arrow),
+          style: ElevatedButton.styleFrom(
+            fixedSize: const Size(50, 50),
+            shape: const CircleBorder(),
+            backgroundColor: Colors.yellow,
+          ),
+        )
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
+
+  void showConnectMonitorsDialog() {
+    dialogOffset = Offset(dialogWidth * 0, dialogHeight * 0);
+    overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                  child: GestureDetector(
+                    onTap: dismissMenu,
+                    child: Container(
+                      color: Colors.transparent,
+                    ),
+                  )
+              ),
+              Positioned(
+                width: dialogWidth,
+                height: dialogHeight,
+                top: 0.0,
+                left: 0.0,
+                child: MonitorConnect(
+                    flutterReactiveBle: flutterReactiveBle,
+                    callback: (deviceList)=> setState(() {
+                      connectedDevices = deviceList;
+                    }),
+                    connectedDevices: connectedDevices,
+                    offset: dialogOffset,
+                    link: layerLink,
+                    dialogWidth: dialogWidth,
+                    dialogHeight: dialogHeight,
+                    overlayEntry: overlayEntry
+                ),
+              )
+            ]
+        );
+      },
+    );
+    Overlay.of(context)?.insert(overlayEntry);
+  }
+  void dismissMenu() {
+    overlayEntry.remove();
+  }
+
+
 }

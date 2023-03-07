@@ -85,135 +85,135 @@ class _MonitorConnectState extends State<MonitorConnect> {
   @override
   Widget build(BuildContext context) {
     return CompositedTransformFollower(
-      offset: widget.offset,
-      link: widget.link,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45.0)),
-        color: Colors.black,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-      SizedBox(
-        width: widget.dialogWidth * 0.9,
-        // height: widget.dialogHeight * 0.75,
-        child:
-        Column(
-          children: [
-            SizedBox(height: widget.dialogWidth * .12,),  // Margin for ListView
-            Flexible(
-              child: ListView(
+        offset: widget.offset,
+        link: widget.link,
+        child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+            color: Colors.black,
+            child: Stack(
+                alignment: Alignment.topCenter,
                 children: [
-                  ...devices
-                      .map(
-                        (device) => ListTile(
-                      title: Text(device.name,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1.7,
-                              color: Colors.white
-                          )),
-                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}",
-                           style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1.7,
-                              color: Colors.white
-                          )),
-                      leading: const Icon(Icons.bluetooth, color: Colors.white,),
-                      tileColor: !isConnected(device.id) ?
-                          Colors.white10 : Colors.green,
-                      // minVerticalPadding: widget.dialogWidth * .03,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45.0)),
-                      onTap: () async {
-                        //connect
-                        BleSensorDevice connectedSensor;
-                        if (!isConnected(device.id)) {
-                          _connection = flutterReactiveBle.connectToDevice(
-                            id: device.id,
-                            servicesWithCharacteristicsToDiscover: {
-                              HEART_RATE_SERVICE_UUID: [HEART_RATE_CHARACTERISTIC],
-                              CYCLING_POWER_SERVICE_UUID: [CYCLING_POWER_CHARACTERISTIC],
-                            },
-                          ).listen((update) {
-                            debugPrint('Connection state update: ${update
-                                .connectionState}');
-                          });
+                  SizedBox(
+                    width: widget.dialogWidth * 0.9,
+                    // height: widget.dialogHeight * 0.75,
+                    child:
+                    Column(
+                      children: [
+                        SizedBox(height: widget.dialogWidth * .12,),  // Margin for ListView
+                        Flexible(
+                          child: ListView(
+                            children: [
+                              ...devices
+                                  .map(
+                                    (device) => ListTile(
+                                  title: Text(device.name,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.7,
+                                          color: Colors.white
+                                      )),
+                                  subtitle: Text("${device.id}\nRSSI: ${device.rssi}",
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.7,
+                                          color: Colors.white
+                                      )),
+                                  leading: const Icon(Icons.bluetooth, color: Colors.white,),
+                                  tileColor: !isConnected(device.id) ?
+                                  Colors.white10 : Colors.green,
+                                  // minVerticalPadding: widget.dialogWidth * .03,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                                  onTap: () async {
+                                    //connect
+                                    BleSensorDevice connectedSensor;
+                                    if (!isConnected(device.id)) {
+                                      _connection = flutterReactiveBle.connectToDevice(
+                                        id: device.id,
+                                        servicesWithCharacteristicsToDiscover: {
+                                          HEART_RATE_SERVICE_UUID: [HEART_RATE_CHARACTERISTIC],
+                                          CYCLING_POWER_SERVICE_UUID: [CYCLING_POWER_CHARACTERISTIC],
+                                        },
+                                      ).listen((update) {
+                                        debugPrint('Connection state update: ${update
+                                            .connectionState}');
+                                      });
 
-                          if (device.serviceUuids.any((service) => service == HEART_RATE_SERVICE_UUID)) {
-                            connectedSensor = BleSensorDevice(
-                              type: 'HR',
-                              flutterReactiveBle: flutterReactiveBle,
-                              deviceId: device.id,
-                              serviceId: HEART_RATE_SERVICE_UUID,
-                              characteristicId: HEART_RATE_CHARACTERISTIC,
-                            );
-                          }
-                          else {
-                            connectedSensor = BleSensorDevice(
-                              type: 'POWER',
-                              flutterReactiveBle: flutterReactiveBle,
-                              deviceId: device.id,
-                              serviceId: CYCLING_POWER_SERVICE_UUID,
-                              characteristicId: CYCLING_POWER_CHARACTERISTIC,
-                            );
-                          }
-                          widget.connectedDevices.add(connectedSensor);
-                        }
-                        else {
-                          _connection.cancel();
-                          widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
-                        }
-                        setState(() {
-                          _colorTile = _colorTile == Colors.white ? Colors.green : Colors.white;
-                        });
-                        widget.callback(widget.connectedDevices);
-                      },
+                                      if (device.serviceUuids.any((service) => service == HEART_RATE_SERVICE_UUID)) {
+                                        connectedSensor = BleSensorDevice(
+                                          type: 'HR',
+                                          flutterReactiveBle: flutterReactiveBle,
+                                          deviceId: device.id,
+                                          serviceId: HEART_RATE_SERVICE_UUID,
+                                          characteristicId: HEART_RATE_CHARACTERISTIC,
+                                        );
+                                      }
+                                      else {
+                                        connectedSensor = BleSensorDevice(
+                                          type: 'POWER',
+                                          flutterReactiveBle: flutterReactiveBle,
+                                          deviceId: device.id,
+                                          serviceId: CYCLING_POWER_SERVICE_UUID,
+                                          characteristicId: CYCLING_POWER_CHARACTERISTIC,
+                                        );
+                                      }
+                                      widget.connectedDevices.add(connectedSensor);
+                                    }
+                                    else {
+                                      _connection.cancel();
+                                      widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
+                                    }
+                                    setState(() {
+                                      _colorTile = _colorTile == Colors.white ? Colors.green : Colors.white;
+                                    });
+                                    widget.callback(widget.connectedDevices);
+                                  },
+                                ),
+                              )
+                                  .toList(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: widget.dialogHeight * 0.15,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                            width: widget.dialogWidth * .12,
+                            height: widget.dialogWidth * .12,
+                            top: widget.dialogWidth * .05,
+                            right: widget.dialogWidth * .05,
+                            child: FloatingActionButton(
+                                mini: true,
+                                backgroundColor: Colors.red,
+                                onPressed: () {
+                                  widget.overlayEntry.remove();
+                                },
+                                child: Icon(Icons.clear_rounded, size: widget.dialogWidth * .11)
+                            )),
+                        Positioned(
+                          top: widget.dialogWidth * .05,
+                          left: widget.dialogWidth * .15,
+                          child: Text('Discovered Devices:',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.7,
+                                  color: Colors.white
+                              )
+                          ),
+                        )
+                      ],
                     ),
                   )
-                      .toList(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-          Container(
-            height: widget.dialogHeight * 0.15,
-            child: Stack(
-              children: [
-                Positioned(
-                    width: widget.dialogWidth * .12,
-                    height: widget.dialogWidth * .12,
-                    top: widget.dialogWidth * .05,
-                    right: widget.dialogWidth * .05,
-                    child: FloatingActionButton(
-                        mini: true,
-                        backgroundColor: Colors.red,
-                        onPressed: () {
-                          widget.overlayEntry.remove();
-                        },
-                        child: Icon(Icons.clear_rounded, size: widget.dialogWidth * .11)
-                    )),
-                Positioned(
-                  top: widget.dialogWidth * .05,
-                  left: widget.dialogWidth * .15,
-                  child: Text('Discovered Devices:',
-                      textAlign: TextAlign.center,
-                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          height: 1.7,
-                          color: Colors.white
-                      )
-                  ),
-                )
-              ],
-            ),
-          )
 
-        ])
-    ));
+                ])
+        ));
   }
 
   @override
