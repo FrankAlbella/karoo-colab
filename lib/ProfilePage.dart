@@ -2,11 +2,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'BluetoothManager.dart';
 import 'PairingPage.dart';
+import 'monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'ble_sensor_device.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-
 
 Random random = Random();
 
@@ -63,6 +66,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePage extends State<ProfilePage> {
+  final flutterReactiveBle = FlutterReactiveBle();
+  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
+  late double dialogWidth = MediaQuery.of(context).size.width * 0.9;
+  late double dialogHeight = MediaQuery.of(context).size.height * .60;
+  final LayerLink layerLink = LayerLink();
+  late OverlayEntry overlayEntry;
+  late Offset dialogOffset;
+
   int _counter = 0;
   static const platform = const MethodChannel('edu.uf.karoo_collab');
 
@@ -144,6 +155,19 @@ class _ProfilePage extends State<ProfilePage> {
                       title: Text("Say Hi"),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
+            TextButton.icon(
+              onPressed: () {
+                showConnectMonitorsDialog();
+              },
+              icon: Icon(
+                Icons.people,
+              ),
+              label: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: ListTile(
+                      title: Text("Sensors"),
+                      trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
 
           ],
         ),
@@ -173,4 +197,48 @@ class _ProfilePage extends State<ProfilePage> {
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
+
+   void showConnectMonitorsDialog() {
+    dialogOffset = Offset(dialogWidth * .06, dialogHeight * .12);
+    overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Stack(
+          children: <Widget>[
+            Positioned.fill(
+                child: GestureDetector(
+                onTap: dismissMenu,
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              )
+            ),
+            Positioned(
+              width: dialogWidth,
+              height: dialogHeight,
+              top: 0.0,
+              left: 0.0,
+              child: MonitorConnect(
+                  flutterReactiveBle: flutterReactiveBle,
+                  callback: (deviceList)=> setState(() {
+                    connectedDevices = deviceList;
+                  }),
+                  connectedDevices: connectedDevices,
+                  offset: dialogOffset,
+                  link: layerLink,
+                  dialogWidth: dialogWidth,
+                  dialogHeight: dialogHeight,
+                  overlayEntry: overlayEntry
+              ),
+            )
+          ]
+        );
+      },
+    );
+    Overlay.of(context)?.insert(overlayEntry);
+  }
+  void dismissMenu() {
+    overlayEntry.remove();
+  }
+
+
 }

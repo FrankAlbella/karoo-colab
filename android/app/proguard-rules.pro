@@ -21,3 +21,4 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.example.karootest.module.TestModule.** { *; }
+-keep class com.signify.hue.** { *; }
