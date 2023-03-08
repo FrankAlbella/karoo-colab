@@ -6,11 +6,11 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
 import 'package:karoo_collab/BluetoothProvider.dart';
 import 'package:logging/logging.dart';
-import 'ActiveRun.dart';
-import 'BluetoothDeviceListEntry.dart';
-import 'BluetoothManager.dart';
-import 'RiderData.dart';
-import 'ble_sensor_device.dart';
+import 'workout_page.dart';
+import '../BluetoothDeviceListEntry.dart';
+import '../BluetoothManager.dart';
+import '../RiderData.dart';
+import '../ble_sensor_device.dart';
 
 class JoinPage extends StatefulWidget {
   const JoinPage({super.key, required this.title});
@@ -182,7 +182,7 @@ class _JoinPage extends State<JoinPage> {
   Route _createRoute(FlutterReactiveBle ble,
       List<BleSensorDevice>? connectedDevices, String type) {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => ActiveRun(
+      pageBuilder: (context, animation, secondaryAnimation) => WorkoutPage(
           flutterReactiveBle: ble,
           deviceList: connectedDevices,
           title: "Active Run"),

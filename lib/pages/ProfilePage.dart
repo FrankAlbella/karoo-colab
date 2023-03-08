@@ -1,14 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:karoo_collab/ActiveRun.dart';
-import 'BluetoothManager.dart';
+import 'package:karoo_collab/pages/workout_page.dart';
+import '../BluetoothManager.dart';
 import 'PairingPage.dart';
-import 'monitor_sensor.dart';
+import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'ble_sensor_device.dart';
+import '../ble_sensor_device.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 
@@ -239,7 +239,7 @@ class _ProfilePage extends State<ProfilePage> {
   Route _createRoute(FlutterReactiveBle ble,
     List<BleSensorDevice>? connectedDevices, String type) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => ActiveRun(
+    pageBuilder: (context, animation, secondaryAnimation) => WorkoutPage(
         flutterReactiveBle: ble,
         deviceList: connectedDevices,
         title: "Active Run"),

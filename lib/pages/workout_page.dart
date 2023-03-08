@@ -5,31 +5,31 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'ble_sensor_device.dart';
+import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:karoo_collab/BluetoothProvider.dart';
 
-import 'BluetoothDeviceListEntry.dart';
-import 'BluetoothManager.dart';
-import 'RiderData.dart';
+import '../BluetoothDeviceListEntry.dart';
+import '../BluetoothManager.dart';
+import '../RiderData.dart';
 
 import 'ProfilePage.dart';
 
-class ActiveRun extends StatefulWidget {
+class WorkoutPage extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
   final List<BleSensorDevice>? deviceList;
   final String title;
-  const ActiveRun({super.key,
+  const WorkoutPage({super.key,
     required this.flutterReactiveBle,
     required this.deviceList,
     required this.title,
   });
 
   @override
-  State<ActiveRun> createState() => _ActiveRun();
+  State<WorkoutPage> createState() => _WorkoutPage();
 }
 
-class _ActiveRun extends State<ActiveRun> {
+class _WorkoutPage extends State<WorkoutPage> {
   //random object for sending random numbers to connections
   Random random = Random();
 

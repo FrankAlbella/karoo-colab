@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:karoo_collab/BluetoothProvider.dart';
 import 'package:logging/logging.dart';
-import 'BluetoothDeviceListEntry.dart';
-import 'BluetoothManager.dart';
-import 'RiderData.dart';
+import '../BluetoothDeviceListEntry.dart';
+import '../BluetoothManager.dart';
+import '../RiderData.dart';
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
