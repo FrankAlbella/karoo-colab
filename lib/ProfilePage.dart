@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:karoo_collab/ActiveRun.dart';
 import 'BluetoothManager.dart';
 import 'PairingPage.dart';
 import 'monitor_sensor.dart';
@@ -66,8 +67,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePage extends State<ProfilePage> {
-  final flutterReactiveBle = FlutterReactiveBle();
-  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
+  // final flutterReactiveBle = FlutterReactiveBle();
+  // List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
   late double dialogWidth = MediaQuery.of(context).size.width * 1;
   late double dialogHeight = MediaQuery.of(context).size.height * 1;
   final LayerLink layerLink = LayerLink();
@@ -183,7 +184,9 @@ class _ProfilePage extends State<ProfilePage> {
         SizedBox(width: 100),
         ElevatedButton(
           onPressed: () {
-            _getBatteryLevel();
+            // _getBatteryLevel();
+            Navigator.of(context).push(_createRoute(
+                          flutterReactiveBle, connectedDevices, ""));
             print("pressed");
           },
           child: Icon(Icons.play_arrow),
@@ -236,9 +239,21 @@ class _ProfilePage extends State<ProfilePage> {
     );
     Overlay.of(context)?.insert(overlayEntry);
   }
+  Route _createRoute(FlutterReactiveBle ble,
+    List<BleSensorDevice>? connectedDevices, String type) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => ActiveRun(
+        flutterReactiveBle: ble,
+        deviceList: connectedDevices,
+        title: "Active Run"),
+  );
+}
   void dismissMenu() {
     overlayEntry.remove();
   }
+  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
+  // Obtain FlutterReactiveBle instance for entire app.
+  final flutterReactiveBle = FlutterReactiveBle();
 
 
 }

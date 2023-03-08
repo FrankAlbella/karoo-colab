@@ -15,7 +15,7 @@ public class RiderStats {
     }
 
     public static double getMyHR() {
-        System.out.println("myHR got as: " + myHR);
+        //System.out.println("myHR got as: " + myHR);
         return myHR;
     }
 

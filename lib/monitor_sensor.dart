@@ -136,6 +136,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                               // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
                               onTap: () async {
+                                debugPrint("tappin");
                                 //connect
                                 BleSensorDevice connectedSensor;
                                 if (!isConnected(device.id)) {
@@ -149,8 +150,11 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
                                   });
-
-                                  if (device.serviceUuids.any((service) => service == HEART_RATE_SERVICE_UUID)) {
+                                  debugPrint("is uid hr? " + (device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())).toString());
+                                  debugPrint("uid? " + device.serviceUuids.toString());
+                                  debugPrint("hr? " + HEART_RATE_SERVICE_UUID.toString());
+                                  if ((device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())) == true) {
+                                    debugPrint("Oh my god please");
                                     connectedSensor = BleSensorDevice(
                                       type: 'HR',
                                       flutterReactiveBle: flutterReactiveBle,

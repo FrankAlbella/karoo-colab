@@ -73,12 +73,10 @@ class _PairingPage extends State<PairingPage> {
   @override
   void initState() {
     super.initState();
-  
     //startBluetoothServer();
-    // BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-    //   print();
-    // });
-    //startScan();
+    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+      print('got data from a connection: $dataMap');
+    });
     startBluetoothListening();
   }
 
