@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:karoo_collab/pages/HomePage.dart';
+import 'package:karoo_collab/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());

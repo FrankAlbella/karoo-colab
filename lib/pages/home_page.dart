@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:karoo_collab/pages/PairingPage.dart';
-import 'ConnectionsPage.dart';
-import 'ProfilePage.dart';
-import 'SensorPage.dart';
+import 'package:karoo_collab/pages/pairing_page.dart';
+import 'connections_page.dart';
+import 'profile_page.dart';
+import 'sensor_page.dart';
 import 'host_page.dart';
 import 'join_page.dart';
 

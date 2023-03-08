@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:karoo_collab/BluetoothProvider.dart';
+import 'package:karoo_collab/bluetooth_provider.dart';
 import 'package:logging/logging.dart';
-import '../BluetoothDeviceListEntry.dart';
-import '../BluetoothManager.dart';
-import '../RiderData.dart';
+import '../bluetooth_device_list_entry.dart';
+import '../bluetooth_manager.dart';
+import '../rider_data.dart';
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(

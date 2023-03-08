@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:karoo_collab/BluetoothProvider.dart';
+import 'package:karoo_collab/bluetooth_provider.dart';
 
-import '../BluetoothDeviceListEntry.dart';
-import '../BluetoothManager.dart';
-import '../RiderData.dart';
+import '../bluetooth_device_list_entry.dart';
+import '../bluetooth_manager.dart';
+import '../rider_data.dart';
 
-import 'ProfilePage.dart';
+import 'profile_page.dart';
 
 class WorkoutPage extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;

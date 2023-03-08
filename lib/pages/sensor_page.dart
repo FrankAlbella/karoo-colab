@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:karoo_collab/pages/workout_page.dart';
-import '../BluetoothManager.dart';
-import 'PairingPage.dart';
+import '../bluetooth_manager.dart';
+import 'pairing_page.dart';
 import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

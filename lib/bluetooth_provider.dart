@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 
-import 'BluetoothManager.dart';
-import 'RiderData.dart';
+import 'bluetooth_manager.dart';
+import 'rider_data.dart';
 
 class BluetoothProvider with ChangeNotifier {
   static const platform = MethodChannel('edu.uf.karoo_collab');
