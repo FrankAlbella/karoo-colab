@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:karoo_collab/PairingPage.dart';
+import 'package:karoo_collab/ProfilePage.dart';
 import 'ConnectionsPage.dart';
 import 'RiderData.dart';
+import 'SensorPage.dart';
+import 'host_page.dart';
+import 'join_page.dart';
 
 Widget _buildPopupDialog(BuildContext context) {
   return AlertDialog(
@@ -102,33 +107,77 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                      const ConnectionsPage(title: 'Connections')),
+                      const HostPage(title: 'Host Workout')),
                 );
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.people,
               ),
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
-                      title: Text("Connections"),
+                      title: Text("Host Workout"),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
             TextButton.icon(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _buildPopupDialog(context),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                      const JoinPage(title: 'Join Workout')),
                 );
               },
-              icon: Icon(
-                Icons.alarm,
+              icon: const Icon(
+                Icons.people,
               ),
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
-                      title: Text("Alerts"),
+                      title: Text("Join Workout"),
                       trailing: Icon(Icons.keyboard_arrow_right))),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const SensorPage(title: "Sensor Pairing")
+                  )
+                );
+              },
+              icon: const Icon(
+                Icons.sensors
+              ),
+              label: const Align(
+                alignment: Alignment.centerLeft,
+                child: ListTile(
+                  title: Text("Sensors"),
+                  trailing: Icon(Icons.keyboard_arrow_right),
+                )
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                        const ProfilePage(title: "Sensor Pairing")
+                    )
+                );
+              },
+              icon: const Icon(
+                Icons.settings
+              ),
+              label: const Align(
+                alignment: Alignment.centerLeft,
+                child: ListTile(
+                  title: Text("Settings"),
+                  trailing: Icon(Icons.keyboard_arrow_right),
+                )
+              ),
             ),
           ],
         ),

@@ -12,13 +12,12 @@ class MonitorConnect extends StatefulWidget {
   final List<BleSensorDevice> connectedDevices;
   final Function(List<BleSensorDevice>) callback;
   final LayerLink link;
-  final OverlayEntry overlayEntry;
   final Offset offset;
   final double dialogWidth;
   final double dialogHeight;
   const MonitorConnect({Key? key, required this.flutterReactiveBle,
     required this.callback, required this.connectedDevices, required this.link,
-    required this.offset, required this.dialogWidth, required this.dialogHeight, required this.overlayEntry}) : super(key: key);
+    required this.offset, required this.dialogWidth, required this.dialogHeight}) : super(key: key);
 
 
   @override
@@ -92,22 +91,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
       offset: widget.offset,
       link: widget.link,
       child: Scaffold(
-        appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text("Discovered Devices", style: const TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        ),
-        backgroundColor: Colors.white,
-        body: Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              SizedBox(
-                width: widget.dialogWidth * 0.9,
-                // height: widget.dialogHeight * 0.75,
-                child:
-                Column(
+        body: Column(
                   children: [
                     SizedBox(height: widget.dialogWidth * .12,),  // Margin for ListView
                     Flexible(
@@ -117,14 +101,14 @@ class _MonitorConnectState extends State<MonitorConnect> {
                               .map(
                                 (device) => ListTile(
                               title: Text(device.name,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       height: 1.7,
                                       color: Colors.black
                                   )),
                               subtitle: Text("${device.id}\nRSSI: ${device.rssi}",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       height: 1.7,
@@ -150,9 +134,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
                                   });
-                                  debugPrint("is uid hr? " + (device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())).toString());
-                                  debugPrint("uid? " + device.serviceUuids.toString());
-                                  debugPrint("hr? " + HEART_RATE_SERVICE_UUID.toString());
+                                  debugPrint("is uid hr? ${device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())}");
+                                  debugPrint("uid? ${device.serviceUuids}");
+                                  debugPrint("hr? $HEART_RATE_SERVICE_UUID");
                                   if ((device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())) == true) {
                                     debugPrint("Oh my god please");
                                     connectedSensor = BleSensorDevice(
@@ -191,19 +175,6 @@ class _MonitorConnectState extends State<MonitorConnect> {
                     ),
                   ],
                 ),
-              ),
-            ]),
-            persistentFooterButtons: [
-        IconButton(
-          icon: Icon(Icons.arrow_back_rounded),
-          onPressed: () {
-            widget.overlayEntry.remove();
-          },
-          alignment: Alignment.bottomLeft,
-        ),
-        SizedBox(width: 100),
-      ],
-      persistentFooterAlignment: AlignmentDirectional.bottomStart,
       )
     );
   }

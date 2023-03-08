@@ -175,26 +175,24 @@ class _ProfilePage extends State<ProfilePage> {
       ),
       persistentFooterButtons: [
         IconButton(
-          icon: Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
             Navigator.pop(context);
           },
           alignment: Alignment.bottomLeft,
         ),
-        SizedBox(width: 100),
+        const SizedBox(width: 100),
         ElevatedButton(
           onPressed: () {
-            // _getBatteryLevel();
             Navigator.of(context).push(_createRoute(
                           flutterReactiveBle, connectedDevices, ""));
-            print("pressed");
           },
-          child: Icon(Icons.play_arrow),
           style: ElevatedButton.styleFrom(
             fixedSize: const Size(50, 50),
             shape: const CircleBorder(),
             backgroundColor: Colors.yellow,
           ),
+          child: const Icon(Icons.play_arrow),
         )
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
@@ -229,8 +227,7 @@ class _ProfilePage extends State<ProfilePage> {
                     offset: dialogOffset,
                     link: layerLink,
                     dialogWidth: dialogWidth,
-                    dialogHeight: dialogHeight,
-                    overlayEntry: overlayEntry
+                    dialogHeight: dialogHeight
                 ),
               )
             ]
