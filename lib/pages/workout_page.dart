@@ -1,19 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
 import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:karoo_collab/bluetooth_provider.dart';
+import 'package:logging/logging.dart';
 
-import '../bluetooth_device_list_entry.dart';
 import '../bluetooth_manager.dart';
-import '../rider_data.dart';
-
-import 'profile_page.dart';
 
 class WorkoutPage extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
@@ -30,12 +24,6 @@ class WorkoutPage extends StatefulWidget {
 }
 
 class _WorkoutPage extends State<WorkoutPage> {
-  //random object for sending random numbers to connections
-  Random random = Random();
-
-  List<Widget> devices = [];
-  bool scanning = false;
-
   Stream<BluetoothDiscoveryResult>? discoveryStream;
   StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
   
@@ -56,18 +44,23 @@ class _WorkoutPage extends State<WorkoutPage> {
     //   print('got data from a connection: $dataMap');
     // });
     startBluetoothListening();
-    peerSubscription = BluetoothManager.instance.deviceDataStream.listen((event) {
-      setState(() {
-        int type = int.parse(event.toString().substring(0, 1));
-        int value = int.parse(event.toString().substring(3));
-        switch (type) {
-          case 0:
-            partnerHR = value;
-            break;
-          default:
-        }
-      });
+    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+      Logger.root.info('got data from a connection: $dataMap');
     });
+    // peerSubscription = BluetoothManager.instance.deviceDataStream.listen((event) {
+    //   setState(() {
+    //     // ##:#
+    //     int type = int.parse(event.toString().substring(0, 1));
+    //     int value = int.parse(event.toString().substring(3));
+    //     switch (type) {
+    //       case 0:
+    //         partnerHR = value;
+    //         break;
+    //       default:
+    //     }
+    //   });
+    // });
+    startPartnerListening();
   }
 
   void startBluetoothListening() {
@@ -75,7 +68,7 @@ class _WorkoutPage extends State<WorkoutPage> {
         for (BleSensorDevice device in widget.deviceList!) {
           debugPrint("we Gottem");
           if (device.type == 'HR') {
-            debugPrint("Device sub: " + device.deviceId);
+            debugPrint("Device sub: ${device.deviceId}");
             subscribeStreamHR = widget.flutterReactiveBle.subscribeToCharacteristic(
               QualifiedCharacteristic(
                   characteristicId: device.characteristicId,
@@ -85,10 +78,29 @@ class _WorkoutPage extends State<WorkoutPage> {
               setState(() {
                 // Update UI.
                 myHR = event[1];
-                // Broadcast heartrate to partner.
-                BluetoothManager.instance.broadcastString('0: $myHR');
-                debugPrint("send: " + myHR.toString());
-                // Log heartrate.
+                // Broadcast heart rate to partner.
+                BluetoothManager.instance.broadcastString('heartRate:$myHR');
+                debugPrint("Broadcast string: heartRate:$myHR");
+                // Log heart rate.
+                //widget.logger.workout.logHeartRate(event[1]);
+              });
+            });
+          }
+          else if (device.type == 'POWER') {
+            debugPrint("Device sub: ${device.deviceId}");
+            subscribeStreamHR = widget.flutterReactiveBle.subscribeToCharacteristic(
+              QualifiedCharacteristic(
+                  characteristicId: device.characteristicId,
+                  serviceId: device.serviceId,
+                  deviceId: device.deviceId
+              )).listen((event) {
+              setState(() {
+                // Update UI.
+                myPower = event[1];
+                // Broadcast heart rate to partner.
+                BluetoothManager.instance.broadcastString('power:$myPower');
+                debugPrint("Broadcast string: power:$myPower");
+                // Log heart rate.
                 //widget.logger.workout.logHeartRate(event[1]);
               });
             });
@@ -96,13 +108,40 @@ class _WorkoutPage extends State<WorkoutPage> {
         }
     }
   }
+
+  void startPartnerListening() {
+    BluetoothManager.instance.deviceDataStream.listen((event) {
+      Logger.root.info('got data from a connection: $event');
+      final map = event.values.first;
+
+      for(final key in map.keys) {
+        switch(key) {
+          case "heartRate":
+            partnerHR = int.parse(map[key] ?? "-1");
+            Logger.root.info('Set partner HR: $partnerHR');
+            break;
+          case "power":
+            partnerPower = int.parse(map[key] ?? "-1");
+            Logger.root.info('Set partner power: $partnerPower');
+            break;
+          case "speed":
+            partnerSpeed = int.parse(map[key] ?? "-1");
+            Logger.root.info('Set partner speed: $partnerSpeed');
+            break;
+          default:
+            Logger.root.warning('Unknown map key received: $key');
+        }
+      }
+    });
+  }
   
-    void dispose() {
+  @override
+  void dispose() {
     peerSubscription = BluetoothManager.instance.deviceDataStream.listen((event) {});
     if (subscribeStreamHR != null) {
       subscribeStreamHR?.cancel();
     }
-  super.dispose();
+    super.dispose();
   }
   
   
@@ -141,19 +180,36 @@ class _WorkoutPage extends State<WorkoutPage> {
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
             ),
+            SizedBox(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+              child: Text(
+                "PWR: $myPower",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.w600),
+              ),)
+            ),
+            SizedBox(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                "Partner PWR: $partnerPower",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
+              ),)
+            ),
           ],
         ),
       ),
       persistentFooterButtons: [
         IconButton(
-          icon: Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
             Navigator.pop(context);
           },
           alignment: Alignment.bottomLeft,
         ),
-        SizedBox(width: 100),
-        
+        const SizedBox(width: 100),
       ],
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );

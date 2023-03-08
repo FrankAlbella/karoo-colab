@@ -53,10 +53,7 @@ class _JoinPage extends State<JoinPage> {
   void initState() {
     super.initState();
     startScan();
-    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-      Logger.root.info('got data from a connection: $dataMap');
-    });
-    startBluetoothListening();
+    //startBluetoothListening();
   }
 
   void startBluetoothListening() {
@@ -189,8 +186,6 @@ class _JoinPage extends State<JoinPage> {
     );
   }
 
-  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,7 +226,7 @@ class _JoinPage extends State<JoinPage> {
         ElevatedButton(
           onPressed: () {
             Navigator.of(context).push(_createRoute(
-                flutterReactiveBle, connectedDevices, ""));
+                flutterReactiveBle, RiderData.connectedDevices, ""));
           },
           style: ElevatedButton.styleFrom(
             fixedSize: const Size(50, 50),

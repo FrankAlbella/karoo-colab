@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:karoo_collab/pages/workout_page.dart';
 import '../bluetooth_manager.dart';
+import '../rider_data.dart';
 import 'pairing_page.dart';
 import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,9 +46,9 @@ class _SensorPage extends State<SensorPage> {
   late double dialogWidth = MediaQuery.of(context).size.width * 1;
   late double dialogHeight = MediaQuery.of(context).size.height * 1;
   final LayerLink layerLink = LayerLink();
-  late OverlayEntry overlayEntry;
 
-  static const platform = MethodChannel('edu.uf.karoo_collab');
+  // Obtain FlutterReactiveBle instance for entire app.
+  final flutterReactiveBle = FlutterReactiveBle();
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +64,9 @@ class _SensorPage extends State<SensorPage> {
         child: MonitorConnect(
                   flutterReactiveBle: flutterReactiveBle,
                   callback: (deviceList)=> setState(() {
-                    connectedDevices = deviceList;
+                    RiderData.connectedDevices = deviceList;
                   }),
-                  connectedDevices: connectedDevices,
+                  connectedDevices: RiderData.connectedDevices,
                   offset: const Offset(0, 0),
                   link: layerLink,
                   dialogWidth: dialogWidth,
@@ -85,24 +86,4 @@ class _SensorPage extends State<SensorPage> {
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
-
-  Route _createRoute(FlutterReactiveBle ble,
-      List<BleSensorDevice>? connectedDevices, String type) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => WorkoutPage(
-          flutterReactiveBle: ble,
-          deviceList: connectedDevices,
-          title: "Active Run"),
-    );
-  }
-
-  void dismissMenu() {
-    overlayEntry.remove();
-  }
-
-  List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
-  // Obtain FlutterReactiveBle instance for entire app.
-  final flutterReactiveBle = FlutterReactiveBle();
-
-
 }
