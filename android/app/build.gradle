@@ -59,5 +59,4 @@ flutter {
 }
 
 dependencies {
-    implementation 'io.hammerhead:karoo-sdk:0.0.7'
 }
