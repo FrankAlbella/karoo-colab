@@ -45,7 +45,6 @@ class KarooScreen extends StatelessWidget {
           if(Navigator.of(context).canPop()) {
             return true;
           } else {
-            platform.invokeMethod("sendToBackground");
             return false;
           }
     },
