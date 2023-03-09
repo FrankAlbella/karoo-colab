@@ -1,26 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:karoo_collab/pages/workout_page.dart';
 import '../bluetooth_manager.dart';
 import '../rider_data.dart';
-import 'pairing_page.dart';
 import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../ble_sensor_device.dart';
+import 'package:screen/screen.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-
-Random random = Random();
-
-void sayHi() async {
-  final int randomNum = random.nextInt(100);
-  String dataStr = "randomNum:$randomNum";
-  print("Broadcasting data: $dataStr");
-  BluetoothManager.instance.broadcastString(dataStr);
-}
 
 class SensorPage extends StatefulWidget {
   const SensorPage({super.key, required this.title});
