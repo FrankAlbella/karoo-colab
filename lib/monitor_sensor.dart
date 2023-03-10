@@ -40,7 +40,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
   @override
   void initState() {
     super.initState();
-    
+
+    requestSensorPermissions();
+
     flutterReactiveBle = widget.flutterReactiveBle;
     flutterReactiveBle.statusStream.listen((status) {
       debugPrint(status.toString());
@@ -184,5 +186,13 @@ class _MonitorConnectState extends State<MonitorConnect> {
     //widget.callback()
     scanSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> requestSensorPermissions() async {
+    if (!await Permission.contacts.request().isGranted) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.sensors,
+      ].request();
+    }
   }
 }
