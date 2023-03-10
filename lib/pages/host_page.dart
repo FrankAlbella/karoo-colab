@@ -178,7 +178,7 @@ class _HostPage extends State<HostPage> {
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
-                      title: Text("Start Server"),
+                      title: Text("Waiting For Partners"),
                       trailing: Icon(Icons.sensors))),
             ),
 

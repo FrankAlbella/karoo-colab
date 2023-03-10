@@ -205,7 +205,7 @@ class _JoinPage extends State<JoinPage> {
               label: const Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
-                      title: Text("Start Scan"),
+                      title: Text("Scanning For Devices"),
                       trailing: Icon(Icons.sensors))),
             ),
 
