@@ -42,13 +42,10 @@ class _MonitorConnectState extends State<MonitorConnect> {
     super.initState();
 
     requestSensorPermissions();
-
     flutterReactiveBle = widget.flutterReactiveBle;
+
     flutterReactiveBle.statusStream.listen((status) {
       debugPrint(status.toString());
-    });
-    //scan for sensors
-    debugPrint('Begin scan');
     if (flutterReactiveBle.status == BleStatus.ready) {
       //scanSubscription?.cancel();
       scanSubscription = flutterReactiveBle.scanForDevices(
@@ -72,7 +69,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
     for (BleSensorDevice d in widget.connectedDevices) {
       debugPrint("Device id: ${d.deviceId}");
     }
-
+    });
   }
 
   bool isConnected(String id) {
@@ -192,6 +189,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
     if (!await Permission.contacts.request().isGranted) {
       Map<Permission, PermissionStatus> statuses = await [
         Permission.sensors,
+        Permission.location
       ].request();
     }
   }
