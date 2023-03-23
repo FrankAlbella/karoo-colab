@@ -1,37 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:karoo_collab/pages/pairing_page.dart';
-import 'connections_page.dart';
 import 'profile_page.dart';
 import 'sensor_page.dart';
 import 'host_page.dart';
 import 'join_page.dart';
-
-Widget _buildPopupDialog(BuildContext context) {
-  return AlertDialog(
-    title: const Text('Popup example'),
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const <Widget>[
-        Text("Hello"),
-      ],
-    ),
-    actions: <Widget>[
-      TextButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        child: const Text('Cancel'),
-      ),
-      TextButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        child: const Text('Confirm'),
-      ),
-    ],
-  );
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -52,18 +24,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
+        child: ListView(
           // Column is also a layout widget. It takes a list of children and
           // arranges them vertically. By default, it sizes itself to fit its
           // children horizontally, and tries to be as tall as its parent.
@@ -98,7 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
           // center the children vertically; the main axis here is the vertical
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
-          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             TextButton.icon(
               onPressed: () {
@@ -181,6 +140,17 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      persistentFooterButtons: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            exit(0); //Might need better method of exiting app
+          },
+          alignment: Alignment.bottomLeft,
+        ),
+        const SizedBox(width: 100),
+      ],
+      persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
 }
