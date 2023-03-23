@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ExerciseLogger {
+  // Used for the logger to be accessed in multiple locations
   static ExerciseLogger instance = ExerciseLogger();
 
   Map<String, dynamic> map = {};
@@ -13,15 +15,102 @@ class ExerciseLogger {
     map[LoggerConstants.fieldDeviceId] = "Unknown Device";
     map[LoggerConstants.fieldSerialNum] = "Unknown Serial Num";
     map[LoggerConstants.fieldWorkout] = {};
-    map[LoggerConstants.fieldEvents] = {};
+    map[LoggerConstants.fieldEvents] = [];
   }
 
-  void logEvent(int event, [String? info]) {
+  void _logEvent(int event, [List? info]) {
+    Map<String, dynamic> eventMap = {};
 
+    eventMap[LoggerConstants.fieldEventType] = event;
+    eventMap[LoggerConstants.fieldTimestamp] = secondsSinceEpoch();
+
+    switch(event) {
+      case LoggerConstants.eventAppLaunched:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on app launched event");
+        }
+
+        eventMap[LoggerConstants.fieldCurrentPage] = info[0];
+        break;
+      case LoggerConstants.eventAppClosed:
+        if(info != null) {
+          eventMap[LoggerConstants.fieldCurrentPage] = info[0];
+        }
+        break;
+      case LoggerConstants.eventButtonPressed:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on button pressed event");
+        }
+
+        map[LoggerConstants.fieldName] = info[0];
+        break;
+      case LoggerConstants.eventPageNavigate:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on page navigate event");
+        }
+
+        map[LoggerConstants.fieldPreviousPage] = info[0];
+        map[LoggerConstants.fieldCurrentPage] = info[1];
+        break;
+      case LoggerConstants.eventSettingChanged:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on settings changed event");
+        }
+
+        map[LoggerConstants.fieldSettingName] = info[0];
+        map[LoggerConstants.fieldPreviousValue] = info[1];
+        map[LoggerConstants.fieldCurrentValue] = info[2];
+        break;
+      case LoggerConstants.eventWorkoutStarted:
+      case LoggerConstants.eventWorkoutEnded:
+        map[LoggerConstants.fieldWorkoutType] = LoggerConstants.valueBiking;
+        break;
+      case LoggerConstants.eventWorkoutPaused:
+      case LoggerConstants.eventWorkoutUnpaused:
+        break;
+      case LoggerConstants.eventPartnerConnect:
+      case LoggerConstants.eventPartnerDisconnect:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on partner connection changed event");
+        }
+
+        map[LoggerConstants.fieldPartnerDeviceId] = info[0];
+        map[LoggerConstants.fieldPartnerSerialNum] = info[1];
+        break;
+      case LoggerConstants.eventBluetoothInit:
+        break;
+      case LoggerConstants.eventBluetoothConnect:
+      case LoggerConstants.eventBluetoothDisconnect:
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on bluetooth connection change event");
+        }
+
+        eventMap[LoggerConstants.fieldDeviceName] = info[0];
+        break;
+      default:
+        throw Exception("logEvent: $event is not a valid event type");
+    }
+
+    // TODO: add to array
+    map[LoggerConstants.fieldEvents];
   }
 
-  void saveToFile() {
-    //final directory = await getApplicationDocumentsDirectory();
+  void logSettingChangedEvent(String settingName, String previousValue, String currentValue) {
+    _logEvent(LoggerConstants.eventSettingChanged, [settingName, previousValue, currentValue]);
+  }
+
+  static int secondsSinceEpoch() {
+    int ms = DateTime.now().millisecondsSinceEpoch;
+    return (ms/1000).round();
+  }
+
+  Future<void> saveToFile() async {
+    final directory = (await getApplicationDocumentsDirectory()).path;
+
+
+    File file = File("$directory/workout-$secondsSinceEpoch()");
+
+    file.writeAsString("$map");
   }
 
   void insertInDatabase() async {
@@ -77,4 +166,21 @@ class LoggerConstants {
   static const fieldSerialNum = "serial_number";
   static const fieldWorkout = "workout";
   static const fieldEvents = "events";
+  static const fieldEventType = "event_type";
+  static const fieldWorkoutType = "workout_type";
+  static const fieldPreviousPage = "previous_page";
+  static const fieldCurrentPage = "current_page";
+  static const fieldTimestamp = "timestamp";
+  static const fieldSettingName = "setting_name";
+  static const fieldPreviousValue = "previous_value";
+  static const fieldCurrentValue = "current_value";
+  static const fieldPartnerDeviceId = "partner_device_id";
+  static const fieldPartnerSerialNum = "partner_serial_number";
+  static const fieldDeviceName = "device_name";
+  static const fieldStartTimestamp = "start_timestamp";
+  static const fieldValue = "value";
+  static const fieldUnits = "units";
+  static const fieldData = "data";
+
+  static const valueBiking = "biking";
 }
