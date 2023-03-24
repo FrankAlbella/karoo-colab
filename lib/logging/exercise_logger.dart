@@ -7,15 +7,15 @@ class ExerciseLogger {
   // Used for the logger to be accessed in multiple locations
   static ExerciseLogger instance = ExerciseLogger();
 
-  Map<String, dynamic> map = {};
+  final Map<String, dynamic> _map = {};
 
   ExerciseLogger() {
     // TODO: get real values
-    map[LoggerConstants.fieldName] = "Unknown name";
-    map[LoggerConstants.fieldDeviceId] = "Unknown Device";
-    map[LoggerConstants.fieldSerialNum] = "Unknown Serial Num";
-    map[LoggerConstants.fieldWorkout] = {};
-    map[LoggerConstants.fieldEvents] = [];
+    _map[LoggerConstants.fieldName] = "Unknown name";
+    _map[LoggerConstants.fieldDeviceId] = "Unknown Device";
+    _map[LoggerConstants.fieldSerialNum] = "Unknown Serial Num";
+    _map[LoggerConstants.fieldWorkout] = {};
+    _map[LoggerConstants.fieldEvents] = [];
   }
 
   void _logEvent(int event, [List? info]) {
@@ -42,28 +42,28 @@ class ExerciseLogger {
           throw Exception("logEvent: info cannot be null on button pressed event");
         }
 
-        map[LoggerConstants.fieldName] = info[0];
+        eventMap[LoggerConstants.fieldName] = info[0];
         break;
       case LoggerConstants.eventPageNavigate:
         if(info == null) {
           throw Exception("logEvent: info cannot be null on page navigate event");
         }
 
-        map[LoggerConstants.fieldPreviousPage] = info[0];
-        map[LoggerConstants.fieldCurrentPage] = info[1];
+        eventMap[LoggerConstants.fieldPreviousPage] = info[0];
+        eventMap[LoggerConstants.fieldCurrentPage] = info[1];
         break;
       case LoggerConstants.eventSettingChanged:
         if(info == null) {
           throw Exception("logEvent: info cannot be null on settings changed event");
         }
 
-        map[LoggerConstants.fieldSettingName] = info[0];
-        map[LoggerConstants.fieldPreviousValue] = info[1];
-        map[LoggerConstants.fieldCurrentValue] = info[2];
+        eventMap[LoggerConstants.fieldSettingName] = info[0];
+        eventMap[LoggerConstants.fieldPreviousValue] = info[1];
+        eventMap[LoggerConstants.fieldCurrentValue] = info[2];
         break;
       case LoggerConstants.eventWorkoutStarted:
       case LoggerConstants.eventWorkoutEnded:
-        map[LoggerConstants.fieldWorkoutType] = LoggerConstants.valueBiking;
+      eventMap[LoggerConstants.fieldWorkoutType] = LoggerConstants.valueBiking;
         break;
       case LoggerConstants.eventWorkoutPaused:
       case LoggerConstants.eventWorkoutUnpaused:
@@ -74,8 +74,8 @@ class ExerciseLogger {
           throw Exception("logEvent: info cannot be null on partner connection changed event");
         }
 
-        map[LoggerConstants.fieldPartnerDeviceId] = info[0];
-        map[LoggerConstants.fieldPartnerSerialNum] = info[1];
+        eventMap[LoggerConstants.fieldPartnerDeviceId] = info[0];
+        eventMap[LoggerConstants.fieldPartnerSerialNum] = info[1];
         break;
       case LoggerConstants.eventBluetoothInit:
         break;
@@ -92,7 +92,7 @@ class ExerciseLogger {
     }
 
     // TODO: add to array
-    map[LoggerConstants.fieldEvents];
+    _map[LoggerConstants.fieldEvents].add(eventMap);
   }
 
   void logSettingChangedEvent(String settingName, String previousValue, String currentValue) {
@@ -110,7 +110,9 @@ class ExerciseLogger {
 
     File file = File("$directory/workout-$secondsSinceEpoch()");
 
-    file.writeAsString("$map");
+    var asJson = jsonEncode(_map);
+
+    file.writeAsString(asJson);
   }
 
   void insertInDatabase() async {
@@ -123,7 +125,7 @@ class ExerciseLogger {
       "dataSource": "FitnessLog",
       "database": "FitnessLog",
       "collection": "Test",
-      "document": map
+      "document": _map
     };
 
     request.write(jsonEncode(body));
