@@ -9,10 +9,10 @@ class ExerciseLogger {
   static ExerciseLogger instance = ExerciseLogger();
 
   final Map<String, dynamic> _map = {};
+  late Workout? workout;
 
   ExerciseLogger() {
     _updateDeviceInfo();
-    _map[LoggerConstants.fieldWorkout] = {};
     _map[LoggerConstants.fieldEvents] = [];
   }
 
@@ -124,6 +124,7 @@ class ExerciseLogger {
   }
 
   void logWorkoutStarted(WorkoutType type) {
+    workout = Workout(type);
     _logEvent(LoggerConstants.eventWorkoutStarted, [type.toShortString()]);
   }
 
@@ -180,6 +181,10 @@ class ExerciseLogger {
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
     request.headers.contentType = ContentType("application", "json");
 
+    if(workout != null) {
+      _map[LoggerConstants.fieldWorkout] = workout?.toMap();
+    }
+
     Map<String, dynamic> body = {
       "dataSource": "FitnessLog",
       "database": "FitnessLog",
@@ -212,6 +217,91 @@ enum WorkoutType {
 extension WorkoutTypeExtension on WorkoutType {
   String toShortString() {
     return toString().split('.').last;
+  }
+}
+
+class Workout {
+  late WorkoutType _workoutType;
+  final Map<int, Map<String, String>> _partners = {};
+  late int _startTime;
+
+  late String _heartRateUnits;
+  late int _heartRateMax;
+  final List<Map<String, int>> _heartRateData = [];
+
+  late String _distanceUnits;
+  final List<Map<String, int>> _distanceData = [];
+
+  Workout(WorkoutType workoutType, [int maxHeartRate = 120]) {
+    _startTime = ExerciseLogger.secondsSinceEpoch();
+    _workoutType = workoutType;
+    _heartRateUnits = LoggerConstants.valueBPM;
+    _distanceUnits = LoggerConstants.valueMeters;
+    _heartRateMax = maxHeartRate;
+  }
+
+  void setMaxHeartRate(int max) {
+    _heartRateMax = max;
+  }
+
+  // TODO: make enum of heart rate units
+  void setHeartRateUnits(String units) {
+    _heartRateUnits = units;
+  }
+  
+  // TODO: make enum of distance units
+  void setDistanceUnits(String units) {
+    _distanceUnits = units;
+  }
+
+  void addPartner(String partnerName, String partnerDeviceId, String partnerSerialNum) {
+    Map<String, String> partnerMap = {};
+
+    partnerMap[LoggerConstants.fieldName] = partnerName;
+    partnerMap[LoggerConstants.fieldDeviceId] = partnerDeviceId;
+    partnerMap[LoggerConstants.fieldSerialNum] = partnerSerialNum;
+
+    int index = _partners.length;
+    _partners[index] = partnerMap;
+  }
+
+  void addHeartRateData(int heartRate) {
+    Map<String, int> heartRateMap = {};
+
+    heartRateMap[LoggerConstants.fieldValue] = heartRate;
+    heartRateMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _heartRateData.add(heartRateMap);
+  }
+
+  void addDistanceData(int distance) {
+    Map<String, int> distanceMap = {};
+
+    distanceMap[LoggerConstants.fieldValue] = distance;
+    distanceMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _distanceData.add(distanceMap);
+  }
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map = {};
+    Map<String, dynamic> heartRateMap = {};
+    Map<String, dynamic> distanceMap = {};
+
+    map[LoggerConstants.fieldWorkoutType] = _workoutType.toShortString();
+    map[LoggerConstants.fieldTimestamp] = _startTime;
+
+    map[LoggerConstants.fieldPartners] = _partners;
+
+    heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
+    heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
+    heartRateMap[LoggerConstants.fieldData] = _heartRateData;
+    map[LoggerConstants.fieldHeartRate] = heartRateMap;
+
+    heartRateMap[LoggerConstants.fieldUnits] = _distanceUnits;
+    map[LoggerConstants.fieldDistance] = distanceMap;
+
+    return map;
   }
 }
 
@@ -255,4 +345,11 @@ class LoggerConstants {
   static const fieldValue = "value";
   static const fieldUnits = "units";
   static const fieldData = "data";
+  static const fieldPartners = "partners";
+  static const fieldHeartRate = "heart_rate";
+  static const fieldMaxHeartRate = "max_heart_rate";
+  static const fieldDistance = "distance";
+
+  static const valueBPM = "beats_per_minute";
+  static const valueMeters = "meters";
 }
