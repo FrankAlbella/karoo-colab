@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,12 +11,16 @@ class ExerciseLogger {
   final Map<String, dynamic> _map = {};
 
   ExerciseLogger() {
-    // TODO: get real values
-    _map[LoggerConstants.fieldName] = "Unknown name";
-    _map[LoggerConstants.fieldDeviceId] = "Unknown Device";
-    _map[LoggerConstants.fieldSerialNum] = "Unknown Serial Num";
+    _updateDeviceInfo();
     _map[LoggerConstants.fieldWorkout] = {};
     _map[LoggerConstants.fieldEvents] = [];
+  }
+
+  Future<void> _updateDeviceInfo()  async {
+    var deviceInfo = (await DeviceInfoPlugin().androidInfo);
+    _map[LoggerConstants.fieldName] = deviceInfo.device;
+    _map[LoggerConstants.fieldDeviceId] = deviceInfo.id;
+    _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
   }
 
   void _logEvent(int event, [List? info]) {
@@ -95,7 +100,6 @@ class ExerciseLogger {
         throw Exception("logEvent: $event is not a valid event type");
     }
 
-    // TODO: add to array
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
 
