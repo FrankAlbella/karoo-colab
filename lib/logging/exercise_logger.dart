@@ -63,7 +63,11 @@ class ExerciseLogger {
         break;
       case LoggerConstants.eventWorkoutStarted:
       case LoggerConstants.eventWorkoutEnded:
-      eventMap[LoggerConstants.fieldWorkoutType] = LoggerConstants.valueBiking;
+        if(info == null) {
+          throw Exception("logEvent: info cannot be null on workout started/ended event");
+        }
+        
+        eventMap[LoggerConstants.fieldWorkoutType] = info[0];
         break;
       case LoggerConstants.eventWorkoutPaused:
       case LoggerConstants.eventWorkoutUnpaused:
@@ -95,8 +99,60 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
 
-  void logSettingChangedEvent(String settingName, String previousValue, String currentValue) {
+  void logAppLaunched(String pageName) {
+    _logEvent(LoggerConstants.eventAppLaunched, [pageName]);
+  }
+
+  void logAppClosed(String pageName) {
+    _logEvent(LoggerConstants.eventAppClosed, [pageName]);
+  }
+
+  void logButtonPressed(String buttonName) {
+    _logEvent(LoggerConstants.eventButtonPressed, [buttonName]);
+  }
+
+  void logPageNavigate(String previousPageName, String currentPageName) {
+    _logEvent(LoggerConstants.eventPageNavigate, [previousPageName, currentPageName]);
+  }
+
+  void logSettingChanged(String settingName, String previousValue, String currentValue) {
     _logEvent(LoggerConstants.eventSettingChanged, [settingName, previousValue, currentValue]);
+  }
+
+  void logWorkoutStarted(WorkoutType type) {
+    _logEvent(LoggerConstants.eventWorkoutStarted, [type.toShortString()]);
+  }
+
+  void logWorkoutEnded(WorkoutType type) {
+    _logEvent(LoggerConstants.eventWorkoutEnded, [type.toShortString()]);
+  }
+
+  void logWorkoutPaused() {
+    _logEvent(LoggerConstants.eventWorkoutPaused);
+  }
+
+  void logWorkoutUnpaused() {
+    _logEvent(LoggerConstants.eventWorkoutUnpaused);
+  }
+
+  void logPartnerConnected(String partnerName, String partnerId) {
+    _logEvent(LoggerConstants.eventPartnerConnect, [partnerName, partnerId]);
+  }
+
+  void logPartnerDisconnected(String partnerName, String partnerId) {
+    _logEvent(LoggerConstants.eventPartnerDisconnect, [partnerName, partnerId]);
+  }
+
+  void logBluetoothInit() {
+    _logEvent(LoggerConstants.eventBluetoothInit);
+  }
+
+  void logBluetoothConnect(String deviceConnectedName) {
+    _logEvent(LoggerConstants.eventBluetoothConnect, [deviceConnectedName]);
+  }
+
+  void logBluetoothDisconnect(String deviceDisconnectedName) {
+    _logEvent(LoggerConstants.eventBluetoothDisconnect, [deviceDisconnectedName]);
   }
 
   static int secondsSinceEpoch() {
@@ -106,7 +162,6 @@ class ExerciseLogger {
 
   Future<void> saveToFile() async {
     final directory = (await getApplicationDocumentsDirectory()).path;
-
 
     File file = File("$directory/workout-$secondsSinceEpoch()");
 
@@ -140,6 +195,19 @@ class ExerciseLogger {
     } else {
       Logger.root.warning("Database insertion unsuccessful: $reply");
     }
+  }
+}
+
+enum WorkoutType {
+  running,
+  walking,
+  cycling,
+  biking
+}
+
+extension WorkoutTypeExtension on WorkoutType {
+  String toShortString() {
+    return toString().split('.').last;
   }
 }
 
@@ -183,6 +251,4 @@ class LoggerConstants {
   static const fieldValue = "value";
   static const fieldUnits = "units";
   static const fieldData = "data";
-
-  static const valueBiking = "biking";
 }
