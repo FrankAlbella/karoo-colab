@@ -194,25 +194,26 @@ class _JoinPage extends State<JoinPage> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
-      body: Center(
-        child: ListView(
-          children: <Widget>[
-            TextButton.icon(
-              onPressed: startScan,
-              icon: const Icon(
-                Icons.bluetooth,
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Align(
+              alignment: Alignment.center,
+              child:
+              Text(
+                  "Choose device to pair",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                  )
               ),
-              label: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: ListTile(
-                      title: Text("Scanning For Devices"),
-                      trailing: Icon(Icons.sensors))),
             ),
-
-            ...devices
-
-          ]
-        ),
+          ),
+          Expanded(
+            child: ListView(children: <Widget>[...devices]),
+          ),
+        ],
       ),
       persistentFooterButtons: [
         IconButton(
