@@ -253,7 +253,7 @@ class Workout {
     _heartRateUnits = units;
   }
 
-  // TODO: make enum of heart rate units
+  // TODO: make enum of power units
   void setPowerUnits(String units) {
     _powerUnits = units;
   }
