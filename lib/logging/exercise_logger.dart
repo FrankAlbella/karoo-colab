@@ -229,6 +229,9 @@ class Workout {
   late int _heartRateMax;
   final List<Map<String, int>> _heartRateData = [];
 
+  late String _powerUnits;
+  final List<Map<String, int>> _powerData = [];
+
   late String _distanceUnits;
   final List<Map<String, int>> _distanceData = [];
 
@@ -236,6 +239,7 @@ class Workout {
     _startTime = ExerciseLogger.secondsSinceEpoch();
     _workoutType = workoutType;
     _heartRateUnits = LoggerConstants.valueBPM;
+    _powerUnits = LoggerConstants.valueWatts;
     _distanceUnits = LoggerConstants.valueMeters;
     _heartRateMax = maxHeartRate;
   }
@@ -247,6 +251,11 @@ class Workout {
   // TODO: make enum of heart rate units
   void setHeartRateUnits(String units) {
     _heartRateUnits = units;
+  }
+
+  // TODO: make enum of heart rate units
+  void setPowerUnits(String units) {
+    _powerUnits = units;
   }
   
   // TODO: make enum of distance units
@@ -274,6 +283,15 @@ class Workout {
     _heartRateData.add(heartRateMap);
   }
 
+  void addPowerData(int power) {
+    Map<String, int> powerMap = {};
+
+    powerMap[LoggerConstants.fieldValue] = power;
+    powerMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _heartRateData.add(powerMap);
+  }
+
   void addDistanceData(int distance) {
     Map<String, int> distanceMap = {};
 
@@ -286,6 +304,7 @@ class Workout {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
     Map<String, dynamic> heartRateMap = {};
+    Map<String, dynamic> powerMap = {};
     Map<String, dynamic> distanceMap = {};
 
     map[LoggerConstants.fieldWorkoutType] = _workoutType.toShortString();
@@ -297,6 +316,10 @@ class Workout {
     heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
     heartRateMap[LoggerConstants.fieldData] = _heartRateData;
     map[LoggerConstants.fieldHeartRate] = heartRateMap;
+
+    powerMap[LoggerConstants.fieldUnits] = _powerUnits;
+    powerMap[LoggerConstants.fieldData] = _powerData;
+    map[LoggerConstants.fieldPower] = powerMap;
 
     heartRateMap[LoggerConstants.fieldUnits] = _distanceUnits;
     map[LoggerConstants.fieldDistance] = distanceMap;
@@ -349,7 +372,9 @@ class LoggerConstants {
   static const fieldHeartRate = "heart_rate";
   static const fieldMaxHeartRate = "max_heart_rate";
   static const fieldDistance = "distance";
+  static const fieldPower = "power";
 
   static const valueBPM = "beats_per_minute";
   static const valueMeters = "meters";
+  static const valueWatts = "watts";
 }
