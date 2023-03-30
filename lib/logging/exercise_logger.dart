@@ -9,7 +9,7 @@ class ExerciseLogger {
   static ExerciseLogger instance = ExerciseLogger();
 
   final Map<String, dynamic> _map = {};
-  late Workout? workout;
+  late Workout workout = Workout();
 
   ExerciseLogger() {
     _updateDeviceInfo();
@@ -123,9 +123,9 @@ class ExerciseLogger {
     _logEvent(LoggerConstants.eventSettingChanged, [settingName, previousValue, currentValue]);
   }
 
-  void logWorkoutStarted(WorkoutType type) {
-    workout = Workout(type);
-    _logEvent(LoggerConstants.eventWorkoutStarted, [type.toShortString()]);
+  void logWorkoutStarted(WorkoutType workoutType) {
+    workout.start(workoutType);
+    _logEvent(LoggerConstants.eventWorkoutStarted, [workoutType.toShortString()]);
   }
 
   void logWorkoutEnded(WorkoutType type) {
@@ -140,8 +140,9 @@ class ExerciseLogger {
     _logEvent(LoggerConstants.eventWorkoutUnpaused);
   }
 
-  void logPartnerConnected(String partnerName, String partnerId) {
-    _logEvent(LoggerConstants.eventPartnerConnect, [partnerName, partnerId]);
+  void logPartnerConnected(String partnerName, String partnerDeviceId, String partnerSerialNum) {
+    workout.addPartner(partnerName, partnerDeviceId, partnerSerialNum);
+    _logEvent(LoggerConstants.eventPartnerConnect, [partnerName, partnerDeviceId]);
   }
 
   void logPartnerDisconnected(String partnerName, String partnerId) {
@@ -158,6 +159,18 @@ class ExerciseLogger {
 
   void logBluetoothDisconnect(String deviceDisconnectedName) {
     _logEvent(LoggerConstants.eventBluetoothDisconnect, [deviceDisconnectedName]);
+  }
+
+  void logHeartRateData(int heartRate) {
+    workout.addHeartRateData(heartRate);
+  }
+
+  void logPowerData(int power) {
+    workout.addPowerData(power);
+  }
+
+  void logDistanceData(int distance) {
+    workout.addDistanceData(distance);
   }
 
   static int secondsSinceEpoch() {
@@ -181,9 +194,7 @@ class ExerciseLogger {
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
     request.headers.contentType = ContentType("application", "json");
 
-    if(workout != null) {
-      _map[LoggerConstants.fieldWorkout] = workout?.toMap();
-    }
+    _map[LoggerConstants.fieldWorkout] = workout.toMap();
 
     Map<String, dynamic> body = {
       "dataSource": "FitnessLog",
@@ -235,13 +246,17 @@ class Workout {
   late String _distanceUnits;
   final List<Map<String, int>> _distanceData = [];
 
-  Workout(WorkoutType workoutType, [int maxHeartRate = 120]) {
-    _startTime = ExerciseLogger.secondsSinceEpoch();
-    _workoutType = workoutType;
+  Workout({WorkoutType workoutType = WorkoutType.cycling, int maxHeartRate = 120}) {
+    start(workoutType);
     _heartRateUnits = LoggerConstants.valueBPM;
     _powerUnits = LoggerConstants.valueWatts;
     _distanceUnits = LoggerConstants.valueMeters;
     _heartRateMax = maxHeartRate;
+  }
+
+  void start(WorkoutType workoutType) {
+    _startTime = ExerciseLogger.secondsSinceEpoch();
+    _workoutType = workoutType;
   }
 
   void setMaxHeartRate(int max) {
