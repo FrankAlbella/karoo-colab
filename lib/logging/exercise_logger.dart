@@ -243,7 +243,7 @@ extension WorkoutTypeExtension on WorkoutType {
 
 class Workout {
   late WorkoutType _workoutType;
-  final Map<String, Map<String, String>> _partners = {};
+  final List<Map<String, String>> _partners = [];
   late int _startTime;
 
   late String _heartRateUnits;
@@ -295,8 +295,7 @@ class Workout {
     partnerMap[LoggerConstants.fieldDeviceId] = partnerDeviceId;
     partnerMap[LoggerConstants.fieldSerialNum] = partnerSerialNum;
 
-    String index = _partners.length.toString();
-    _partners[index] = partnerMap;
+    _partners.add(partnerMap);
   }
 
   void addHeartRateData(int heartRate) {
