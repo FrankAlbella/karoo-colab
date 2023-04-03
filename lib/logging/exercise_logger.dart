@@ -192,7 +192,7 @@ class ExerciseLogger {
 
     file.writeAsString(asJson);
 
-    Logger.root.info("Log saved to: $file");
+    print("Log saved to: $file");
   }
 
   void insertInDatabase() async {
@@ -357,6 +357,7 @@ class Workout {
 class LoggerConstants {
   // TODO: remove these from the source code into env variables or something
   static const databaseUrlPost = "https://us-east-1.aws.data.mongodb-api.com/app/data-nphof/endpoint/data/v1/action/insertOne";
+  static const databaseUrlFind = "https://us-east-1.aws.data.mongodb-api.com/app/data-nphof/endpoint/data/v1/action/find";
   static const databaseApiKey = "e1G2HlcHaZPlJ2NOoFtP3ocZilWoQOoPIdZ8pndoFpECJhoNn7e5684PV0NTZSXg";
 
   static const eventAppLaunched = 0;
