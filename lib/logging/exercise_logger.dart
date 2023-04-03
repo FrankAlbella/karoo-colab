@@ -5,22 +5,23 @@ import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ExerciseLogger {
-  // Used for the logger to be accessed in multiple locations
-  static ExerciseLogger instance = ExerciseLogger();
-
   final Map<String, dynamic> _map = {};
   late final Workout _workout = Workout();
-
-  ExerciseLogger() {
-    _updateDeviceInfo();
-    _map[LoggerConstants.fieldEvents] = [];
-  }
 
   Future<void> _updateDeviceInfo()  async {
     var deviceInfo = (await DeviceInfoPlugin().androidInfo);
     _map[LoggerConstants.fieldName] = deviceInfo.device;
     _map[LoggerConstants.fieldDeviceId] = deviceInfo.id;
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
+  }
+
+  static Future<ExerciseLogger> create() async {
+    var logger = ExerciseLogger();
+
+    await logger._updateDeviceInfo();
+    logger._map[LoggerConstants.fieldEvents] = [];
+
+    return logger;
   }
 
   void _logEvent(int event, [List? info]) {
@@ -100,7 +101,7 @@ class ExerciseLogger {
         throw Exception("logEvent: $event is not a valid event type");
     }
 
-    Logger.root.info("New log entry: $eventMap");
+    print("New log entry: $eventMap");
 
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
