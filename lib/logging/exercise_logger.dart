@@ -9,7 +9,7 @@ class ExerciseLogger {
   static ExerciseLogger instance = ExerciseLogger();
 
   final Map<String, dynamic> _map = {};
-  late Workout workout = Workout();
+  late final Workout _workout = Workout();
 
   ExerciseLogger() {
     _updateDeviceInfo();
@@ -100,6 +100,8 @@ class ExerciseLogger {
         throw Exception("logEvent: $event is not a valid event type");
     }
 
+    Logger.root.info("New log entry: $eventMap");
+
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
 
@@ -124,7 +126,7 @@ class ExerciseLogger {
   }
 
   void logWorkoutStarted(WorkoutType workoutType) {
-    workout.start(workoutType);
+    _workout.start(workoutType);
     _logEvent(LoggerConstants.eventWorkoutStarted, [workoutType.toShortString()]);
   }
 
@@ -141,7 +143,7 @@ class ExerciseLogger {
   }
 
   void logPartnerConnected(String partnerName, String partnerDeviceId, String partnerSerialNum) {
-    workout.addPartner(partnerName, partnerDeviceId, partnerSerialNum);
+    _workout.addPartner(partnerName, partnerDeviceId, partnerSerialNum);
     _logEvent(LoggerConstants.eventPartnerConnect, [partnerName, partnerDeviceId]);
   }
 
@@ -162,15 +164,15 @@ class ExerciseLogger {
   }
 
   void logHeartRateData(int heartRate) {
-    workout.addHeartRateData(heartRate);
+    _workout.addHeartRateData(heartRate);
   }
 
   void logPowerData(int power) {
-    workout.addPowerData(power);
+    _workout.addPowerData(power);
   }
 
   void logDistanceData(int distance) {
-    workout.addDistanceData(distance);
+    _workout.addDistanceData(distance);
   }
 
   static int secondsSinceEpoch() {
@@ -194,7 +196,7 @@ class ExerciseLogger {
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
     request.headers.contentType = ContentType("application", "json");
 
-    _map[LoggerConstants.fieldWorkout] = workout.toMap();
+    _map[LoggerConstants.fieldWorkout] = _workout.toMap();
 
     Map<String, dynamic> body = {
       "dataSource": "FitnessLog",
