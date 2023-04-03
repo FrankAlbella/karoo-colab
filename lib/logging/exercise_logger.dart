@@ -183,11 +183,15 @@ class ExerciseLogger {
   Future<void> saveToFile() async {
     final directory = (await getApplicationDocumentsDirectory()).path;
 
-    File file = File("$directory/workout-$secondsSinceEpoch()");
+    int time = secondsSinceEpoch();
 
-    var asJson = jsonEncode(_map);
+    File file = File("$directory/workout-$time");
+
+    var asJson = toJsonString();
 
     file.writeAsString(asJson);
+
+    Logger.root.info("Log saved to: $file");
   }
 
   void insertInDatabase() async {
@@ -196,13 +200,11 @@ class ExerciseLogger {
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
     request.headers.contentType = ContentType("application", "json");
 
-    _map[LoggerConstants.fieldWorkout] = _workout.toMap();
-
     Map<String, dynamic> body = {
       "dataSource": "FitnessLog",
       "database": "FitnessLog",
       "collection": "Test",
-      "document": _map
+      "document": toJsonString()
     };
 
     request.write(jsonEncode(body));
@@ -217,6 +219,11 @@ class ExerciseLogger {
     } else {
       Logger.root.warning("Database insertion unsuccessful: $reply");
     }
+  }
+
+  String toJsonString() {
+    _map[LoggerConstants.fieldWorkout] = _workout.toMap();
+    return jsonEncode(_map);
   }
 }
 
@@ -235,7 +242,7 @@ extension WorkoutTypeExtension on WorkoutType {
 
 class Workout {
   late WorkoutType _workoutType;
-  final Map<int, Map<String, String>> _partners = {};
+  final Map<String, Map<String, String>> _partners = {};
   late int _startTime;
 
   late String _heartRateUnits;
@@ -287,7 +294,7 @@ class Workout {
     partnerMap[LoggerConstants.fieldDeviceId] = partnerDeviceId;
     partnerMap[LoggerConstants.fieldSerialNum] = partnerSerialNum;
 
-    int index = _partners.length;
+    String index = _partners.length.toString();
     _partners[index] = partnerMap;
   }
 
