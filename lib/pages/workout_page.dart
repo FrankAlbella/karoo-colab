@@ -215,5 +215,4 @@ class _WorkoutPage extends State<WorkoutPage> {
       persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
-  
 }
