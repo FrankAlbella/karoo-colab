@@ -48,6 +48,8 @@ dependencies:
   scoped_model: ^2.0.0
   logging: ^1.1.1
   permission_handler: ^10.2.0
+  path_provider: ^2.0.14
+  device_info_plus: ^8.1.0
 
 dev_dependencies:
   flutter_test:
