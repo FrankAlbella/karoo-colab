@@ -314,7 +314,7 @@ class Workout {
     powerMap[LoggerConstants.fieldValue] = power;
     powerMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
 
-    _heartRateData.add(powerMap);
+    _powerData.add(powerMap);
   }
 
   void addDistanceData(int distance) {
@@ -346,7 +346,8 @@ class Workout {
     powerMap[LoggerConstants.fieldData] = _powerData;
     map[LoggerConstants.fieldPower] = powerMap;
 
-    heartRateMap[LoggerConstants.fieldUnits] = _distanceUnits;
+    distanceMap[LoggerConstants.fieldUnits] = _distanceUnits;
+    distanceMap[LoggerConstants.fieldData] = _distanceData;
     map[LoggerConstants.fieldDistance] = distanceMap;
 
     return map;
