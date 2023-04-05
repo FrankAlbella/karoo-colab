@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wakelock/wakelock.dart';
 
 class SoloWorkout extends StatefulWidget {
   final String title;
@@ -44,6 +45,7 @@ class _SoloWorkout extends State<SoloWorkout> {
   void initState() {
     super.initState();
     startTimer();
+    Wakelock.enable();
   }
 
   @override
@@ -56,6 +58,7 @@ class _SoloWorkout extends State<SoloWorkout> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           child: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
+            Wakelock.disable();
             Navigator.pop(context);
           },
         ),

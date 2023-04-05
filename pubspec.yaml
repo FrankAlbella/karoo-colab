@@ -33,7 +33,6 @@ dependencies:
   flutter_reactive_ble: ^5.0.3
   google_fonts:
   flutter_ble_peripheral: ^1.1.1
-  screen: ^0.0.3
   collection: ^1.16.0
   flutter_nearby_connections: ^1.1.1
   device_info: ^2.0.3
@@ -52,6 +51,7 @@ dependencies:
   logging: ^1.1.1
   permission_handler: ^10.2.0
   geolocator: ^9.0.2
+  wakelock: ^0.6.2
 
 dev_dependencies:
   flutter_test:

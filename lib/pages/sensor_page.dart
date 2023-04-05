@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../ble_sensor_device.dart';
-import 'package:screen/screen.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 

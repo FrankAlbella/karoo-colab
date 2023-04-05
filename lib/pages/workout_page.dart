@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
+import 'package:wakelock/wakelock.dart';
 import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:logging/logging.dart';
-import 'package:screen/screen.dart';
 import '../rider_data.dart';
 
 import '../bluetooth_manager.dart';
@@ -63,7 +63,7 @@ class _WorkoutPage extends State<WorkoutPage> {
     //   });
     // });
     startPartnerListening();
-    Screen.keepOn(true);
+    Wakelock.enable();
   }
 
   void startBluetoothListening() {
@@ -217,7 +217,7 @@ class _WorkoutPage extends State<WorkoutPage> {
         IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
-            Screen.keepOn(false);
+            Wakelock.disable();
             Navigator.pop(context);
           },
           alignment: Alignment.bottomLeft,
