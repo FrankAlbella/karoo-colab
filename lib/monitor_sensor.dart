@@ -25,12 +25,12 @@ class MonitorConnect extends StatefulWidget {
 }
 
 class _MonitorConnectState extends State<MonitorConnect> {
-  final Uuid HEART_RATE_SERVICE_UUID = Uuid.parse('180d');
-  final Uuid HEART_RATE_CHARACTERISTIC = Uuid.parse('2a37');
-  final Uuid CYCLING_POWER_SERVICE_UUID = Uuid.parse('1818');
-  final Uuid CYCLING_POWER_CHARACTERISTIC = Uuid.parse('2a63');
+  final Uuid _heartRateServiceUUID = Uuid.parse('180d');
+  final Uuid _heartRateCharacteristicUUID = Uuid.parse('2a37');
+  final Uuid _cyclingPowerServiceUUID = Uuid.parse('1818');
+  final Uuid _cyclingPowerCharacteristicUUID = Uuid.parse('2a63');
 
-  late final flutterReactiveBle;
+  late final FlutterReactiveBle flutterReactiveBle;
   List<DiscoveredDevice> devices = <DiscoveredDevice>[];
   StreamSubscription? scanSubscription;
   late StreamSubscription<ConnectionStateUpdate> _connection;
@@ -49,7 +49,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
     if (flutterReactiveBle.status == BleStatus.ready) {
       //scanSubscription?.cancel();
       scanSubscription = flutterReactiveBle.scanForDevices(
-          withServices: [HEART_RATE_SERVICE_UUID, CYCLING_POWER_SERVICE_UUID]).listen((device) {
+          withServices: [_heartRateServiceUUID, _cyclingPowerServiceUUID]).listen((device) {
         final knownDeviceIndex = devices.indexWhere((d) => d.id == device.id);
         if (knownDeviceIndex >= 0) {
           devices[knownDeviceIndex] = device;
@@ -126,24 +126,24 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   _connection = flutterReactiveBle.connectToDevice(
                                     id: device.id,
                                     servicesWithCharacteristicsToDiscover: {
-                                      HEART_RATE_SERVICE_UUID: [HEART_RATE_CHARACTERISTIC],
-                                      CYCLING_POWER_SERVICE_UUID: [CYCLING_POWER_CHARACTERISTIC],
+                                      _heartRateServiceUUID: [_heartRateCharacteristicUUID],
+                                      _cyclingPowerServiceUUID: [_cyclingPowerCharacteristicUUID],
                                     },
                                   ).listen((update) {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
                                   });
-                                  debugPrint("is uid hr? ${device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())}");
+                                  debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
                                   debugPrint("uid? ${device.serviceUuids}");
-                                  debugPrint("hr? $HEART_RATE_SERVICE_UUID");
-                                  if ((device.serviceUuids.toString().contains(HEART_RATE_SERVICE_UUID.toString())) == true) {
+                                  debugPrint("hr? $_heartRateServiceUUID");
+                                  if ((device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())) == true) {
                                     debugPrint("Oh my god please");
                                     connectedSensor = BleSensorDevice(
                                       type: 'HR',
                                       flutterReactiveBle: flutterReactiveBle,
                                       deviceId: device.id,
-                                      serviceId: HEART_RATE_SERVICE_UUID,
-                                      characteristicId: HEART_RATE_CHARACTERISTIC,
+                                      serviceId: _heartRateServiceUUID,
+                                      characteristicId: _heartRateCharacteristicUUID,
                                     );
                                   }
                                   else {
@@ -151,8 +151,8 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                       type: 'POWER',
                                       flutterReactiveBle: flutterReactiveBle,
                                       deviceId: device.id,
-                                      serviceId: CYCLING_POWER_SERVICE_UUID,
-                                      characteristicId: CYCLING_POWER_CHARACTERISTIC,
+                                      serviceId: _cyclingPowerServiceUUID,
+                                      characteristicId: _cyclingPowerCharacteristicUUID,
                                     );
                                   }
                                   widget.connectedDevices.add(connectedSensor);
