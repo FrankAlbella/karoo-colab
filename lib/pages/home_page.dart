@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: SizedBox(
           width: 175,
-          child: ListView(shrinkWrap: true, children: <Widget>[
+          child: ListView(children: <Widget>[
               SizedBox(
                   height: 65,
                   width: 10,
