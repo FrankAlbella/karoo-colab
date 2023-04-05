@@ -5,6 +5,7 @@ import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:logging/logging.dart';
 import 'package:screen/screen.dart';
+import '../rider_data.dart';
 
 import '../bluetooth_manager.dart';
 
@@ -33,12 +34,14 @@ class _WorkoutPage extends State<WorkoutPage> {
   int? partnerHR = 0;
   int? partnerPower = 0;
   int? partnerSpeed = 0;
+  final RiderData data = RiderData();
   late StreamSubscription peerSubscription;
   StreamSubscription<List<int>>? subscribeStreamHR;
 
   @override
   void initState() {
     super.initState();
+    
     // BluetoothManager.instance.deviceDataStream.listen((dataMap) {
     //   print('got data from a connection: $dataMap');
     // });
@@ -194,6 +197,15 @@ class _WorkoutPage extends State<WorkoutPage> {
                 fit: BoxFit.scaleDown,
                 child: Text(
                 "Partner PWR: $partnerPower",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
+              ),)
+            ),
+            SizedBox(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                "Name: " + data.name,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
