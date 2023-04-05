@@ -29,12 +29,39 @@ class _WorkoutPage extends State<WorkoutPage> {
 
   int myHR = 0;
   int myPower = 0;
+  int myCadence = 0;
   int mySpeed = 0;
+
   int? partnerHR = 0;
   int? partnerPower = 0;
+  int? partnerCadence = 0;
   int? partnerSpeed = 0;
+
   late StreamSubscription peerSubscription;
   StreamSubscription<List<int>>? subscribeStreamHR;
+
+  int _readPower(List<int> data) {
+    int total = data[3];
+    /*
+    data = [_, 0x??, 0x??, ...]
+    want to read index 2 and 3 as one integer
+    shift integer at index 3 left by 8 bits
+    and add the 8 bits from index 2
+    since the data is being stored in little-endian
+    format
+     */
+    total = total << 8;
+    return total + data[2];
+  }
+
+  //TODO: need to fix this
+  double _readCadence(List<int> data) {
+    int time = data[11] << 8;
+    time += data[10];
+    double timeDouble = time.toDouble();
+    timeDouble *= 1/2048;
+    return (1 / timeDouble) * 60.0;
+  }
 
   @override
   void initState() {
@@ -96,10 +123,13 @@ class _WorkoutPage extends State<WorkoutPage> {
               )).listen((event) {
               setState(() {
                 // Update UI.
-                myPower = event[1];
-                // Broadcast heart rate to partner.
+                myPower = _readPower(event);
+                myCadence = _readCadence(event).toInt();
+                // Broadcast power and cadence to partner.
                 BluetoothManager.instance.broadcastString('power:$myPower');
                 debugPrint("Broadcast string: power:$myPower");
+                BluetoothManager.instance.broadcastString('cadence:$myCadence');
+                debugPrint("Broadcast string: cadence:$myCadence");
                 // Log heart rate.
                 //widget.logger.workout.logHeartRate(event[1]);
               });
@@ -123,6 +153,10 @@ class _WorkoutPage extends State<WorkoutPage> {
           case "power":
             partnerPower = int.parse(map[key] ?? "-1");
             Logger.root.info('Set partner power: $partnerPower');
+            break;
+          case "cadence":
+            partnerCadence = int.parse(map[key] ?? "-1");
+            Logger.root.info('Set partner cadence: $partnerCadence');
             break;
           case "speed":
             partnerSpeed = int.parse(map[key] ?? "-1");
