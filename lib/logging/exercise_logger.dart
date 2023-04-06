@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:logging/logging.dart';
@@ -195,7 +196,7 @@ class ExerciseLogger {
     print("Log saved to: $file");
   }
 
-  void insertInDatabase() async {
+  Future<void> insertInDatabase() async {
     HttpClient httpClient = HttpClient();
     HttpClientRequest request = await httpClient.postUrl(Uri.parse(LoggerConstants.databaseUrlPost));
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
@@ -205,7 +206,7 @@ class ExerciseLogger {
       "dataSource": "FitnessLog",
       "database": "FitnessLog",
       "collection": "Test",
-      "document": toJsonString()
+      "document": toMap()
     };
 
     request.write(jsonEncode(body));
@@ -215,11 +216,16 @@ class ExerciseLogger {
 
     httpClient.close();
 
-    if(response.statusCode == 200) {
-      Logger.root.info("Database insertion successful: $reply");
+    if(response.statusCode ~/ 100 == 2) {
+      log("Database insertion successful: $reply");
     } else {
-      Logger.root.warning("Database insertion unsuccessful: $reply");
+      log("Database insertion unsuccessful: $reply");
     }
+  }
+
+  Map<String, dynamic> toMap() {
+    _map[LoggerConstants.fieldWorkout] = _workout.toMap();
+    return _map;
   }
 
   String toJsonString() {
