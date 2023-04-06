@@ -16,10 +16,11 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
   }
 
-  static Future<ExerciseLogger> create() async {
+  static Future<ExerciseLogger> create(DeviceType deviceType) async {
     var logger = ExerciseLogger();
 
     await logger._updateDeviceInfo();
+    logger._map[LoggerConstants.fieldGroupId] = deviceType.index;
     logger._map[LoggerConstants.fieldEvents] = [];
 
     return logger;
@@ -252,6 +253,12 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldWorkout] = _workout.toMap();
     return jsonEncode(_map);
   }
+}
+
+enum DeviceType {
+  karoo,
+  smartwatch,
+  smartphone
 }
 
 enum WorkoutType {
