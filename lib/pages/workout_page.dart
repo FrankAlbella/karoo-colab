@@ -69,26 +69,6 @@ class _WorkoutPage extends State<WorkoutPage> {
   void initState() {
     super.initState();
 
-    // BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-    //   print('got data from a connection: $dataMap');
-    // });
-    startBluetoothListening();
-    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
-      Logger.root.info('got data from a connection: $dataMap');
-    });
-    // peerSubscription = BluetoothManager.instance.deviceDataStream.listen((event) {
-    //   setState(() {
-    //     // ##:#
-    //     int type = int.parse(event.toString().substring(0, 1));
-    //     int value = int.parse(event.toString().substring(3));
-    //     switch (type) {
-    //       case 0:
-    //         partnerHR = value;
-    //         break;
-    //       default:
-    //     }
-    //   });
-    // });
     startPartnerListening();
     Wakelock.enable();
   }
@@ -235,6 +215,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
             ),
+
             SizedBox(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
