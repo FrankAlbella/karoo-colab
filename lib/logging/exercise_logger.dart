@@ -177,6 +177,26 @@ class ExerciseLogger {
     _workout.addDistanceData(distance);
   }
 
+  void logCadenceData(int cadence) {
+    _workout.addCadenceData(cadence);
+  }
+
+  void logCalorieData(int calories) {
+    _workout.addCalorieData(calories);
+  }
+
+  void logStepData(int steps) {
+    _workout.addStepData(steps);
+  }
+
+  void logSpeedData(int speed) {
+    _workout.addSpeedData(speed);
+  }
+
+  void logLocationData(double latitude, double longitude) {
+    _workout.addLocationData(latitude, longitude);
+  }
+
   static int secondsSinceEpoch() {
     int ms = DateTime.now().millisecondsSinceEpoch;
     return (ms/1000).round();
@@ -259,14 +279,36 @@ class Workout {
   late String _powerUnits;
   final List<Map<String, int>> _powerData = [];
 
+  late String _cadenceUnits;
+  final List <Map<String, int>> _cadenceData = [];
+
   late String _distanceUnits;
   final List<Map<String, int>> _distanceData = [];
 
+  late String _calorieUnits;
+  final List <Map<String, int>> _calorieData = [];
+
+  late String _stepUnits;
+  final List <Map<String, int>> _stepData = [];
+
+  late String _speedUnits;
+  final List <Map<String, int>> _speedData = [];
+
+  late String _locationUnits;
+  final List <Map<String, dynamic>> _locationData = [];
+
   Workout({WorkoutType workoutType = WorkoutType.cycling, int maxHeartRate = 120}) {
     start(workoutType);
+
     _heartRateUnits = LoggerConstants.valueBPM;
     _powerUnits = LoggerConstants.valueWatts;
+    _cadenceUnits = LoggerConstants.valueRPM;
     _distanceUnits = LoggerConstants.valueMeters;
+    _calorieUnits = LoggerConstants.valueKcal;
+    _stepUnits = LoggerConstants.valueSteps;
+    _speedUnits = LoggerConstants.valueKPH;
+    _locationUnits = LoggerConstants.valueLatLong;
+
     _heartRateMax = maxHeartRate;
   }
 
@@ -288,10 +330,30 @@ class Workout {
   void setPowerUnits(String units) {
     _powerUnits = units;
   }
-  
+
   // TODO: make enum of distance units
   void setDistanceUnits(String units) {
     _distanceUnits = units;
+  }
+
+  void setCadenceUnits(String units) {
+    _cadenceUnits = units;
+  }
+
+  void setSpeedUnits(String units) {
+    _speedUnits = units;
+  }
+
+  void setCalorieUnits(String units) {
+    _calorieUnits = units;
+  }
+
+  void setLocationUnits(String units) {
+    _locationUnits = units;
+  }
+
+  void setStepUnits(String units) {
+    _stepUnits = units;
   }
 
   void addPartner(String partnerName, String partnerDeviceId, String partnerSerialNum) {
@@ -331,29 +393,117 @@ class Workout {
     _distanceData.add(distanceMap);
   }
 
+  void addCadenceData(int cadence) {
+    Map<String, int> map = {};
+
+    map[LoggerConstants.fieldValue] = cadence;
+    map[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _cadenceData.add(map);
+  }
+
+  void addCalorieData(int calories) {
+    Map<String, int> map = {};
+
+    map[LoggerConstants.fieldValue] = calories;
+    map[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _calorieData.add(map);
+  }
+
+  void addStepData(int steps) {
+    Map<String, int> map = {};
+
+    map[LoggerConstants.fieldValue] = steps;
+    map[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _stepData.add(map);
+  }
+
+  void addSpeedData(int speed) {
+    Map<String, int> map = {};
+
+    map[LoggerConstants.fieldValue] = speed;
+    map[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _speedData.add(map);
+  }
+
+  void addLocationData(double latitude, double longitude) {
+    Map<String, dynamic> map = {};
+
+    map[LoggerConstants.fieldValue] = "$latitude/$longitude";
+    map[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
+
+    _locationData.add(map);
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
-    Map<String, dynamic> heartRateMap = {};
-    Map<String, dynamic> powerMap = {};
-    Map<String, dynamic> distanceMap = {};
 
     map[LoggerConstants.fieldWorkoutType] = _workoutType.toShortString();
     map[LoggerConstants.fieldTimestamp] = _startTime;
 
-    map[LoggerConstants.fieldPartners] = _partners;
+    if(_partners.isNotEmpty) {
+      map[LoggerConstants.fieldPartners] = _partners;
+    }
 
-    heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
-    heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
-    heartRateMap[LoggerConstants.fieldData] = _heartRateData;
-    map[LoggerConstants.fieldHeartRate] = heartRateMap;
+    if( _heartRateData.isNotEmpty) {
+      Map<String, dynamic> heartRateMap = {};
+      heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
+      heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
+      heartRateMap[LoggerConstants.fieldData] = _heartRateData;
+      map[LoggerConstants.fieldHeartRate] = heartRateMap;
+    }
 
-    powerMap[LoggerConstants.fieldUnits] = _powerUnits;
-    powerMap[LoggerConstants.fieldData] = _powerData;
-    map[LoggerConstants.fieldPower] = powerMap;
+    if(_powerData.isNotEmpty) {
+      Map<String, dynamic> powerMap = {};
+      powerMap[LoggerConstants.fieldUnits] = _powerUnits;
+      powerMap[LoggerConstants.fieldData] = _powerData;
+      map[LoggerConstants.fieldPower] = powerMap;
+    }
 
-    distanceMap[LoggerConstants.fieldUnits] = _distanceUnits;
-    distanceMap[LoggerConstants.fieldData] = _distanceData;
-    map[LoggerConstants.fieldDistance] = distanceMap;
+    if(_distanceData.isNotEmpty) {
+      Map<String, dynamic> distanceMap = {};
+      distanceMap[LoggerConstants.fieldUnits] = _distanceUnits;
+      distanceMap[LoggerConstants.fieldData] = _distanceData;
+      map[LoggerConstants.fieldDistance] = distanceMap;
+    }
+
+    if(_cadenceData.isNotEmpty) {
+      Map<String, dynamic> cadenceMap = {};
+      cadenceMap[LoggerConstants.fieldUnits] = _cadenceUnits;
+      cadenceMap[LoggerConstants.fieldData] = _cadenceData;
+      map[LoggerConstants.fieldCadence] = cadenceMap;
+    }
+
+    if(_speedData.isNotEmpty) {
+      Map<String, dynamic> speedMap = {};
+      speedMap[LoggerConstants.fieldUnits] = _speedUnits;
+      speedMap[LoggerConstants.fieldData] = _speedData;
+      map[LoggerConstants.fieldSpeed] = speedMap;
+    }
+
+    if(_stepData.isNotEmpty) {
+      Map<String, dynamic> stepMap = {};
+      stepMap[LoggerConstants.fieldUnits] = _stepUnits;
+      stepMap[LoggerConstants.fieldData] = _stepData;
+      map[LoggerConstants.fieldSteps] = stepMap;
+    }
+
+    if(_calorieData.isNotEmpty) {
+      Map<String, dynamic> calorieMap = {};
+      calorieMap[LoggerConstants.fieldUnits] = _calorieUnits;
+      calorieMap[LoggerConstants.fieldData] = _calorieData;
+      map[LoggerConstants.fieldCalories] = calorieMap;
+    }
+
+    if(_locationData.isNotEmpty) {
+      Map<String, dynamic> locationMap = {};
+      locationMap[LoggerConstants.fieldUnits] = _locationUnits;
+      locationMap[LoggerConstants.fieldData] = _locationData;
+      map[LoggerConstants.fieldLocation] = locationMap;
+    }
 
     return map;
   }
@@ -380,6 +530,7 @@ class LoggerConstants {
   static const eventBluetoothConnect = 12;
   static const eventBluetoothDisconnect = 13;
 
+  static const fieldGroupId = "group_id";
   static const fieldName = "name";
   static const fieldDeviceId = "device_id";
   static const fieldSerialNum = "serial_number";
@@ -405,8 +556,18 @@ class LoggerConstants {
   static const fieldMaxHeartRate = "max_heart_rate";
   static const fieldDistance = "distance";
   static const fieldPower = "power";
+  static const fieldCalories = "calories";
+  static const fieldSteps = "steps";
+  static const fieldLocation = "location";
+  static const fieldSpeed = "speed";
+  static const fieldCadence = "cadence";
 
   static const valueBPM = "beats_per_minute";
   static const valueMeters = "meters";
   static const valueWatts = "watts";
+  static const valueRPM = "revolutions_per_minute";
+  static const valueKPH = "kilometers_per_hour";
+  static const valueLatLong = "latitude/longitude";
+  static const valueKcal = "kilocalories";
+  static const valueSteps = "steps";
 }
