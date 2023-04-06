@@ -18,8 +18,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 Widget _buildPopupDialog(
     BuildContext context, String funcType, TextEditingController _controller) {
   return AlertDialog(
-    title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
-    contentPadding: EdgeInsets.zero,
+    //title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
+    //contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -99,18 +99,30 @@ class _SettingsPage extends State<SettingsPage> {
 
   Future<void> _updateSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
+    if(name_controller.text!="")
+    {
+      setState(() {
       prefs.setString('name', name_controller.text);
     });
-    setState(() {
+    }
+    if(email_controller.text!="")
+    {
+      setState(() {
       prefs.setString('email', email_controller.text);
     });
-    setState(() {
+    }
+    if(HR_controller.text!="")
+    {
+      setState(() {
       prefs.setString('maxHR', HR_controller.text);
     });
-    setState(() {
+    }
+    if(FTP_controller.text!="")
+    {
+      setState(() {
       prefs.setString('FTP', FTP_controller.text);
     });
+    }  
   }
 
   @override
