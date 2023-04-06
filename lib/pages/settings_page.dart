@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:karoo_collab/pages/workout_page.dart';
 import 'package:karoo_collab/rider_data.dart';
 import '../bluetooth_manager.dart';
@@ -11,14 +12,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../ble_sensor_device.dart';
 import 'dart:async';
-import '../rider_data.dart';
-import 'settings_model.dart';
-import 'workout_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 Widget _buildPopupDialog(
     BuildContext context, String funcType, TextEditingController _controller) {
   return AlertDialog(
-    title: Text('Enter ' + funcType, style: TextStyle(fontSize: 10)),
+    title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
     contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
@@ -27,7 +27,7 @@ Widget _buildPopupDialog(
       children: <Widget>[
         TextField(
           controller: _controller,
-          style: TextStyle(fontSize: 10),
+          style: TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: funcType,
           ),
@@ -36,31 +36,13 @@ Widget _buildPopupDialog(
     )),
     actionsPadding: EdgeInsets.zero,
     actions: <Widget>[
-      TextButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        child: const Text('Cancel'),
-      ),
-      TextButton(
-        onPressed: () {
-          // print(_controller.text);
-          // if (funcType == "Name") {
-          //   data.name = _controller.text;
-          //   print(data.name);
-          // }
-          // if (funcType == "Email") {
-          //   data.name = _controller.text;
-          //   print(data.name);
-          // } else if (funcType == "FTP") {
-          //   data.FTPvalue = _controller.text;
-          // } else if (funcType == "Max HR") {
-          //   data.maxHR = _controller.text;
-          // }
-          print(_controller.text);
-          Navigator.of(context).pop();
-        },
-        child: const Text('Confirm'),
+      Center(
+        child: TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Confirm'),
+        ),
       ),
     ],
   );
@@ -86,35 +68,55 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPage extends State<SettingsPage> {
   final TextEditingController name_controller = TextEditingController();
+  final TextEditingController email_controller = TextEditingController();
   final TextEditingController FTP_controller = TextEditingController();
   final TextEditingController HR_controller = TextEditingController();
-   int? profileID;
-  int _counter = 0;
-  
-  void _incrementCounter() {
+
+  String _name = "";
+  String _email = "";
+  String _HR = "";
+  String _FTP = "";
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _name = (prefs.getString('name') ?? "Name");
+      print('$_name');
+    });
+    setState(() {
+      _email = (prefs.getString('email') ?? "Email");
+      print('$_email');
+    });
+    setState(() {
+      _HR = (prefs.getString('maxHR') ?? "Max HR");
+      print('$_HR');
+    });
+    setState(() {
+      _FTP = (prefs.getString('FTP') ?? "FTP");
+      print('$_FTP');
+    });
+  }
+
+  Future<void> _updateSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('name', name_controller.text);
+    });
+    setState(() {
+      prefs.setString('email', email_controller.text);
+    });
+    setState(() {
+      prefs.setString('maxHR', HR_controller.text);
+    });
+    setState(() {
+      prefs.setString('FTP', FTP_controller.text);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    // name_controller.addListener(() {
-    //   final String text = _controller.text.toLowerCase();
-    //   _controller.value = _controller.value.copyWith(
-    //     text: text,
-    //     selection:
-    //         TextSelection(baseOffset: text.length, extentOffset: text.length),
-    //     composing: TextRange.empty,
-    //   );
-    // });
-    _getPreviousSettings();
+    _loadSettings();
   }
 
   @override
@@ -124,55 +126,6 @@ class _SettingsPage extends State<SettingsPage> {
     HR_controller.dispose();
     super.dispose();
   }
-  
-  Future _getPreviousSettings() async {
-    ProfileSettings? previous = await WorkoutDatabase.instance.readSettings();
-    print("owo?");
-    if (previous != null) {
-      print("pev not null");
-      name_controller.text = previous.name;
-      profileID = previous.id;
-      if (previous.age != null) {
-        FTP_controller.text = previous.age.toString();
-      }
-      if (previous.maxHR != null) {
-        HR_controller.text = previous.maxHR.toString();
-      }
-    }
-  }
-  String getName() {
-    return name_controller.text;
-  }
-
-  String getAge() {
-    return FTP_controller.text;
-  }
-
-  String getMaxHR() {
-    return HR_controller.text;
-  }
-
-  String calculateMaxHRString(String age) {
-    return (208 - (0.7 * int.parse(age))).toString();
-  }
-
-  // void _saveSettings(ProfileSettings newSettings) async {
-  //   String name = getName();
-  //   String ageString = getAge();
-  //   int? age = int.tryParse(ageString);
-  //   String maxHRString = getMaxHR();
-  //   int? maxHR = int.tryParse(maxHRString);
-  //   ProfileSettings settings;
-  //   if (profileID == null) {
-  //     settings = ProfileSettings(name: name, age: age, maxHR: maxHR);
-  //   } else {
-  //     settings = ProfileSettings(id: profileID, name: name, age: age, maxHR: maxHR);
-  //   }
-  //   newSettings = await WorkoutDatabase.instance.updateSettings(settings);
-  //   profileID = newSettings.id;
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +147,7 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, "Name", name_controller),
+                        _buildPopupDialog(context, _name, name_controller),
                   );
                 },
                 icon: Icon(
@@ -210,7 +163,7 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, "Email", name_controller),
+                        _buildPopupDialog(context, _email, email_controller),
                   );
                 },
                 icon: Icon(
@@ -226,7 +179,7 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, "FTP", FTP_controller),
+                      _buildPopupDialog(context, _FTP, FTP_controller),
                 );
               },
               icon: Icon(
@@ -243,9 +196,9 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, "Max HR", HR_controller),
+                      _buildPopupDialog(context, _HR, HR_controller),
                 );
-               
+                print(HR_controller.text);
               },
               icon: Icon(
                 Icons.heart_broken,
@@ -271,10 +224,15 @@ class _SettingsPage extends State<SettingsPage> {
         IconButton(
           icon: const Icon(Icons.check),
           onPressed: () {
-            ProfileSettings newSettings = ProfileSettings(id: profileID, name: name_controller.text, age: FTP_controller.text, maxHR: HR_controller.text);
-             //_saveSettings;
-              print("hg: "+ newSettings.name);
-             print("oh");
+            _updateSettings();
+            Fluttertoast.showToast(
+                msg: "Updated Settings!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                fontSize: 16.0);
           },
           alignment: Alignment.bottomLeft,
         ),
