@@ -18,6 +18,9 @@ class LoggerConstants {
   static const eventBluetoothInit = 11;
   static const eventBluetoothConnect = 12;
   static const eventBluetoothDisconnect = 13;
+  static const eventScreenOn = 14;
+  static const eventScreenOff = 15;
+  static const eventScreenUnlocked = 16;
 
   static const fieldGroupId = "group_id";
   static const fieldName = "name";

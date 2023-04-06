@@ -101,11 +101,15 @@ class ExerciseLogger {
 
         eventMap[LoggerConstants.fieldDeviceName] = info[0];
         break;
+      case LoggerConstants.eventScreenOn:
+      case LoggerConstants.eventScreenOff:
+      case LoggerConstants.eventScreenUnlocked:
+        break;
       default:
         throw Exception("logEvent: $event is not a valid event type");
     }
 
-    log("New log entry: $eventMap");
+    log("New event log entry: $eventMap");
 
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
@@ -166,6 +170,18 @@ class ExerciseLogger {
 
   void logBluetoothDisconnect(String deviceDisconnectedName) {
     _logEvent(LoggerConstants.eventBluetoothDisconnect, [deviceDisconnectedName]);
+  }
+
+  void logScreenTurnedOn() {
+    _logEvent(LoggerConstants.eventScreenOn);
+  }
+
+  void logScreenTurnedOff() {
+    _logEvent(LoggerConstants.eventScreenOff);
+  }
+
+  void logScreenUnlocked() {
+    _logEvent(LoggerConstants.eventScreenUnlocked);
   }
 
   void logHeartRateData(int heartRate) {
