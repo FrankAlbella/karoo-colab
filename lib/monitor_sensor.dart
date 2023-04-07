@@ -6,6 +6,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'ble_sensor_device.dart';
 import 'package:collection/collection.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MonitorConnect extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
@@ -36,6 +37,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
   late StreamSubscription<ConnectionStateUpdate> _connection;
   //List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
   Color _colorTile = Colors.white;
+  bool isConnecting = false;
 
   @override
   void initState() {
@@ -115,9 +117,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   )),
                               leading: const Icon(Icons.bluetooth, color: Colors.black,),
                               tileColor: !isConnected(device.id) ?
-                              Colors.white10 : Colors.green,
-                              // minVerticalPadding: widget.dialogWidth * .03,
+                              Colors.white10 : Color.fromARGB(255, 14, 112, 158),                            // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                              trailing: !isConnecting ? null : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
                               onTap: () async {
                                 debugPrint("tappin");
                                 //connect
@@ -132,6 +134,23 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   ).listen((update) {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
+                                    if(update.connectionState == (DeviceConnectionState.connecting))
+                                    {
+                                      print("changed to connecting");
+                                      isConnecting = true;
+                                    }
+                                    if(update.connectionState == (DeviceConnectionState.connected))
+                                    {
+                                      isConnecting = false;
+                                      Fluttertoast.showToast(
+                                      msg: "Device Connected!",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.green,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                    }
                                   });
                                   debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
                                   debugPrint("uid? ${device.serviceUuids}");
@@ -158,11 +177,13 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   widget.connectedDevices.add(connectedSensor);
                                 }
                                 else {
+                                  print("remove device");
+                                  isConnecting = false;
                                   _connection.cancel();
                                   widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
                                 }
                                 setState(() {
-                                  _colorTile = _colorTile == Colors.black ? Colors.green : Colors.black;
+                                  _colorTile = _colorTile == Colors.black ? Colors.blue : Colors.black;
                                 });
                                 widget.callback(widget.connectedDevices);
                               },
