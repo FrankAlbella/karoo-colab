@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'profile_page.dart';
 import 'sensor_page.dart';
 import 'host_page.dart';
 import 'join_page.dart';

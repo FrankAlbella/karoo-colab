@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:karoo_collab/pages/paired_workout.dart';
 import 'package:karoo_collab/pages/settings_page.dart';
 import 'package:karoo_collab/pages/solo_workout.dart';
-import 'profile_page.dart';
 import 'sensor_page.dart';
 
 class MyHomePage extends StatefulWidget {

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:karoo_collab/pages/workout_page.dart';
 import 'package:karoo_collab/rider_data.dart';
 import '../bluetooth_manager.dart';
-import 'pairing_page.dart';
 import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
