@@ -6,6 +6,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
 import 'package:karoo_collab/bluetooth_provider.dart';
 import 'package:logging/logging.dart';
+import '../logging/exercise_logger.dart';
 import 'workout_page.dart';
 import '../bluetooth_device_list_entry.dart';
 import '../bluetooth_manager.dart';
@@ -173,6 +174,8 @@ class _JoinPage extends State<JoinPage> {
     setState(() {
       Logger.root.info("Scanning set to true");
       scanning = true;
+      ExerciseLogger.instance?.logBluetoothInit();
+
     });
   }
 

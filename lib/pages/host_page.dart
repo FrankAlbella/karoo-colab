@@ -53,7 +53,7 @@ class _HostPage extends State<HostPage> {
   void initState() {
     super.initState();
     startBluetoothServer();
-    //startBluetoothListening();
+
   }
 
   void startBluetoothListening() {

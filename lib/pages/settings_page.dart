@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:karoo_collab/pages/workout_page.dart';
 import 'package:karoo_collab/rider_data.dart';
 import '../bluetooth_manager.dart';
+import '../logging/exercise_logger.dart';
 import '../monitor_sensor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,12 @@ import '../ble_sensor_device.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+@override
+void initState() {
+  super.initState();
+}
+
 
 Widget _buildPopupDialog(
     BuildContext context, String funcType, TextEditingController _controller) {

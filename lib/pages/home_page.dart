@@ -15,6 +15,8 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
+  static bool openLogged = false;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -50,13 +52,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initLogger() async{
     await ExerciseLogger.create(DeviceType.karoo);
-    ExerciseLogger.instance?.logAppLaunched("home_page");
   }
 
   @override
   void initState() {
     super.initState();
     initLogger();
+
+    if(!MyHomePage.openLogged)
+      {
+        ExerciseLogger.instance?.logAppLaunched("home_page");
+      }
   }
 
   Route _createRoute(FlutterReactiveBle ble,
@@ -80,6 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             child: const Icon(Icons.arrow_back_rounded),
             onPressed: () {
+              ExerciseLogger.instance?.logButtonPressed("CloseAppButton");
+              ExerciseLogger.instance?.logAppClosed("home_page");
               exit(0); //Might need better method of exiting app
             },
           ),
@@ -99,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("PairedWorkoutsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -124,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SoloWorkoutsButton");
                             Navigator.of(context).push(_createRoute(
                                 flutterReactiveBle, RiderData.connectedDevices, ""));
                           },
@@ -146,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SettingsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -171,6 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SensorsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

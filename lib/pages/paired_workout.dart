@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../logging/exercise_logger.dart';
 import 'sensor_page.dart';
 import 'host_page.dart';
 import 'join_page.dart';
@@ -33,6 +34,8 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             child: const Icon(Icons.arrow_back_rounded),
             onPressed: () {
+              ExerciseLogger.instance?.logButtonPressed("BackButton");
+              ExerciseLogger.instance?.logPageNavigate("paired_workout", "home_page");
               Navigator.pop(context);
             },
           ),
@@ -55,6 +58,7 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                               BorderRadius.circular(30)),
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
+                                    ExerciseLogger.instance?.logButtonPressed("HostWorkoutButton");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -82,6 +86,7 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                               BorderRadius.circular(30)),
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
+                                    ExerciseLogger.instance?.logButtonPressed("JoinWorkoutButton");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(

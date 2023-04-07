@@ -12,6 +12,8 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'logging/exercise_logger.dart';
+
 class BluetoothManager {
   static final BluetoothManager _instance = BluetoothManager._();
   static BluetoothManager get instance => _instance;
@@ -92,6 +94,7 @@ class BluetoothManager {
 
       _connections[lastConnectionId] = connection;
 
+      ExerciseLogger.instance?.logBluetoothConnect("$device.name");
       Fluttertoast.showToast(
           msg: "Connected to device",
           toastLength: Toast.LENGTH_SHORT,
