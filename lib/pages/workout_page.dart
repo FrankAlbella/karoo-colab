@@ -26,17 +26,17 @@ class WorkoutPage extends StatefulWidget {
 class _WorkoutPage extends State<WorkoutPage> {
   Stream<BluetoothDiscoveryResult>? discoveryStream;
   StreamSubscription<BluetoothDiscoveryResult>? discoveryStreamSubscription;
-  
 
-  int myHR = 0;
+
+  static int myHR = 0;
   int myPower = 0;
   int myCadence = 0;
   int mySpeed = 0;
 
-  int? partnerHR = 0;
-  int? partnerPower = 0;
-  int? partnerCadence = 0;
-  int? partnerSpeed = 0;
+  int partnerHR = 0;
+  int partnerPower = 0;
+  int partnerCadence = 0;
+  int partnerSpeed = 0;
   final RiderData data = RiderData();
 
   late StreamSubscription peerSubscription;
@@ -136,28 +136,35 @@ class _WorkoutPage extends State<WorkoutPage> {
         switch(key) {
           case "heartRate":
             debugPrint("we Gottem");
-            partnerHR = int.parse(map[key] ?? "-1");
+            setState(() {
+              partnerHR = int.parse(map[key] ?? "-1");
+            });
             Logger.root.info('Set partner HR: $partnerHR');
             break;
           case "power":
-            partnerPower = int.parse(map[key] ?? "-1");
+            setState(() {
+              partnerPower = int.parse(map[key] ?? "-1");
+            });
             Logger.root.info('Set partner power: $partnerPower');
             break;
           case "cadence":
-            partnerCadence = int.parse(map[key] ?? "-1");
+            setState(() {
+              partnerCadence = int.parse(map[key] ?? "-1");
+            });
             Logger.root.info('Set partner cadence: $partnerCadence');
             break;
           case "speed":
-            partnerSpeed = int.parse(map[key] ?? "-1");
+            setState(() {
+              partnerSpeed = int.parse(map[key] ?? "-1");
+            });
             Logger.root.info('Set partner speed: $partnerSpeed');
             break;
           default:
             Logger.root.warning('Unknown map key received: $key');
-        }
-      }
+        }}
     });
   }
-  
+
   @override
   void dispose() {
     peerSubscription = BluetoothManager.instance.deviceDataStream.listen((event) {});
@@ -166,8 +173,8 @@ class _WorkoutPage extends State<WorkoutPage> {
     }
     super.dispose();
   }
-  
-  
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,7 +228,7 @@ class _WorkoutPage extends State<WorkoutPage> {
             SizedBox(
               child: FittedBox(
                 child: Text(
-                "Name: " + data.name,
+                "Name: ${data.name}",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
