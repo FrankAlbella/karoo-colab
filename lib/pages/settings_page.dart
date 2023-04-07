@@ -15,12 +15,6 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-@override
-void initState() {
-  super.initState();
-}
-
-
 Widget _buildPopupDialog(
     BuildContext context, String funcType, TextEditingController _controller) {
   return AlertDialog(
