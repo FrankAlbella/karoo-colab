@@ -84,17 +84,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     return result;
   }
-  bool Connecting() {
-    if (isConnecting == true) {
-      print("CONNECTED!");
-      isConnecting = false;
-    }
-    else {
-      print("is connecting!");
-      isConnecting = true;
-    }
-    return isConnecting;
-  }
+  
 
   // TODO: ListView is scrolling into the Positioned elements.
   @override

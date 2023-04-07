@@ -6,6 +6,7 @@ import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:logging/logging.dart';
 import '../rider_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bluetooth_manager.dart';
 
@@ -37,6 +38,9 @@ class _WorkoutPage extends State<WorkoutPage> {
   int partnerPower = 0;
   int partnerCadence = 0;
   int partnerSpeed = 0;
+  String _name = "";
+  String _HR = "";
+  String _FTP = "";
   final RiderData data = RiderData();
 
   late StreamSubscription peerSubscription;
@@ -68,6 +72,7 @@ class _WorkoutPage extends State<WorkoutPage> {
   @override
   void initState() {
     super.initState();
+    _loadSettings();
 
     startBluetoothListening();
     BluetoothManager.instance.deviceDataStream.listen((dataMap) {
@@ -76,6 +81,22 @@ class _WorkoutPage extends State<WorkoutPage> {
 
     startPartnerListening();
     Wakelock.enable();
+  }
+
+Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _name = (prefs.getString('name') ?? "Name");
+      print("Is this okay: {$_name}");
+    });
+    setState(() {
+      _HR = (prefs.getString('maxHR') ?? "Max HR");
+      print('$_HR');
+    });
+    setState(() {
+      _FTP = (prefs.getString('FTP') ?? "FTP");
+      print('$_FTP');
+    });
   }
 
   void startBluetoothListening() {
@@ -228,7 +249,7 @@ class _WorkoutPage extends State<WorkoutPage> {
             SizedBox(
               child: FittedBox(
                 child: Text(
-                "Name: ${data.name}",
+                "Name: ${_name}",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
