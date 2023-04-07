@@ -84,6 +84,17 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     return result;
   }
+  bool Connecting() {
+    if (isConnecting == true) {
+      print("CONNECTED!");
+      isConnecting = false;
+    }
+    else {
+      print("is connecting!");
+      isConnecting = true;
+    }
+    return isConnecting;
+  }
 
   // TODO: ListView is scrolling into the Positioned elements.
   @override
@@ -136,12 +147,15 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                         .connectionState}');
                                     if(update.connectionState == (DeviceConnectionState.connecting))
                                     {
-                                      print("changed to connecting");
+                                      setState(() {
                                       isConnecting = true;
+                                    });
                                     }
-                                    if(update.connectionState == (DeviceConnectionState.connected))
+                                    else if(update.connectionState == (DeviceConnectionState.connected))
                                     {
-                                      isConnecting = false;
+                                    setState(() {
+                                          isConnecting = false;
+                                        });
                                       Fluttertoast.showToast(
                                       msg: "Device Connected!",
                                       toastLength: Toast.LENGTH_SHORT,
@@ -178,7 +192,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                 }
                                 else {
                                   print("remove device");
-                                  isConnecting = false;
+                                  setState(() {
+                                    isConnecting = false;
+                                  });
                                   _connection.cancel();
                                   widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
                                 }
