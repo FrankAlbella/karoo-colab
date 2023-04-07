@@ -117,9 +117,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   )),
                               leading: const Icon(Icons.bluetooth, color: Colors.black,),
                               tileColor: !isConnected(device.id) ?
-                              Colors.white10 : Color.fromARGB(255, 149, 221, 255),                            // minVerticalPadding: widget.dialogWidth * .03,
+                              Colors.white10 : Color.fromARGB(255, 14, 112, 158),                            // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                              trailing: !isConnecting ? null : const Icon(Icons.circle_notifications, color: Colors.black,),
+                              trailing: !isConnecting ? null : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
                               onTap: () async {
                                 debugPrint("tappin");
                                 //connect
@@ -134,12 +134,14 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   ).listen((update) {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
-                                    while(update.connectionState == (DeviceConnectionState.connecting))
+                                    if(update.connectionState == (DeviceConnectionState.connecting))
                                     {
+                                      print("changed to connecting");
                                       isConnecting = true;
                                     }
                                     if(update.connectionState == (DeviceConnectionState.connected))
                                     {
+                                      isConnecting = false;
                                       Fluttertoast.showToast(
                                       msg: "Device Connected!",
                                       toastLength: Toast.LENGTH_SHORT,
@@ -175,6 +177,8 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   widget.connectedDevices.add(connectedSensor);
                                 }
                                 else {
+                                  print("remove device");
+                                  isConnecting = false;
                                   _connection.cancel();
                                   widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
                                 }
