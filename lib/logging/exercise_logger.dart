@@ -1,10 +1,16 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:logging/logging.dart';
+import 'package:karoo_collab/logging/workout.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'logger_constants.dart';
+
 class ExerciseLogger {
+  static ExerciseLogger? _instance;
+  static ExerciseLogger? get instance => _instance;
+
   final Map<String, dynamic> _map = {};
   late final Workout _workout = Workout();
 
@@ -15,13 +21,14 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
   }
 
-  static Future<ExerciseLogger> create() async {
+  static Future<void> create(DeviceType deviceType) async {
     var logger = ExerciseLogger();
 
     await logger._updateDeviceInfo();
+    logger._map[LoggerConstants.fieldGroupId] = deviceType.index;
     logger._map[LoggerConstants.fieldEvents] = [];
 
-    return logger;
+    _instance = logger;
   }
 
   void _logEvent(int event, [List? info]) {
@@ -97,11 +104,15 @@ class ExerciseLogger {
 
         eventMap[LoggerConstants.fieldDeviceName] = info[0];
         break;
+      case LoggerConstants.eventScreenOn:
+      case LoggerConstants.eventScreenOff:
+      case LoggerConstants.eventScreenUnlocked:
+        break;
       default:
         throw Exception("logEvent: $event is not a valid event type");
     }
 
-    print("New log entry: $eventMap");
+    log("New event log entry: $eventMap");
 
     _map[LoggerConstants.fieldEvents].add(eventMap);
   }
@@ -164,6 +175,18 @@ class ExerciseLogger {
     _logEvent(LoggerConstants.eventBluetoothDisconnect, [deviceDisconnectedName]);
   }
 
+  void logScreenTurnedOn() {
+    _logEvent(LoggerConstants.eventScreenOn);
+  }
+
+  void logScreenTurnedOff() {
+    _logEvent(LoggerConstants.eventScreenOff);
+  }
+
+  void logScreenUnlocked() {
+    _logEvent(LoggerConstants.eventScreenUnlocked);
+  }
+
   void logHeartRateData(int heartRate) {
     _workout.addHeartRateData(heartRate);
   }
@@ -174,6 +197,26 @@ class ExerciseLogger {
 
   void logDistanceData(int distance) {
     _workout.addDistanceData(distance);
+  }
+
+  void logCadenceData(int cadence) {
+    _workout.addCadenceData(cadence);
+  }
+
+  void logCalorieData(int calories) {
+    _workout.addCalorieData(calories);
+  }
+
+  void logStepData(int steps) {
+    _workout.addStepData(steps);
+  }
+
+  void logSpeedData(int speed) {
+    _workout.addSpeedData(speed);
+  }
+
+  void logLocationData(double latitude, double longitude) {
+    _workout.addLocationData(latitude, longitude);
   }
 
   static int secondsSinceEpoch() {
@@ -192,10 +235,10 @@ class ExerciseLogger {
 
     file.writeAsString(asJson);
 
-    print("Log saved to: $file");
+    log("Log saved to: $file");
   }
 
-  void insertInDatabase() async {
+  Future<void> insertInDatabase() async {
     HttpClient httpClient = HttpClient();
     HttpClientRequest request = await httpClient.postUrl(Uri.parse(LoggerConstants.databaseUrlPost));
     request.headers.set("apiKey", LoggerConstants.databaseApiKey);
@@ -205,7 +248,7 @@ class ExerciseLogger {
       "dataSource": "FitnessLog",
       "database": "FitnessLog",
       "collection": "Test",
-      "document": toJsonString()
+      "document": toMap()
     };
 
     request.write(jsonEncode(body));
@@ -215,192 +258,20 @@ class ExerciseLogger {
 
     httpClient.close();
 
-    if(response.statusCode == 200) {
-      Logger.root.info("Database insertion successful: $reply");
+    if(response.statusCode ~/ 100 == 2) {
+      log("Database insertion successful: $reply");
     } else {
-      Logger.root.warning("Database insertion unsuccessful: $reply");
+      log("Database insertion unsuccessful: $reply");
     }
+  }
+
+  Map<String, dynamic> toMap() {
+    _map[LoggerConstants.fieldWorkout] = _workout.toMap();
+    return _map;
   }
 
   String toJsonString() {
     _map[LoggerConstants.fieldWorkout] = _workout.toMap();
     return jsonEncode(_map);
   }
-}
-
-enum WorkoutType {
-  running,
-  walking,
-  cycling,
-  biking
-}
-
-extension WorkoutTypeExtension on WorkoutType {
-  String toShortString() {
-    return toString().split('.').last;
-  }
-}
-
-class Workout {
-  late WorkoutType _workoutType;
-  final List<Map<String, String>> _partners = [];
-  late int _startTime;
-
-  late String _heartRateUnits;
-  late int _heartRateMax;
-  final List<Map<String, int>> _heartRateData = [];
-
-  late String _powerUnits;
-  final List<Map<String, int>> _powerData = [];
-
-  late String _distanceUnits;
-  final List<Map<String, int>> _distanceData = [];
-
-  Workout({WorkoutType workoutType = WorkoutType.cycling, int maxHeartRate = 120}) {
-    start(workoutType);
-    _heartRateUnits = LoggerConstants.valueBPM;
-    _powerUnits = LoggerConstants.valueWatts;
-    _distanceUnits = LoggerConstants.valueMeters;
-    _heartRateMax = maxHeartRate;
-  }
-
-  void start(WorkoutType workoutType) {
-    _startTime = ExerciseLogger.secondsSinceEpoch();
-    _workoutType = workoutType;
-  }
-
-  void setMaxHeartRate(int max) {
-    _heartRateMax = max;
-  }
-
-  // TODO: make enum of heart rate units
-  void setHeartRateUnits(String units) {
-    _heartRateUnits = units;
-  }
-
-  // TODO: make enum of power units
-  void setPowerUnits(String units) {
-    _powerUnits = units;
-  }
-  
-  // TODO: make enum of distance units
-  void setDistanceUnits(String units) {
-    _distanceUnits = units;
-  }
-
-  void addPartner(String partnerName, String partnerDeviceId, String partnerSerialNum) {
-    Map<String, String> partnerMap = {};
-
-    partnerMap[LoggerConstants.fieldName] = partnerName;
-    partnerMap[LoggerConstants.fieldDeviceId] = partnerDeviceId;
-    partnerMap[LoggerConstants.fieldSerialNum] = partnerSerialNum;
-
-    _partners.add(partnerMap);
-  }
-
-  void addHeartRateData(int heartRate) {
-    Map<String, int> heartRateMap = {};
-
-    heartRateMap[LoggerConstants.fieldValue] = heartRate;
-    heartRateMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
-
-    _heartRateData.add(heartRateMap);
-  }
-
-  void addPowerData(int power) {
-    Map<String, int> powerMap = {};
-
-    powerMap[LoggerConstants.fieldValue] = power;
-    powerMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
-
-    _powerData.add(powerMap);
-  }
-
-  void addDistanceData(int distance) {
-    Map<String, int> distanceMap = {};
-
-    distanceMap[LoggerConstants.fieldValue] = distance;
-    distanceMap[LoggerConstants.fieldTimestamp] = ExerciseLogger.secondsSinceEpoch();
-
-    _distanceData.add(distanceMap);
-  }
-
-  Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {};
-    Map<String, dynamic> heartRateMap = {};
-    Map<String, dynamic> powerMap = {};
-    Map<String, dynamic> distanceMap = {};
-
-    map[LoggerConstants.fieldWorkoutType] = _workoutType.toShortString();
-    map[LoggerConstants.fieldTimestamp] = _startTime;
-
-    map[LoggerConstants.fieldPartners] = _partners;
-
-    heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
-    heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
-    heartRateMap[LoggerConstants.fieldData] = _heartRateData;
-    map[LoggerConstants.fieldHeartRate] = heartRateMap;
-
-    powerMap[LoggerConstants.fieldUnits] = _powerUnits;
-    powerMap[LoggerConstants.fieldData] = _powerData;
-    map[LoggerConstants.fieldPower] = powerMap;
-
-    distanceMap[LoggerConstants.fieldUnits] = _distanceUnits;
-    distanceMap[LoggerConstants.fieldData] = _distanceData;
-    map[LoggerConstants.fieldDistance] = distanceMap;
-
-    return map;
-  }
-}
-
-class LoggerConstants {
-  // TODO: remove these from the source code into env variables or something
-  static const databaseUrlPost = "https://us-east-1.aws.data.mongodb-api.com/app/data-nphof/endpoint/data/v1/action/insertOne";
-  static const databaseUrlFind = "https://us-east-1.aws.data.mongodb-api.com/app/data-nphof/endpoint/data/v1/action/find";
-  static const databaseApiKey = "e1G2HlcHaZPlJ2NOoFtP3ocZilWoQOoPIdZ8pndoFpECJhoNn7e5684PV0NTZSXg";
-
-  static const eventAppLaunched = 0;
-  static const eventAppClosed = 1;
-  static const eventButtonPressed = 2;
-  static const eventPageNavigate = 3;
-  static const eventSettingChanged = 4;
-  static const eventWorkoutStarted = 5;
-  static const eventWorkoutEnded = 6;
-  static const eventWorkoutPaused = 7;
-  static const eventWorkoutUnpaused = 8;
-  static const eventPartnerConnect = 9;
-  static const eventPartnerDisconnect = 10;
-  static const eventBluetoothInit = 11;
-  static const eventBluetoothConnect = 12;
-  static const eventBluetoothDisconnect = 13;
-
-  static const fieldName = "name";
-  static const fieldDeviceId = "device_id";
-  static const fieldSerialNum = "serial_number";
-  static const fieldWorkout = "workout";
-  static const fieldEvents = "events";
-  static const fieldEventType = "event_type";
-  static const fieldWorkoutType = "workout_type";
-  static const fieldPreviousPage = "previous_page";
-  static const fieldCurrentPage = "current_page";
-  static const fieldTimestamp = "timestamp";
-  static const fieldSettingName = "setting_name";
-  static const fieldPreviousValue = "previous_value";
-  static const fieldCurrentValue = "current_value";
-  static const fieldPartnerDeviceId = "partner_device_id";
-  static const fieldPartnerSerialNum = "partner_serial_number";
-  static const fieldDeviceName = "device_name";
-  static const fieldStartTimestamp = "start_timestamp";
-  static const fieldValue = "value";
-  static const fieldUnits = "units";
-  static const fieldData = "data";
-  static const fieldPartners = "partners";
-  static const fieldHeartRate = "heart_rate";
-  static const fieldMaxHeartRate = "max_heart_rate";
-  static const fieldDistance = "distance";
-  static const fieldPower = "power";
-
-  static const valueBPM = "beats_per_minute";
-  static const valueMeters = "meters";
-  static const valueWatts = "watts";
 }
