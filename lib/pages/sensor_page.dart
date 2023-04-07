@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../ble_sensor_device.dart';
-import 'package:screen/screen.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 
@@ -50,18 +49,36 @@ class _SensorPage extends State<SensorPage> {
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
-      body: Center(
-        child: MonitorConnect(
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text("Choose device to pair",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    decoration: TextDecoration.underline,
+                  )),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: MonitorConnect(
                   flutterReactiveBle: flutterReactiveBle,
-                  callback: (deviceList)=> setState(() {
-                    RiderData.connectedDevices = deviceList;
-                  }),
+                  callback: (deviceList) => setState(() {
+                        RiderData.connectedDevices = deviceList;
+                      }),
                   connectedDevices: RiderData.connectedDevices,
-                  offset: const Offset(0, 0),
+                  offset: const Offset(.1, .1),
                   link: layerLink,
                   dialogWidth: dialogWidth,
-                  dialogHeight: dialogHeight
-              ),
+                  dialogHeight: dialogHeight),
+            ),
+          ),
+        ],
       ),
       persistentFooterButtons: [
         IconButton(

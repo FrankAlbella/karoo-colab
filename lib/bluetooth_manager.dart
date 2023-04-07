@@ -3,6 +3,8 @@ For apps targeting Build.VERSION_CODES#R or lower, this requires the Manifest.pe
 For apps targeting Build.VERSION_CODES#S or or higher, this requires the Manifest.permission#BLUETOOTH_CONNECT permission which can be gained with Activity.requestPermissions(String[], int).
 */
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -69,6 +71,17 @@ class BluetoothManager {
     try {
       // Check if device is already connected
       if(device.isConnected) {
+
+        Fluttertoast.showToast(
+            msg: "Device is already connected!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+
         throw Exception("Device already connected!");
       }
 
@@ -78,6 +91,16 @@ class BluetoothManager {
           .onError((error, stackTrace) => throw Exception(stackTrace));
 
       _connections[lastConnectionId] = connection;
+
+      Fluttertoast.showToast(
+          msg: "Connected to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
 
       // Subscribe to data updates
       StreamSubscription? subscription = connection.input?.listen((data) {
@@ -94,6 +117,17 @@ class BluetoothManager {
       return true;
     } catch (e) {
       Logger.root.severe('Error connecting to device: $e');
+
+      Fluttertoast.showToast(
+          msg: "Unable to connect to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+
       return false;
     }
   }
