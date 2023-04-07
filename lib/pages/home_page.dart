@@ -1,11 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:karoo_collab/pages/paired_workout.dart';
 import 'package:karoo_collab/pages/settings_page.dart';
 import 'package:karoo_collab/pages/solo_workout.dart';
+import '../ble_sensor_device.dart';
 import '../logging/exercise_logger.dart';
 import '../logging/logger_constants.dart';
+import '../rider_data.dart';
 import 'sensor_page.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -42,6 +45,9 @@ Future<void> _testLogger() async {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  // Obtain FlutterReactiveBle instance for entire app.
+  final flutterReactiveBle = FlutterReactiveBle();
+
   Future<void> initLogger() async{
     await ExerciseLogger.create(DeviceType.karoo);
     ExerciseLogger.instance?.logAppLaunched("home_page");
@@ -51,6 +57,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     initLogger();
+  }
+
+  Route _createRoute(FlutterReactiveBle ble,
+      List<BleSensorDevice>? connectedDevices, String type) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SoloWorkout(
+          flutterReactiveBle: ble,
+          deviceList: connectedDevices,
+          title: "Active Run"),
+    );
   }
 
   @override
@@ -108,11 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SoloWorkout(
-                                        title: 'Solo Workout')));
+                            Navigator.of(context).push(_createRoute(
+                                flutterReactiveBle, RiderData.connectedDevices, ""));
                           },
                           child: const ListTile(
                             title: Text("SOLO WORKOUT",
