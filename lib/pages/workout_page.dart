@@ -69,13 +69,19 @@ class _WorkoutPage extends State<WorkoutPage> {
   void initState() {
     super.initState();
 
+    startBluetoothListening();
+    BluetoothManager.instance.deviceDataStream.listen((dataMap) {
+      Logger.root.info('got data from a connection: $dataMap');
+    });
+
     startPartnerListening();
     Wakelock.enable();
   }
 
   void startBluetoothListening() {
     if (widget.deviceList != null) {
-        for (BleSensorDevice device in widget.deviceList!) {
+      debugPrint("MAYBE GOTTEM?");
+      for (BleSensorDevice device in widget.deviceList!) {
           debugPrint("we Gottem");
           if (device.type == 'HR') {
             debugPrint("Device sub: ${device.deviceId}");
@@ -126,10 +132,10 @@ class _WorkoutPage extends State<WorkoutPage> {
     BluetoothManager.instance.deviceDataStream.listen((event) {
       Logger.root.info('got data from a connection: $event');
       final map = event.values.first;
-
       for(final key in map.keys) {
         switch(key) {
           case "heartRate":
+            debugPrint("we Gottem");
             partnerHR = int.parse(map[key] ?? "-1");
             Logger.root.info('Set partner HR: $partnerHR');
             break;
@@ -179,9 +185,8 @@ class _WorkoutPage extends State<WorkoutPage> {
             // SizedBox(
             //   child: const Icon(Icons.heart_broken, size: 30, color: Colors.black,),
             // ),
-            SizedBox(
+        SizedBox(
               child: FittedBox(
-                fit: BoxFit.scaleDown,
               child: Text(
                 "HR: $myHR",
                 textAlign: TextAlign.center,
@@ -190,16 +195,15 @@ class _WorkoutPage extends State<WorkoutPage> {
             ),
             SizedBox(
               child: FittedBox(
-                fit: BoxFit.scaleDown,
                 child: Text(
                 "Partner HR: $partnerHR",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
+
               ),)
             ),
             SizedBox(
               child: FittedBox(
-                fit: BoxFit.scaleDown,
               child: Text(
                 "PWR: $myPower",
                 textAlign: TextAlign.center,
@@ -208,17 +212,14 @@ class _WorkoutPage extends State<WorkoutPage> {
             ),
             SizedBox(
               child: FittedBox(
-                fit: BoxFit.scaleDown,
                 child: Text(
                 "Partner PWR: $partnerPower",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
               ),)
             ),
-
             SizedBox(
               child: FittedBox(
-                fit: BoxFit.scaleDown,
                 child: Text(
                 "Name: " + data.name,
                 textAlign: TextAlign.center,
