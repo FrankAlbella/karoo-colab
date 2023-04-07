@@ -1,8 +1,11 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:karoo_collab/pages/paired_workout.dart';
 import 'package:karoo_collab/pages/settings_page.dart';
 import 'package:karoo_collab/pages/solo_workout.dart';
+import '../logging/exercise_logger.dart';
+import '../logging/logger_constants.dart';
 import 'sensor_page.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -14,7 +17,42 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+Future<void> _testLogger() async {
+  ExerciseLogger.instance?.logAppLaunched("pageName");
+  ExerciseLogger.instance?.logAppClosed("pageName");
+  ExerciseLogger.instance?.logButtonPressed("buttonName");
+  ExerciseLogger.instance?.logPageNavigate("prev", "current");
+  ExerciseLogger.instance?.logSettingChanged("settingName", "previousValue", "currentValue");
+  ExerciseLogger.instance?.logWorkoutStarted(WorkoutType.cycling);
+  ExerciseLogger.instance?.logWorkoutEnded(WorkoutType.cycling);
+  ExerciseLogger.instance?.logWorkoutPaused();
+  ExerciseLogger.instance?.logWorkoutUnpaused();
+  ExerciseLogger.instance?.logPartnerConnected("partnerName", "partnerDeviceId", "partnerSerialNum");
+  ExerciseLogger.instance?.logPartnerDisconnected("partnerName", "partnerId");
+  ExerciseLogger.instance?.logBluetoothInit();
+  ExerciseLogger.instance?.logBluetoothConnect("deviceConnectedName");
+  ExerciseLogger.instance?.logBluetoothDisconnect("deviceDisconnectedName");
+  ExerciseLogger.instance?.logHeartRateData(1);
+  ExerciseLogger.instance?.logPowerData(2);
+  ExerciseLogger.instance?.logDistanceData(3);
+  ExerciseLogger.instance?.saveToFile();
+  ExerciseLogger.instance?.insertInDatabase();
+
+}
+
 class _MyHomePageState extends State<MyHomePage> {
+
+  Future<void> initLogger() async{
+    await ExerciseLogger.create(DeviceType.karoo);
+    ExerciseLogger.instance?.logAppLaunched("home_page");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initLogger();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,6 +172,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.white,
                                 )),
                           )))),
+              SizedBox(
+                  height: 65,
+                  width: 10,
+                  child: Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              padding: const EdgeInsets.all(0)),
+                          onPressed: () {
+                           _testLogger();
+                          },
+                          child: const ListTile(
+                            title: Text("Test Logging!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                )),
+                          ))))
+
             ],
             ),
           ),
