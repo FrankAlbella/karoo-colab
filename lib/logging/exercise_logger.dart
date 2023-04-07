@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'logger_constants.dart';
 
 class ExerciseLogger {
+  static ExerciseLogger? _instance;
+  static ExerciseLogger? get instance => _instance;
+
   final Map<String, dynamic> _map = {};
   late final Workout _workout = Workout();
 
@@ -18,14 +21,14 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
   }
 
-  static Future<ExerciseLogger> create(DeviceType deviceType) async {
+  static Future<void> create(DeviceType deviceType) async {
     var logger = ExerciseLogger();
 
     await logger._updateDeviceInfo();
     logger._map[LoggerConstants.fieldGroupId] = deviceType.index;
     logger._map[LoggerConstants.fieldEvents] = [];
 
-    return logger;
+    _instance = logger;
   }
 
   void _logEvent(int event, [List? info]) {
