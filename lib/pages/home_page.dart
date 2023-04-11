@@ -156,18 +156,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
-                            ExerciseLogger.instance?.logButtonPressed("SettingsButton");
+                            ExerciseLogger.instance?.logButtonPressed("SensorsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SettingsPage(
-                                        title: 'Settings')));
+                                    builder: (context) => const SensorPage(
+                                        title: 'Sensors')));
                           },
                           child: const ListTile(
-                            title: Text("SETTINGS",
+                            title: Text("SENSORS",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   color: Colors.white,
                                 )),
                           )))),
@@ -182,18 +182,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
-                            ExerciseLogger.instance?.logButtonPressed("SensorsButton");
+                            ExerciseLogger.instance?.logButtonPressed("SettingsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SensorPage(
-                                        title: 'Sensors')));
+                                    builder: (context) => const SettingsPage(
+                                        title: 'Settings')));
                           },
                           child: const ListTile(
-                            title: Text("SENSORS",
+                            title: Text("SETTINGS",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Colors.white,
                                 )),
                           )))),

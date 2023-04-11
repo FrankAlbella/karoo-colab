@@ -6,6 +6,7 @@ import 'package:wakelock/wakelock.dart';
 
 import '../ble_sensor_device.dart';
 import '../bluetooth_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../rider_data.dart';
 
 class SoloWorkout extends StatefulWidget {
@@ -30,11 +31,32 @@ class _SoloWorkout extends State<SoloWorkout> {
   int myPower = 0;
   int myCadence = 0;
   int mySpeed = 0;
+  String _name = "";
+  String _HR = "";
+  String _FTP = "";
   Duration duration = Duration();
   Timer? timer;
   int distance = 0;
+  bool pauseWorkout = true;
+    bool stopWorkout = false;
 
   final RiderData data = RiderData();
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _name = (prefs.getString('name') ?? "Name").substring(0, 4);
+      print("Is this okay: {$_name}");
+    });
+    setState(() {
+      _HR = (prefs.getString('maxHR') ?? "Max HR");
+      print('$_HR');
+    });
+    setState(() {
+      _FTP = (prefs.getString('FTP') ?? "FTP");
+      print('$_FTP');
+    });
+  }
 
   late StreamSubscription peerSubscription;
   StreamSubscription<List<int>>? subscribeStreamHR;
@@ -108,11 +130,14 @@ class _SoloWorkout extends State<SoloWorkout> {
     super.initState();
     startSensorListening();
     Wakelock.enable();
+    _loadSettings();
   }
+  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black26,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: SizedBox(
         child: FloatingActionButton(
@@ -126,49 +151,58 @@ class _SoloWorkout extends State<SoloWorkout> {
         ),
       ),
       body: SafeArea(
-          child: Column(children: [
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
         Row(
           children: const <Widget>[
-            Text("SPEED", style: TextStyle(fontSize: 25)),
+            Text("TIMER: ", style: TextStyle(fontSize: 25, color: Colors.white)),
             Spacer(),
-            Text("SPEED", style: TextStyle(fontSize: 25)),
-            Spacer(),
-            Text("SPEED", style: TextStyle(fontSize: 25)),
           ],
         ),
         Row(
           children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                  child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  "HR: $myHR",
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "$_name\'s HR:",
                   style: const TextStyle(
-                      fontSize: 25,
-                      color: Colors.black,
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$myHR",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600),
                 ),
-              )),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.topRight,
-              child: SizedBox(
-                  child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  "PWR: $myPower",
+                ],)
+                ),
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "$_name\'s Power:",
                   style: const TextStyle(
-                      fontSize: 25,
-                      color: Colors.black,
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$myPower",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600),
                 ),
-              )),
-            ),
+                ],)
+                ),
           ],
         ),
+        
       ])),
     );
   }

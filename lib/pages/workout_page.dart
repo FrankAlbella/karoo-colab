@@ -86,7 +86,7 @@ class _WorkoutPage extends State<WorkoutPage> {
 Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _name = (prefs.getString('name') ?? "Name");
+      _name = (prefs.getString('name') ?? "Name").substring(0, 4);
       print("Is this okay: {$_name}");
     });
     setState(() {
@@ -202,61 +202,106 @@ Future<void> _loadSettings() async {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        title: Text(widget.title, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            // SizedBox(
-            //   child: const Icon(Icons.heart_broken, size: 30, color: Colors.black,),
-            // ),
-        SizedBox(
-              child: FittedBox(
-              child: Text(
-                "HR: $myHR",
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.w600),
-              ),)
-            ),
-            SizedBox(
-              child: FittedBox(
-                child: Text(
-                "Partner HR: $partnerHR",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
-
-              ),)
-            ),
-            SizedBox(
-              child: FittedBox(
-              child: Text(
-                "PWR: $myPower",
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.w600),
-              ),)
-            ),
-            SizedBox(
-              child: FittedBox(
-                child: Text(
-                "Partner PWR: $partnerPower",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
-              ),)
-            ),
-            SizedBox(
-              child: FittedBox(
-                child: Text(
-                "Name: ${_name}",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 25, color: Colors.red.shade200, fontWeight: FontWeight.w600),
-              ),)
-            ),
+      backgroundColor: Colors.black26,
+      body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+        Row(
+          children: const <Widget>[
+            Text("TIMER: ", style: TextStyle(fontSize: 25, color: Colors.white)),
+            Spacer(),
           ],
         ),
-      ),
+        Row(
+          children: [
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "$_name\'s HR:",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$myHR",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                ],)
+                ),
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "$_name\'s Power:",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$myPower",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                ],)
+                ),
+          ],
+        ),
+        Row(
+          children: [
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "Partn's HR:",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$partnerHR",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                ],)
+                ),
+            SizedBox.square(
+                dimension: 120,
+                child: Column(children: [
+                  Text(
+                  "Partn's Power:",
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                  "$partnerPower",
+                  style: const TextStyle(
+                      fontSize: 50,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                ],)
+                ),
+          ],
+        ),
+      ])),
       persistentFooterButtons: [
         IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
