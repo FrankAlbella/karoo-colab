@@ -85,6 +85,17 @@ class _MonitorConnectState extends State<MonitorConnect> {
     return result;
   }
   
+  Icon deviceIcon(String id) {
+    if(id.contains(_heartRateServiceUUID.toString()) == true)
+    {
+      return Icon(Icons.heart_broken, color: Colors.black,);
+    }
+    else if(id.contains(_cyclingPowerServiceUUID.toString()) == true)
+    {
+      return Icon(Icons.power, color: Colors.black,);
+    }
+    return Icon(Icons.bluetooth, color: Colors.black,);
+  }
 
   // TODO: ListView is scrolling into the Positioned elements.
   @override
@@ -116,7 +127,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                       height: 1.7,
                                       color: Colors.black
                                   )),
-                              leading: const Icon(Icons.bluetooth, color: Colors.black,),
+                              leading: deviceIcon(device.serviceUuids.toString()),
                               tileColor: !isConnected(device.id) ?
                               Colors.white10 : Color.fromARGB(255, 14, 112, 158),                            // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
@@ -156,9 +167,9 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                       fontSize: 16.0);
                                     }
                                   });
-                                  debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
-                                  debugPrint("uid? ${device.serviceUuids}");
-                                  debugPrint("hr? $_heartRateServiceUUID");
+                                  // debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
+                                  // debugPrint("uid? ${device.serviceUuids}");
+                                  // debugPrint("hr? $_heartRateServiceUUID");
                                   if ((device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())) == true) {
                                     debugPrint("Oh my god please");
                                     connectedSensor = BleSensorDevice(

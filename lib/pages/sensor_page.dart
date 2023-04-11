@@ -59,7 +59,6 @@ class _SensorPage extends State<SensorPage> {
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
-                    decoration: TextDecoration.underline,
                   )),
             ),
           ),
