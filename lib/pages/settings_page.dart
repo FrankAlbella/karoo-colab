@@ -228,6 +228,7 @@ class _SettingsPage extends State<SettingsPage> {
         IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
+            ExerciseLogger.instance?.logButtonPressed("BackButton");
             Navigator.pop(context);
           },
           alignment: Alignment.bottomLeft,
@@ -236,6 +237,7 @@ class _SettingsPage extends State<SettingsPage> {
         IconButton(
           icon: const Icon(Icons.check),
           onPressed: () {
+            ExerciseLogger.instance?.logButtonPressed("SettingsUpdate");
             _updateSettings();
             Fluttertoast.showToast(
                 msg: "Updated Settings!",

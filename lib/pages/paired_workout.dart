@@ -59,6 +59,7 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
                                     ExerciseLogger.instance?.logButtonPressed("HostWorkoutButton");
+                                    ExerciseLogger.instance?.logPageNavigate("paired_workout", "host_page");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -87,6 +88,7 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
                                     ExerciseLogger.instance?.logButtonPressed("JoinWorkoutButton");
+                                    ExerciseLogger.instance?.logPageNavigate("paired_workout", "join_workout");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(

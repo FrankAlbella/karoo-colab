@@ -6,6 +6,7 @@ import 'package:wakelock/wakelock.dart';
 
 import '../ble_sensor_device.dart';
 import '../bluetooth_manager.dart';
+import '../logging/exercise_logger.dart';
 import '../rider_data.dart';
 
 class SoloWorkout extends StatefulWidget {
@@ -120,6 +121,8 @@ class _SoloWorkout extends State<SoloWorkout> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           child: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
+            ExerciseLogger.instance?.logButtonPressed("BackButton");
+            ExerciseLogger.instance?.logPageNavigate("solo_workout", "home_page");
             Wakelock.disable();
             Navigator.pop(context);
           },

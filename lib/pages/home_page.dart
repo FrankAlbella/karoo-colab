@@ -108,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
                             ExerciseLogger.instance?.logButtonPressed("PairedWorkoutsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "paired_workout");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -134,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
                             ExerciseLogger.instance?.logButtonPressed("SoloWorkoutsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "solo_workout");
                             Navigator.of(context).push(_createRoute(
                                 flutterReactiveBle, RiderData.connectedDevices, ""));
                           },
@@ -157,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
                             ExerciseLogger.instance?.logButtonPressed("SettingsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "settings_page");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -183,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
                             ExerciseLogger.instance?.logButtonPressed("SensorsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "sensor_page");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
