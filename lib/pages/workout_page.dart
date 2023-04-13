@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
+import 'package:geolocator/geolocator.dart';
 import 'package:wakelock/wakelock.dart';
 import '../ble_sensor_device.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -14,6 +15,7 @@ class WorkoutPage extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
   final List<BleSensorDevice>? deviceList;
   final String title;
+
   const WorkoutPage({
     super.key,
     required this.flutterReactiveBle,
@@ -42,6 +44,14 @@ class _WorkoutPage extends State<WorkoutPage> {
   int _targetHR = 120;
   int _maxFTP = 150;
   final RiderData data = RiderData();
+  Duration duration = Duration();
+  Timer? timer;
+  double distance = 0;
+  bool pauseWorkout = false;
+  bool stopWorkout = false;
+  Position? currentPosition;
+  Position? initialPosition;
+  late StreamSubscription<Position> positionStreamSubscription;
 
   late StreamSubscription peerSubscription;
   StreamSubscription<List<int>>? subscribeStreamHR;
@@ -72,7 +82,13 @@ class _WorkoutPage extends State<WorkoutPage> {
   @override
   void initState() {
     super.initState();
+    Wakelock.enable();
     _loadSettings();
+    startTimer();
+    getCurrentLocation();
+    positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 15))
+        .listen(onPositionUpdate);
 
     startBluetoothListening();
     BluetoothManager.instance.deviceDataStream.listen((dataMap) {
@@ -80,7 +96,6 @@ class _WorkoutPage extends State<WorkoutPage> {
     });
 
     startPartnerListening();
-    Wakelock.enable();
   }
 
   Future<void> _loadSettings() async {
@@ -179,6 +194,116 @@ class _WorkoutPage extends State<WorkoutPage> {
     });
   }
 
+  void getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      initialPosition = position;
+      currentPosition = position;
+    });
+    listenToLocationChanges();
+  }
+
+  void listenToLocationChanges() {
+    Geolocator.getPositionStream().listen((position) {
+      if (mounted) {
+        setState(() {
+          currentPosition = position;
+          distance = Geolocator.distanceBetween(
+            initialPosition!.latitude,
+            initialPosition!.longitude,
+            currentPosition!.latitude,
+            currentPosition!.longitude,
+          );
+          initialPosition = position;
+        });
+      }
+    });
+  }
+
+  void onPositionUpdate(Position newPosition) {
+    setState(() {
+      currentPosition = newPosition;
+      if (initialPosition != null) {
+        final distanceInMeters = Geolocator.distanceBetween(
+            initialPosition!.latitude,
+            initialPosition!.longitude,
+            currentPosition!.latitude,
+            currentPosition!.longitude);
+        initialPosition = newPosition;
+        distance += distanceInMeters;
+
+        debugPrint("Initial LONG: ${initialPosition!.longitude}");
+        debugPrint("Initial LAT: ${initialPosition!.latitude}");
+        debugPrint("Curr LONG: ${currentPosition!.longitude}");
+        debugPrint("Curr LONG: ${currentPosition!.latitude}");
+
+        debugPrint('Distance so far is: $distance');
+      }
+    });
+  }
+
+  void getLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permission was denied again, handle the error
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permission was permanently denied, take the user to app settings
+      return;
+    }
+
+    // Permission has been granted, you can now access the device's location
+    final position = await Geolocator.getCurrentPosition();
+    print(position);
+  }
+
+  void addTime() {
+    setState(() {
+      final seconds = duration.inSeconds + 1;
+      duration = Duration(seconds: seconds);
+    });
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) => addTime());
+  }
+
   @override
   void dispose() {
     peerSubscription =
@@ -191,6 +316,11 @@ class _WorkoutPage extends State<WorkoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String? hours, minutes, seconds;
+    hours = twoDigits(duration.inHours.remainder(60));
+    minutes = twoDigits(duration.inMinutes.remainder(60));
+    seconds = twoDigits(duration.inSeconds.remainder(60));
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -200,17 +330,109 @@ class _WorkoutPage extends State<WorkoutPage> {
         automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.black26,
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        FloatingActionButton(
+          heroTag: "playpause",
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          onPressed: () {
+            setState(() {
+              pauseWorkout = !pauseWorkout;
+              if (pauseWorkout) //PLAY/PAUSE WORKOUT!
+              {
+                timer?.cancel();
+                positionStreamSubscription.pause();
+              } else {
+                startTimer();
+                positionStreamSubscription.resume();
+              }
+            });
+          },
+          child: Icon(pauseWorkout ? Icons.play_arrow : Icons.pause),
+        ),
+        Visibility(
+          visible: pauseWorkout == true,
+          child: FloatingActionButton(
+            heroTag: "endride",
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            child: const Icon(Icons.delete),
+            onPressed: () {
+              //END WORKOUT!
+              stopWorkout = true;
+            },
+          ),
+        )
+      ]),
       body: SafeArea(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-            Row(
-              children: const <Widget>[
-                Text("TIMER: ",
-                    style: TextStyle(fontSize: 25, color: Colors.white)),
-                Spacer(),
-              ],
-            ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 80,
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: RichText(
+                        text: TextSpan(
+                          text: '\n\t\tDuration',
+                          style: const TextStyle(fontSize: 15, color: Colors.white),
+                          children: [
+                            TextSpan(
+                              text: '$minutes:$seconds',
+                              style: const TextStyle(
+                                  fontSize: 25, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                        height: 80,
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Distance:",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              distance.floor().toString(),
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                        height: 80,
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Column(
+                          children: const [
+                            Text(
+                              "Speed:",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "100",
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )),
+                  ],
+                ),
             Row(
               children: [
                 SizedBox.square(
@@ -261,9 +483,9 @@ class _WorkoutPage extends State<WorkoutPage> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        Text(
-                          "Partn's HR:",
-                          style: const TextStyle(
+                        const Text(
+                          "Partner's HR:",
+                          style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
@@ -281,9 +503,9 @@ class _WorkoutPage extends State<WorkoutPage> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        Text(
-                          "Partn's Power:",
-                          style: const TextStyle(
+                        const Text(
+                          "Partner's Power:",
+                          style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
@@ -300,18 +522,6 @@ class _WorkoutPage extends State<WorkoutPage> {
               ],
             ),
           ])),
-      persistentFooterButtons: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () {
-            Wakelock.disable();
-            Navigator.pop(context);
-          },
-          alignment: Alignment.bottomLeft,
-        ),
-        const SizedBox(width: 100),
-      ],
-      persistentFooterAlignment: AlignmentDirectional.bottomStart,
     );
   }
 }

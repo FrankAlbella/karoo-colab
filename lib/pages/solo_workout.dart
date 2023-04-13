@@ -226,15 +226,15 @@ class _SoloWorkout extends State<SoloWorkout> {
   @override
   void initState() {
     super.initState();
-    startSensorListening();
     Wakelock.enable();
     _loadSettings();
     startTimer();
-
     getCurrentLocation();
     positionStreamSubscription = Geolocator.getPositionStream(
         locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 15))
         .listen(onPositionUpdate);
+
+    startSensorListening();
   }
 
   @override
