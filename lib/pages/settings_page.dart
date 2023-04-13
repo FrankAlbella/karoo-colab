@@ -1,22 +1,11 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:karoo_collab/pages/workout_page.dart';
-import 'package:karoo_collab/rider_data.dart';
-import '../bluetooth_manager.dart';
 import '../logging/exercise_logger.dart';
-import '../monitor_sensor.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import '../ble_sensor_device.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 Widget _buildPopupDialog(
-    BuildContext context, String funcType, TextEditingController _controller) {
+    BuildContext context, String funcType, TextEditingController controller) {
   return AlertDialog(
     //title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
     //contentPadding: EdgeInsets.zero,
@@ -26,7 +15,7 @@ Widget _buildPopupDialog(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TextField(
-          controller: _controller,
+          controller: controller,
           style: TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: funcType,
@@ -67,60 +56,63 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
-  final TextEditingController name_controller = TextEditingController();
-  final TextEditingController email_controller = TextEditingController();
-  final TextEditingController FTP_controller = TextEditingController();
-  final TextEditingController HR_controller = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController ftpController = TextEditingController();
+  final TextEditingController hrController = TextEditingController();
 
   String _name = "";
   String _email = "";
-  String _HR = "";
-  String _FTP = "";
+  int _hr = 120;
+  int _ftp = 250;
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _name = (prefs.getString('name') ?? "Name");
-      print('$_name');
+      print(_name);
     });
     setState(() {
       _email = (prefs.getString('email') ?? "Email");
-      print('$_email');
+      print(_email);
     });
     setState(() {
-      _HR = (prefs.getString('maxHR') ?? "Max HR");
-      print('$_HR');
+      _hr = (prefs.getInt('maxHR') ?? 120);
+      print('$_hr');
     });
     setState(() {
-      _FTP = (prefs.getString('FTP') ?? "FTP");
-      print('$_FTP');
+      _ftp = (prefs.getInt('FTP') ?? 250);
+      print('$_ftp');
     });
   }
 
   Future<void> _updateSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    if(name_controller.text!="")
+    if(nameController.text!="")
     {
       setState(() {
-      prefs.setString('name', name_controller.text);
+      prefs.setString('name', nameController.text);
+      ExerciseLogger.instance?.setUserName(nameController.text);
     });
     }
-    if(email_controller.text!="")
+    if(emailController.text!="")
     {
       setState(() {
-      prefs.setString('email', email_controller.text);
+      prefs.setString('email', emailController.text);
     });
     }
-    if(HR_controller.text!="")
+    if(hrController.text!="")
     {
       setState(() {
-      prefs.setString('maxHR', HR_controller.text);
+      prefs.setInt('maxHR', int.parse(hrController.text));
+      ExerciseLogger.instance?.setTargetHeartRate(int.parse(hrController.text));
     });
     }
-    if(FTP_controller.text!="")
+    if(ftpController.text!="")
     {
       setState(() {
-      prefs.setString('FTP', FTP_controller.text);
+      prefs.setInt('FTP', int.parse(ftpController.text));
+      ExerciseLogger.instance?.setMaxFTP(int.parse(ftpController.text));
     });
     }  
   }
@@ -133,9 +125,9 @@ class _SettingsPage extends State<SettingsPage> {
 
   @override
   void dispose() {
-    name_controller.dispose();
-    FTP_controller.dispose();
-    HR_controller.dispose();
+    nameController.dispose();
+    ftpController.dispose();
+    hrController.dispose();
     super.dispose();
   }
 
@@ -159,10 +151,10 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _name, name_controller),
+                        _buildPopupDialog(context, _name, nameController),
                   );
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.person,
                 ),
                 label: const Align(
@@ -175,10 +167,10 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _email, email_controller),
+                        _buildPopupDialog(context, _email, emailController),
                   );
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.mail,
                 ),
                 label: const Align(
@@ -191,10 +183,10 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _FTP, FTP_controller),
+                      _buildPopupDialog(context, _ftp.toString(), ftpController),
                 );
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.motorcycle,
               ),
               label: const Align(
@@ -208,11 +200,11 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _HR, HR_controller),
+                      _buildPopupDialog(context, _hr.toString(), hrController),
                 );
-                print(HR_controller.text);
+                print(hrController.text);
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.heart_broken,
               ),
               label: const Align(

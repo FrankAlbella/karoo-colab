@@ -26,6 +26,9 @@ class ExerciseLogger {
     _map[LoggerConstants.fieldName] = prefs.getString('name') ?? "Unknown";
     _map[LoggerConstants.fieldDeviceId] = deviceInfo.id;
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
+    
+    _workout.setTargetHeartRate(prefs.getInt('maxHR') ?? 120);
+    _workout.setMaxFTP(prefs.getInt('FTP') ?? 250);
   }
 
   static Future<void> create(DeviceType deviceType) async {
@@ -42,6 +45,14 @@ class ExerciseLogger {
 
   void setUserName(String name) {
     _map[LoggerConstants.fieldName] = name;
+  }
+
+  void setTargetHeartRate(int heartRate) {
+    _workout.setTargetHeartRate(heartRate);
+  }
+
+  void setMaxFTP(int max) {
+    _workout.setMaxFTP(max);
   }
 
   void _logEvent(int event, [List? info]) {

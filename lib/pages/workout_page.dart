@@ -39,8 +39,8 @@ class _WorkoutPage extends State<WorkoutPage> {
   int partnerCadence = 0;
   int partnerSpeed = 0;
   String _name = "";
-  String _HR = "";
-  String _FTP = "";
+  int _targetHR = 120;
+  int _maxFTP = 150;
   final RiderData data = RiderData();
 
   late StreamSubscription peerSubscription;
@@ -90,12 +90,12 @@ Future<void> _loadSettings() async {
       print("Is this okay: {$_name}");
     });
     setState(() {
-      _HR = (prefs.getString('maxHR') ?? "Max HR");
-      print('$_HR');
+      _targetHR = (prefs.getInt('maxHR') ?? _targetHR);
+      print('$_targetHR');
     });
     setState(() {
-      _FTP = (prefs.getString('FTP') ?? "FTP");
-      print('$_FTP');
+      _maxFTP = (prefs.getInt('FTP') ?? _maxFTP);
+      print('$_maxFTP');
     });
   }
 
