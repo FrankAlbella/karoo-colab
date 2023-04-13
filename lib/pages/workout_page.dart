@@ -134,12 +134,12 @@ Future<void> _loadSettings() async {
               setState(() {
                 // Update UI.
                 myPower = _readPower(event);
-                myCadence = _readCadence(event).toInt();
+                //myCadence = _readCadence(event).toInt();
                 // Broadcast power and cadence to partner.
                 BluetoothManager.instance.broadcastString('power:$myPower');
                 debugPrint("Broadcast string: power:$myPower");
-                BluetoothManager.instance.broadcastString('cadence:$myCadence');
-                debugPrint("Broadcast string: cadence:$myCadence");
+                //BluetoothManager.instance.broadcastString('cadence:$myCadence');
+                //debugPrint("Broadcast string: cadence:$myCadence");
                 // Log heart rate.
                 //widget.logger.workout.logHeartRate(event[1]);
               });
