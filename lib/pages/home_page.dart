@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: () {
                             ExerciseLogger.instance?.logButtonPressed("SensorsButton");
                             ExerciseLogger.instance?.logPageNavigate("home_page", "sensors_page");
-``                            Navigator.push(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const SensorPage(
@@ -169,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             title: Text("SENSORS",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Colors.white,
                                 )),
                           )))),
