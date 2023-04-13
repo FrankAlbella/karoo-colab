@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path/path.dart';
 import 'package:wakelock/wakelock.dart';
 import '../ble_sensor_device.dart';
 import '../bluetooth_manager.dart';
@@ -35,12 +36,12 @@ class _SoloWorkout extends State<SoloWorkout> {
   String _FTP = "";
   Duration duration = Duration();
   Timer? timer;
-  int distance = 0;
+  double distance = 0;
   bool pauseWorkout = false;
   bool stopWorkout = false;
-  Position? _initialPosition;
-  Position? _currentPosition;
-  late StreamSubscription<Position> _positionStreamSubscription;
+  Position? currentPosition;
+  Position? initialPosition;
+  late StreamSubscription<Position> positionStreamSubscription;
 
   final RiderData data = RiderData();
 
@@ -122,6 +123,106 @@ class _SoloWorkout extends State<SoloWorkout> {
     }
   }
 
+  void getCurrentLocation() async {
+
+    bool serviceEnabled;
+    LocationPermission permission;
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      initialPosition = position;
+      currentPosition = position;
+    });
+    listenToLocationChanges();
+  }
+
+  void listenToLocationChanges() {
+    Geolocator.getPositionStream().listen((position) {
+      if (mounted) {
+        setState(() {
+          currentPosition = position;
+          distance = Geolocator.distanceBetween(
+            initialPosition!.latitude,
+            initialPosition!.longitude,
+            currentPosition!.latitude,
+            currentPosition!.longitude,
+          );
+          initialPosition = position;
+        });
+      }
+    });
+  }
+
+  void onPositionUpdate(Position newPosition) {
+    setState(() {
+      currentPosition = newPosition;
+      if (initialPosition != null) {
+        final distanceInMeters = Geolocator.distanceBetween(
+            initialPosition!.latitude,
+            initialPosition!.longitude,
+            currentPosition!.latitude,
+            currentPosition!.longitude);
+        initialPosition = newPosition;
+        distance += distanceInMeters;
+
+        debugPrint("Initial LONG: ${initialPosition!.longitude}");
+        debugPrint("Initial LAT: ${initialPosition!.latitude}");
+        debugPrint("Curr LONG: ${currentPosition!.longitude}");
+        debugPrint("Curr LONG: ${currentPosition!.latitude}");
+
+        debugPrint('Distance so far is: $distance');
+      }
+    });
+  }
+
+  void getLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permission was denied again, handle the error
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permission was permanently denied, take the user to app settings
+      return;
+    }
+
+    // Permission has been granted, you can now access the device's location
+    final position = await Geolocator.getCurrentPosition();
+    print(position);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -129,6 +230,11 @@ class _SoloWorkout extends State<SoloWorkout> {
     Wakelock.enable();
     _loadSettings();
     startTimer();
+
+    getCurrentLocation();
+    positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 15))
+        .listen(onPositionUpdate);
   }
 
   @override
@@ -152,8 +258,11 @@ class _SoloWorkout extends State<SoloWorkout> {
               if (pauseWorkout) //PLAY/PAUSE WORKOUT!
               {
                 timer?.cancel();
+                positionStreamSubscription.pause();
+
               } else {
                 startTimer();
+                positionStreamSubscription.resume();
               }
             });
           },
@@ -181,8 +290,8 @@ class _SoloWorkout extends State<SoloWorkout> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                    height: 80,
-                    width: MediaQuery.of(context).size.width/3,
+                  height: 80,
+                  width: MediaQuery.of(context).size.width / 3,
                   child: RichText(
                     text: TextSpan(
                       text: '\n\t\tDuration',
@@ -190,7 +299,8 @@ class _SoloWorkout extends State<SoloWorkout> {
                       children: [
                         TextSpan(
                           text: '$minutes:$seconds',
-                          style: const TextStyle(fontSize: 25, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 25, color: Colors.white),
                         ),
                       ],
                     ),
@@ -198,7 +308,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                 ),
                 SizedBox(
                     height: 80,
-                    width: MediaQuery.of(context).size.width/3,
+                    width: MediaQuery.of(context).size.width / 3,
                     child: Column(
                       children: [
                         const Text(
@@ -209,7 +319,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          "$distance",
+                            distance.floor().toString(),
                           style: const TextStyle(
                               fontSize: 25,
                               color: Colors.white,
@@ -219,7 +329,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                     )),
                 SizedBox(
                     height: 80,
-                    width: MediaQuery.of(context).size.width/3,
+                    width: MediaQuery.of(context).size.width / 3,
                     child: Column(
                       children: const [
                         Text(
