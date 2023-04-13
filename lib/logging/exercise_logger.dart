@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:karoo_collab/logging/upload_manager.dart';
 import 'package:karoo_collab/logging/workout.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -13,6 +15,8 @@ class ExerciseLogger {
 
   final Map<String, dynamic> _map = {};
   late final Workout _workout = Workout();
+
+  late DeviceType _deviceType;
 
   Future<void> _updateDeviceInfo()  async {
     var deviceInfo = (await DeviceInfoPlugin().androidInfo);
@@ -27,6 +31,8 @@ class ExerciseLogger {
     await logger._updateDeviceInfo();
     logger._map[LoggerConstants.fieldGroupId] = deviceType.index;
     logger._map[LoggerConstants.fieldEvents] = [];
+
+    logger._deviceType = deviceType;
 
     _instance = logger;
   }
@@ -224,45 +230,36 @@ class ExerciseLogger {
     return (ms/1000).round();
   }
 
-  Future<void> saveToFile() async {
-    final directory = (await getApplicationDocumentsDirectory()).path;
+  Future<void> endWorkoutAndSaveLog() async {
+    final connectionStatus = await (Connectivity().checkConnectivity());
+    bool synced = false;
 
-    int time = secondsSinceEpoch();
+    // try to upload the file when the workout ends
+    if(connectionStatus == ConnectivityResult.mobile || connectionStatus == ConnectivityResult.wifi) {
+      synced = await UploadManager.instance.uploadWorkout(toJsonString());
+    }
 
-    File file = File("$directory/workout-$time");
+    _saveToFile(synced);
 
-    var asJson = toJsonString();
-
-    file.writeAsString(asJson);
-
-    log("Log saved to: $file");
+    await create(_deviceType);
   }
 
-  Future<void> insertInDatabase() async {
-    HttpClient httpClient = HttpClient();
-    HttpClientRequest request = await httpClient.postUrl(Uri.parse(LoggerConstants.databaseUrlPost));
-    request.headers.set("apiKey", LoggerConstants.databaseApiKey);
-    request.headers.contentType = ContentType("application", "json");
+  Future<void> _saveToFile(bool isSynced) async {
+    final appFilesDir = (await getApplicationDocumentsDirectory()).path;
+    int time = secondsSinceEpoch();
 
-    Map<String, dynamic> body = {
-      "dataSource": "FitnessLog",
-      "database": "FitnessLog",
-      "collection": "Test",
-      "document": toMap()
-    };
+    File file;
 
-    request.write(jsonEncode(body));
-
-    HttpClientResponse response = await request.close();
-    String reply = await response.transform(utf8.decoder).join();
-
-    httpClient.close();
-
-    if(response.statusCode ~/ 100 == 2) {
-      log("Database insertion successful: $reply");
+    if(isSynced) {
+      await Directory("$appFilesDir/synced").create(recursive: true);
+      file = File("$appFilesDir/synced/workout-$time");
     } else {
-      log("Database insertion unsuccessful: $reply");
+      await Directory("$appFilesDir/not-synced").create(recursive: true);
+      file = File("$appFilesDir/not-synced/workout-$time");
     }
+
+    file.writeAsString(toJsonString());
+    log("Log saved to: $file");
   }
 
   Map<String, dynamic> toMap() {

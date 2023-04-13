@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
@@ -40,9 +39,7 @@ Future<void> _testLogger() async {
   ExerciseLogger.instance?.logHeartRateData(1);
   ExerciseLogger.instance?.logPowerData(2);
   ExerciseLogger.instance?.logDistanceData(3);
-  ExerciseLogger.instance?.saveToFile();
-  ExerciseLogger.instance?.insertInDatabase();
-
+  ExerciseLogger.instance?.endWorkoutAndSaveLog();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
