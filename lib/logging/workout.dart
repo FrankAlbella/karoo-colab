@@ -11,6 +11,7 @@ class Workout {
   final List<Map<String, int>> _heartRateData = [];
 
   late String _powerUnits;
+  late int _maxFTP;
   final List<Map<String, int>> _powerData = [];
 
   late String _cadenceUnits;
@@ -31,7 +32,7 @@ class Workout {
   late String _locationUnits;
   final List <Map<String, dynamic>> _locationData = [];
 
-  Workout({WorkoutType workoutType = WorkoutType.cycling, int targetHeartRate = 120}) {
+  Workout({WorkoutType workoutType = WorkoutType.cycling, int targetHeartRate = 120, int maxFTP = 250}) {
     start(workoutType);
 
     _heartRateUnits = LoggerConstants.valueBPM;
@@ -44,6 +45,7 @@ class Workout {
     _locationUnits = LoggerConstants.valueLatLong;
 
     _heartRateTarget = targetHeartRate;
+    _maxFTP = 250;
   }
 
   void start(WorkoutType workoutType) {
@@ -53,6 +55,10 @@ class Workout {
 
   void setTargetHeartRate(int target) {
     _heartRateTarget = target;
+  }
+
+  void setMaxFTP(int max) {
+    _maxFTP = max;
   }
 
   // TODO: make enum of heart rate units
@@ -194,6 +200,7 @@ class Workout {
       Map<String, dynamic> powerMap = {};
       powerMap[LoggerConstants.fieldUnits] = _powerUnits;
       powerMap[LoggerConstants.fieldData] = _powerData;
+      powerMap[LoggerConstants.fieldMaxFTP] = _maxFTP;
       map[LoggerConstants.fieldPower] = powerMap;
     }
 

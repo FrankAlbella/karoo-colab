@@ -53,6 +53,7 @@ class LoggerConstants {
   static const fieldLocation = "location";
   static const fieldSpeed = "speed";
   static const fieldCadence = "cadence";
+  static const fieldMaxFTP = "max_ftp";
 
   static const valueBPM = "beats_per_minute";
   static const valueMeters = "meters";
