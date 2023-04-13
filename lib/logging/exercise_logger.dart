@@ -6,6 +6,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:karoo_collab/logging/upload_manager.dart';
 import 'package:karoo_collab/logging/workout.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'logger_constants.dart';
 
@@ -20,7 +21,9 @@ class ExerciseLogger {
 
   Future<void> _updateDeviceInfo()  async {
     var deviceInfo = (await DeviceInfoPlugin().androidInfo);
-    _map[LoggerConstants.fieldName] = deviceInfo.device;
+    final prefs = await SharedPreferences.getInstance();
+
+    _map[LoggerConstants.fieldName] = prefs.getString('name') ?? "Unknown";
     _map[LoggerConstants.fieldDeviceId] = deviceInfo.id;
     _map[LoggerConstants.fieldSerialNum] = deviceInfo.serialNumber;
   }
@@ -35,6 +38,10 @@ class ExerciseLogger {
     logger._deviceType = deviceType;
 
     _instance = logger;
+  }
+
+  void setUserName(String name) {
+    _map[LoggerConstants.fieldName] = name;
   }
 
   void _logEvent(int event, [List? info]) {
