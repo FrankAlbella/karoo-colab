@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../logging/exercise_logger.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 Widget _buildPopupDialog(
-    BuildContext context, String funcType, TextEditingController controller) {
+    BuildContext context, String funcType, String currentValue, TextEditingController controller) {
   return AlertDialog(
-    //title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
+    title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
     //contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        TextField(
-          controller: controller,
-          style: TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            hintText: funcType,
-          ),
-        ),
-      ],
-    )),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextField(
+              controller: controller,
+              style: const TextStyle(fontSize: 14),
+              decoration: InputDecoration(
+                hintText: currentValue
+              ),
+            ),
+          ],
+        )),
     actionsPadding: EdgeInsets.zero,
     actions: <Widget>[
       Center(
@@ -37,6 +38,43 @@ Widget _buildPopupDialog(
   );
 }
 
+// TODO: Find better solution then copy and pasting this function
+Widget _buildNumberPopupDialog(
+    BuildContext context, String funcType, String currentValue, TextEditingController controller) {
+  return AlertDialog(
+    title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
+    //contentPadding: EdgeInsets.zero,
+    content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextField(
+              controller: controller,
+              style: const TextStyle(fontSize: 14),
+              decoration: InputDecoration(
+                hintText: currentValue,
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+            ),
+          ],
+        )),
+    actionsPadding: EdgeInsets.zero,
+    actions: <Widget>[
+      Center(
+        child: TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Confirm'),
+        ),
+      ),
+    ],
+  );
+}
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.title});
 
@@ -151,7 +189,7 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _name, nameController),
+                        _buildPopupDialog(context, "name", _name, nameController),
                   );
                 },
                 icon: const Icon(
@@ -167,7 +205,7 @@ class _SettingsPage extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _email, emailController),
+                        _buildPopupDialog(context, "email address", _email, emailController),
                   );
                 },
                 icon: const Icon(
@@ -183,7 +221,7 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _ftp.toString(), ftpController),
+                      _buildNumberPopupDialog(context, "max FTP", _ftp.toString(), ftpController),
                 );
               },
               icon: const Icon(
@@ -200,7 +238,7 @@ class _SettingsPage extends State<SettingsPage> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _hr.toString(), hrController),
+                      _buildNumberPopupDialog(context, "target heart rate", _hr.toString(), hrController),
                 );
                 print(hrController.text);
               },
