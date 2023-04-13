@@ -7,7 +7,7 @@ class Workout {
   late int _startTime;
 
   late String _heartRateUnits;
-  late int _heartRateMax;
+  late int _heartRateTarget;
   final List<Map<String, int>> _heartRateData = [];
 
   late String _powerUnits;
@@ -31,7 +31,7 @@ class Workout {
   late String _locationUnits;
   final List <Map<String, dynamic>> _locationData = [];
 
-  Workout({WorkoutType workoutType = WorkoutType.cycling, int maxHeartRate = 120}) {
+  Workout({WorkoutType workoutType = WorkoutType.cycling, int targetHeartRate = 120}) {
     start(workoutType);
 
     _heartRateUnits = LoggerConstants.valueBPM;
@@ -43,7 +43,7 @@ class Workout {
     _speedUnits = LoggerConstants.valueKPH;
     _locationUnits = LoggerConstants.valueLatLong;
 
-    _heartRateMax = maxHeartRate;
+    _heartRateTarget = targetHeartRate;
   }
 
   void start(WorkoutType workoutType) {
@@ -51,8 +51,8 @@ class Workout {
     _workoutType = workoutType;
   }
 
-  void setMaxHeartRate(int max) {
-    _heartRateMax = max;
+  void setTargetHeartRate(int target) {
+    _heartRateTarget = target;
   }
 
   // TODO: make enum of heart rate units
@@ -185,7 +185,7 @@ class Workout {
     if( _heartRateData.isNotEmpty) {
       Map<String, dynamic> heartRateMap = {};
       heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
-      heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
+      heartRateMap[LoggerConstants.fieldTargetHeartRate] = _heartRateTarget;
       heartRateMap[LoggerConstants.fieldData] = _heartRateData;
       map[LoggerConstants.fieldHeartRate] = heartRateMap;
     }
