@@ -423,7 +423,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                                   fontWeight: FontWeight.w600),
                             ),
                             Text(
-                              "100",
+                              "",
                               style: TextStyle(
                                   fontSize: 25,
                                   color: Colors.white,

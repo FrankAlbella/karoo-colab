@@ -340,7 +340,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          "100",
+                          "",
                           style: TextStyle(
                               fontSize: 25,
                               color: Colors.white,

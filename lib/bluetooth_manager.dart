@@ -94,17 +94,6 @@ class BluetoothManager {
 
       _connections[lastConnectionId] = connection;
 
-      ExerciseLogger.instance?.logBluetoothConnect("$device.name");
-      Fluttertoast.showToast(
-          msg: "Connected to device",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
-
       // Subscribe to data updates
       StreamSubscription? subscription = connection.input?.listen((data) {
         updateDeviceData(lastConnectionId, data);
@@ -117,9 +106,19 @@ class BluetoothManager {
         _subscriptions[lastConnectionId] = subscription;
       }
       lastConnectionId++;
+      ExerciseLogger.instance?.logBluetoothConnect("$device.name");
+      Fluttertoast.showToast(
+          msg: "Connected to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
       return true;
     } catch (e) {
-      Logger.root.severe('Error connecting to device: $e');
+      Logger.root.severe('Unable to connect to device: $e');
 
       Fluttertoast.showToast(
           msg: "Unable to connect to device",
@@ -157,9 +156,31 @@ class BluetoothManager {
         _subscriptions[lastConnectionId] = subscription;
       }
       lastConnectionId++;
+
+      Fluttertoast.showToast(
+          msg: "Connected to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+
       return true;
+
     } catch (e) {
       Logger.root.severe('Error connecting to device: $e');
+
+      Fluttertoast.showToast(
+          msg: "Error connecting to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
       return false;
     }
   }
