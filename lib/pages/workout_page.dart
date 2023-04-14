@@ -8,7 +8,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:logging/logging.dart';
 import '../rider_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../logging/exercise_logger.dart';
 import '../bluetooth_manager.dart';
 
 class WorkoutPage extends StatefulWidget {
@@ -102,7 +102,15 @@ class _WorkoutPage extends State<WorkoutPage> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _name = (prefs.getString('name') ?? "Name").substring(0, 4);
+     if((prefs.getString('name') ?? "Name").length < 4)
+      {
+        _name = (prefs.getString('name') ?? "Name");
+      }
+      else
+      {
+        _name = (prefs.getString('name') ?? "Name").substring(0, 4);
+      }
+      
       print("Is this okay: {$_name}");
     });
     setState(() {
@@ -362,6 +370,7 @@ class _WorkoutPage extends State<WorkoutPage> {
             onPressed: () {
               //END WORKOUT!
               stopWorkout = true;
+              ExerciseLogger.instance?.endWorkoutAndSaveLog();
               Navigator.pop(context);
             },
           ),

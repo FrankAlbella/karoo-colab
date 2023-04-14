@@ -49,7 +49,15 @@ class _SoloWorkout extends State<SoloWorkout> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _name = (prefs.getString('name') ?? "Name").substring(0, 4);
+      if((prefs.getString('name') ?? "Name").length < 4)
+      {
+        _name = (prefs.getString('name') ?? "Name");
+      }
+      else
+      {
+        _name = (prefs.getString('name') ?? "Name").substring(0, 4);
+      }
+      
       print("Is this okay: {$_name}");
     });
     setState(() {
@@ -278,6 +286,7 @@ class _SoloWorkout extends State<SoloWorkout> {
             onPressed: () {
               //END WORKOUT!
               stopWorkout = true;
+              ExerciseLogger.instance?.endWorkoutAndSaveLog();
               Navigator.pop(context);
             },
           ),
@@ -392,8 +401,8 @@ class _SoloWorkout extends State<SoloWorkout> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        const Text(
-                          "HR:",
+                         Text(
+                          "$_name\'s HR:",
                           style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
@@ -412,8 +421,8 @@ class _SoloWorkout extends State<SoloWorkout> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        const Text(
-                          "Power:",
+                         Text(
+                          "$_name\'s Power:",
                           style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
