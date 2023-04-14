@@ -124,7 +124,6 @@ class _SoloWorkout extends State<SoloWorkout> {
   }
 
   void getCurrentLocation() async {
-
     bool serviceEnabled;
     LocationPermission permission;
     // Test if location services are enabled.
@@ -231,7 +230,8 @@ class _SoloWorkout extends State<SoloWorkout> {
     startTimer();
     getCurrentLocation();
     positionStreamSubscription = Geolocator.getPositionStream(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 15))
+            locationSettings: LocationSettings(
+                accuracy: LocationAccuracy.high, distanceFilter: 15))
         .listen(onPositionUpdate);
 
     startSensorListening();
@@ -259,7 +259,6 @@ class _SoloWorkout extends State<SoloWorkout> {
               {
                 timer?.cancel();
                 positionStreamSubscription.pause();
-
               } else {
                 startTimer();
                 positionStreamSubscription.resume();
@@ -278,6 +277,7 @@ class _SoloWorkout extends State<SoloWorkout> {
             onPressed: () {
               //END WORKOUT!
               stopWorkout = true;
+              Navigator.pop(context);
             },
           ),
         )
@@ -290,22 +290,26 @@ class _SoloWorkout extends State<SoloWorkout> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 80,
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: RichText(
-                    text: TextSpan(
-                      text: '\n\t\tDuration',
-                      style: const TextStyle(fontSize: 15, color: Colors.white),
+                    height: 80,
+                    width: MediaQuery.of(context).size.width / 3,
+                    child: Column(
                       children: [
-                        TextSpan(
-                          text: '$minutes:$seconds',
+                        const Text(
+                          "Duration:",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          '$minutes:$seconds',
                           style: const TextStyle(
-                              fontSize: 25, color: Colors.white),
+                              fontSize: 15,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
                         ),
                       ],
-                    ),
-                  ),
-                ),
+                    )),
                 SizedBox(
                     height: 80,
                     width: MediaQuery.of(context).size.width / 3,
@@ -319,9 +323,9 @@ class _SoloWorkout extends State<SoloWorkout> {
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                            distance.floor().toString(),
+                          distance.floor().toString(),
                           style: const TextStyle(
-                              fontSize: 25,
+                              fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
                         ),
@@ -340,9 +344,9 @@ class _SoloWorkout extends State<SoloWorkout> {
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          "",
+                          "", //TODO Add speed
                           style: TextStyle(
-                              fontSize: 25,
+                              fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
                         ),

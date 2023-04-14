@@ -361,6 +361,7 @@ class _WorkoutPage extends State<WorkoutPage> {
             onPressed: () {
               //END WORKOUT!
               stopWorkout = true;
+              Navigator.pop(context);
             },
           ),
         )
@@ -373,22 +374,26 @@ class _WorkoutPage extends State<WorkoutPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      height: 80,
-                      width: MediaQuery.of(context).size.width / 3,
-                      child: RichText(
-                        text: TextSpan(
-                          text: '\n\t\tDuration',
-                          style: const TextStyle(fontSize: 15, color: Colors.white),
+                        height: 80,
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Column(
                           children: [
-                            TextSpan(
-                              text: '$minutes:$seconds',
+                            const Text(
+                              "Duration:",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '$minutes:$seconds',
                               style: const TextStyle(
-                                  fontSize: 25, color: Colors.white),
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
+                        )),
                     SizedBox(
                         height: 80,
                         width: MediaQuery.of(context).size.width / 3,
@@ -404,7 +409,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                             Text(
                               distance.floor().toString(),
                               style: const TextStyle(
-                                  fontSize: 25,
+                                  fontSize: 15,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -425,7 +430,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                             Text(
                               "",
                               style: TextStyle(
-                                  fontSize: 25,
+                                  fontSize: 15,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),
