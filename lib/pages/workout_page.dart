@@ -49,6 +49,7 @@ class _WorkoutPage extends State<WorkoutPage> {
   double distance = 0;
   bool pauseWorkout = false;
   bool stopWorkout = false;
+  bool distanceSwitch = false;
   Position? currentPosition;
   Position? initialPosition;
   late StreamSubscription<Position> positionStreamSubscription;
@@ -381,7 +382,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                             const Text(
                               "Duration:",
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 10,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -395,26 +396,56 @@ class _WorkoutPage extends State<WorkoutPage> {
                           ],
                         )),
                     SizedBox(
-                        height: 80,
-                        width: MediaQuery.of(context).size.width / 3,
+                      height: 80,
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            distanceSwitch = !distanceSwitch;
+                            distanceSwitch
+                                ? debugPrint("Switching to km")
+                                : debugPrint("Switching to mi");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
                         child: Column(
-                          children: [
+                          children: distanceSwitch
+                              ? [
                             const Text(
                               "Distance:",
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 10,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),
                             Text(
-                              distance.floor().toString(),
+                              "${(distance / 1000).floor()}km",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            const Text(
+                              "Distance:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "${(distance / 1609.34).floor()}mi",
                               style: const TextStyle(
                                   fontSize: 15,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),
                           ],
-                        )),
+                        ),
+                      ),
+                    ),
                     SizedBox(
                         height: 80,
                         width: MediaQuery.of(context).size.width / 3,
@@ -423,7 +454,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                             Text(
                               "Speed:",
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 10,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
                             ),

@@ -39,6 +39,7 @@ class _SoloWorkout extends State<SoloWorkout> {
   double distance = 0;
   bool pauseWorkout = false;
   bool stopWorkout = false;
+  bool distanceSwitch = false;
   Position? currentPosition;
   Position? initialPosition;
   late StreamSubscription<Position> positionStreamSubscription;
@@ -297,7 +298,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                         const Text(
                           "Duration:",
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 10,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
                         ),
@@ -311,26 +312,56 @@ class _SoloWorkout extends State<SoloWorkout> {
                       ],
                     )),
                 SizedBox(
-                    height: 80,
-                    width: MediaQuery.of(context).size.width / 3,
+                  height: 80,
+                  width: MediaQuery.of(context).size.width / 3,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        distanceSwitch = !distanceSwitch;
+                        distanceSwitch
+                            ? debugPrint("Switching to km")
+                            : debugPrint("Switching to mi");
+                      });
+                    },
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
                     child: Column(
-                      children: [
-                        const Text(
-                          "Distance:",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          distance.floor().toString(),
-                          style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    )),
+                      children: distanceSwitch
+                          ? [
+                              const Text(
+                                "Distance:",
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                "${(distance / 1000.00).floor()}km",
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ]
+                          : [
+                              const Text(
+                                "Distance:",
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                "${(distance / 1609.34).floor()}mi",
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                    ),
+                  ),
+                ),
                 SizedBox(
                     height: 80,
                     width: MediaQuery.of(context).size.width / 3,
@@ -339,7 +370,7 @@ class _SoloWorkout extends State<SoloWorkout> {
                         Text(
                           "Speed:",
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 10,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
                         ),
@@ -360,9 +391,9 @@ class _SoloWorkout extends State<SoloWorkout> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        Text(
-                          "$_name\'s HR:",
-                          style: const TextStyle(
+                        const Text(
+                          "HR:",
+                          style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
@@ -380,9 +411,9 @@ class _SoloWorkout extends State<SoloWorkout> {
                     dimension: 120,
                     child: Column(
                       children: [
-                        Text(
-                          "$_name\'s Power:",
-                          style: const TextStyle(
+                        const Text(
+                          "Power:",
+                          style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
