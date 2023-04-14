@@ -446,27 +446,27 @@ class _WorkoutPage extends State<WorkoutPage> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                        height: 80,
-                        width: MediaQuery.of(context).size.width / 3,
-                        child: Column(
-                          children: const [
-                            Text(
-                              "Speed:",
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              "",
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        )),
+                    // SizedBox(
+                    //     height: 80,
+                    //     width: MediaQuery.of(context).size.width / 3,
+                    //     child: Column(
+                    //       children: const [
+                    //         Text(
+                    //           "Speed:",
+                    //           style: TextStyle(
+                    //               fontSize: 10,
+                    //               color: Colors.white,
+                    //               fontWeight: FontWeight.w600),
+                    //         ),
+                    //         Text(
+                    //           "",
+                    //           style: TextStyle(
+                    //               fontSize: 15,
+                    //               color: Colors.white,
+                    //               fontWeight: FontWeight.w600),
+                    //         ),
+                    //       ],
+                    //     )),
                   ],
                 ),
             Row(
