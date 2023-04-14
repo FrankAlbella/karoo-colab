@@ -112,6 +112,7 @@ class _SoloWorkout extends State<SoloWorkout> {
               .listen((event) {
             setState(() {
               myHR = event[1];
+              ExerciseLogger.instance?.logHeartRateData(myHR);
             });
           });
         } else if (device.type == 'POWER') {
@@ -124,6 +125,7 @@ class _SoloWorkout extends State<SoloWorkout> {
               .listen((event) {
             setState(() {
               myPower = _readPower(event);
+              ExerciseLogger.instance?.logPowerData(myPower);
               myCadence = _readCadence(event).toInt();
             });
           });

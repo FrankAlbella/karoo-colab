@@ -143,7 +143,7 @@ class _WorkoutPage extends State<WorkoutPage> {
               BluetoothManager.instance.broadcastString('heartRate:$myHR');
               debugPrint("Broadcast string: heartRate:$myHR");
               // Log heart rate.
-              //widget.logger.workout.logHeartRate(event[1]);
+              ExerciseLogger.instance?.logHeartRateData(myHR);
             });
           });
         } else if (device.type == 'POWER') {
@@ -164,7 +164,7 @@ class _WorkoutPage extends State<WorkoutPage> {
               //BluetoothManager.instance.broadcastString('cadence:$myCadence');
               //debugPrint("Broadcast string: cadence:$myCadence");
               // Log heart rate.
-              //widget.logger.workout.logHeartRate(event[1]);
+              ExerciseLogger.instance?.logPowerData(myPower);
             });
           });
         }
