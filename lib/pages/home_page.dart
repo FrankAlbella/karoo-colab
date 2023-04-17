@@ -197,27 +197,27 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.white,
                                 )),
                           )))),
-              SizedBox(
-                  height: 65,
-                  width: 10,
-                  child: Center(
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              padding: const EdgeInsets.all(0)),
-                          onPressed: () {
-                           _testLogger();
-                          },
-                          child: const ListTile(
-                            title: Text("Test Logging!",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                )),
-                          ))))
+              // SizedBox(
+              //     height: 65,
+              //     width: 10,
+              //     child: Center(
+              //         child: ElevatedButton(
+              //             style: ElevatedButton.styleFrom(
+              //                 backgroundColor: Colors.blue,
+              //                 shape: RoundedRectangleBorder(
+              //                     borderRadius: BorderRadius.circular(30)),
+              //                 padding: const EdgeInsets.all(0)),
+              //             onPressed: () {
+              //              _testLogger();
+              //             },
+              //             child: const ListTile(
+              //               title: Text("Test Logging!",
+              //                   textAlign: TextAlign.center,
+              //                   style: TextStyle(
+              //                     fontSize: 12,
+              //                     color: Colors.white,
+              //                   )),
+              //             ))))
 
             ],
             ),

@@ -102,15 +102,8 @@ class _WorkoutPage extends State<WorkoutPage> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-     if((prefs.getString('name') ?? "Name").length < 4)
-      {
+
         _name = (prefs.getString('name') ?? "Name");
-      }
-      else
-      {
-        _name = (prefs.getString('name') ?? "Name").substring(0, 4);
-      }
-      
       print("Is this okay: {$_name}");
     });
     setState(() {
@@ -331,13 +324,13 @@ class _WorkoutPage extends State<WorkoutPage> {
     minutes = twoDigits(duration.inMinutes.remainder(60));
     seconds = twoDigits(duration.inSeconds.remainder(60));
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        automaticallyImplyLeading: false,
-      ),
+      // appBar: AppBar(
+      //   // Here we take the value from the MyHomePage object that was created by
+      //   // the App.build method, and use it to set our appbar title.
+      //   title: Text(widget.title, style: const TextStyle(color: Colors.white)),
+      //   backgroundColor: Colors.black,
+      //   automaticallyImplyLeading: false,
+      // ),
       backgroundColor: Colors.black26,
       floatingActionButton:
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -384,7 +377,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                        height: 80,
+                        height: 30,
                         width: MediaQuery.of(context).size.width / 3,
                         child: Column(
                           children: [
@@ -405,7 +398,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                           ],
                         )),
                     SizedBox(
-                      height: 80,
+                      height: 30,
                       width: MediaQuery.of(context).size.width / 3,
                       child: ElevatedButton(
                         onPressed: () {
@@ -478,19 +471,32 @@ class _WorkoutPage extends State<WorkoutPage> {
                     //     )),
                   ],
                 ),
-            Row(
-              children: [
-                SizedBox.square(
-                    dimension: 120,
-                    child: Column(
-                      children: [
-                        Text(
-                          "$_name\'s HR:",
+                Row(children: [
+                  SizedBox(
+                    width: 120,
+                    height: 20,
+                    child:
+                      Text(
+                          "$_name",
                           style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
+                        ), 
+                  )
+                ],),
+            Row(
+              children: [
+                SizedBox(
+                    width: 120,
+                    height: 100,
+                    child: Column(
+                      children: [
+                        Icon(                         
+                          Icons.favorite,
+                          color: Colors.white,
                         ),
+
                         Text(
                           "$myHR",
                           style: const TextStyle(
@@ -500,17 +506,16 @@ class _WorkoutPage extends State<WorkoutPage> {
                         ),
                       ],
                     )),
-                SizedBox.square(
-                    dimension: 120,
+                SizedBox(
+                    width: 120,
+                    height: 100,
                     child: Column(
                       children: [
-                        Text(
-                          "$_name\'s Power:",
-                          style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        Icon(                         
+                          Icons.flash_on,
+                          color: Colors.white,
                         ),
+
                         Text(
                           "$myPower",
                           style: const TextStyle(
@@ -522,19 +527,31 @@ class _WorkoutPage extends State<WorkoutPage> {
                     )),
               ],
             ),
-            Row(
-              children: [
-                SizedBox.square(
-                    dimension: 120,
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Partner's HR:",
-                          style: TextStyle(
+            Row(children: [
+                  Align(
+                  alignment: Alignment.center,
+                   child: Text(
+                          "Partner name",
+                          style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
+                        ), 
+
+                  )
+                ],),
+            Row(
+              children: [
+                SizedBox(
+                    width: 120,
+                    height: 100,
+                    child: Column(
+                      children: [
+                        Icon(                         
+                          Icons.favorite,
+                          color: Colors.white,
                         ),
+
                         Text(
                           "$partnerHR",
                           style: const TextStyle(
@@ -544,17 +561,16 @@ class _WorkoutPage extends State<WorkoutPage> {
                         ),
                       ],
                     )),
-                SizedBox.square(
-                    dimension: 120,
+                SizedBox(
+                    width: 120,
+                    height: 100,
                     child: Column(
                       children: [
-                        const Text(
-                          "Partner's Power:",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        Icon(                         
+                          Icons.flash_on,
+                          color: Colors.white,
                         ),
+
                         Text(
                           "$partnerPower",
                           style: const TextStyle(
