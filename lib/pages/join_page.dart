@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
-import 'package:karoo_collab/bluetooth_provider.dart';
 import 'package:logging/logging.dart';
 import '../logging/exercise_logger.dart';
 import 'workout_page.dart';
@@ -54,6 +53,7 @@ class _JoinPage extends State<JoinPage> {
   void initState() {
     super.initState();
     startScan();
+    BluetoothManager.instance.startPartnerInfoListening();
     //startBluetoothListening();
   }
 

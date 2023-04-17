@@ -97,6 +97,8 @@ class _WorkoutPage extends State<WorkoutPage> {
     });
 
     startPartnerListening();
+
+    BluetoothManager.instance.sendPersonalInfo();
   }
 
   Future<void> _loadSettings() async {
