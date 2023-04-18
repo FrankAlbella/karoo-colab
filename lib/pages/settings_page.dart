@@ -9,7 +9,7 @@ Widget _buildPopupDialog(BuildContext context, String funcType,
     String currentValue, TextEditingController controller) {
   return AlertDialog(
     title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
-    //contentPadding: EdgeInsets.zero,
+    contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -18,7 +18,7 @@ Widget _buildPopupDialog(BuildContext context, String funcType,
         TextField(
           controller: controller,
           style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(hintText: currentValue),
+          //decoration: InputDecoration(hintText: currentValue),
         ),
       ],
     )),
@@ -41,7 +41,7 @@ Widget _buildNumberPopupDialog(BuildContext context, String funcType,
     String currentValue, TextEditingController controller) {
   return AlertDialog(
     title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
-    //contentPadding: EdgeInsets.zero,
+    contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -50,9 +50,9 @@ Widget _buildNumberPopupDialog(BuildContext context, String funcType,
         TextField(
           controller: controller,
           style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            hintText: currentValue,
-          ),
+          // decoration: InputDecoration(
+          //   hintText: currentValue,
+          // ),
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[
             FilteringTextInputFormatter.digitsOnly
@@ -193,6 +193,12 @@ class _SettingsPage extends State<SettingsPage> {
           children: <Widget>[
             TextButton.icon(
                 onPressed: () {
+                  nameController.value = TextEditingValue(
+                text: _name.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _name.toString().length),
+                ),
+              );
                   showDialog(
                     context: context,
                     builder: (BuildContext context) => _buildPopupDialog(
@@ -209,6 +215,12 @@ class _SettingsPage extends State<SettingsPage> {
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
                 onPressed: () {
+                  emailController.value = TextEditingValue(
+                text: _email.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _email.toString().length),
+                ),
+              );
                   showDialog(
                     context: context,
                     builder: (BuildContext context) => _buildPopupDialog(
@@ -225,10 +237,16 @@ class _SettingsPage extends State<SettingsPage> {
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
               onPressed: () {
+                ftpController.value = TextEditingValue(
+                text: _ftp.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _ftp.toString().length),
+                ),
+              );
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => _buildNumberPopupDialog(
-                      context, "max FTP", _ftp.toString(), ftpController),
+                      context, "FTP", _ftp.toString(), ftpController),
                 );
               },
               icon: const Icon(
@@ -242,11 +260,17 @@ class _SettingsPage extends State<SettingsPage> {
             ),
             TextButton.icon(
               onPressed: () {
+                hrController.value = TextEditingValue(
+                text: _hr.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _hr.toString().length),
+                ),
+              );
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => _buildNumberPopupDialog(
                       context,
-                      "target heart rate",
+                      "max heart rate",
                       _hr.toString(),
                       hrController),
                 );

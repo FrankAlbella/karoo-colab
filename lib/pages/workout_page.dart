@@ -10,6 +10,8 @@ import '../rider_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../logging/exercise_logger.dart';
 import '../bluetooth_manager.dart';
+import 'package:karoo_collab/pages/paired_workout.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class WorkoutPage extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
@@ -41,8 +43,8 @@ class _WorkoutPage extends State<WorkoutPage> {
   int partnerCadence = 0;
   int partnerSpeed = 0;
   String _name = "";
-  int _targetHR = 120;
-  int _maxFTP = 150;
+  int _maxHR = 120;
+  int _FTP = 150;
   final RiderData data = RiderData();
   Duration duration = Duration();
   Timer? timer;
@@ -50,6 +52,8 @@ class _WorkoutPage extends State<WorkoutPage> {
   bool pauseWorkout = false;
   bool stopWorkout = false;
   bool distanceSwitch = false;
+  bool hrSwitch = false;
+  bool powerSwitch = false;
   Position? currentPosition;
   Position? initialPosition;
   late StreamSubscription<Position> positionStreamSubscription;
@@ -101,6 +105,41 @@ class _WorkoutPage extends State<WorkoutPage> {
     BluetoothManager.instance.sendPersonalInfo();
   }
 
+  Widget _buildPopupDialog(BuildContext context) {
+  return AlertDialog(
+    title: Text('Are you sure you want to end the ride?', style: TextStyle(fontSize: 14)),
+    //contentPadding: EdgeInsets.zero,
+    actionsPadding: EdgeInsets.zero,
+    actions: <Widget>[
+      TextButton(
+          onPressed: () {
+            //END WORKOUT!
+            stopWorkout = true;
+            ExerciseLogger.instance?.endWorkoutAndSaveLog();
+            Fluttertoast.showToast(
+              msg: "Workout logged and sent!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
+            int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
+          },
+          child: const Text('Yes'),
+        ),
+        TextButton(
+          onPressed: () {
+            //back to workout
+            Navigator.pop(context);
+          },
+          child: const Text('No'),
+        ),
+    ],
+  );
+}
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -109,12 +148,12 @@ class _WorkoutPage extends State<WorkoutPage> {
       print("Is this okay: {$_name}");
     });
     setState(() {
-      _targetHR = (prefs.getInt('maxHR') ?? _targetHR);
-      print('$_targetHR');
+      _maxHR = (prefs.getInt('maxHR') ?? _maxHR);
+      print('$_maxHR');
     });
     setState(() {
-      _maxFTP = (prefs.getInt('FTP') ?? _maxFTP);
-      print('$_maxFTP');
+      _FTP = (prefs.getInt('FTP') ?? _FTP);
+      print('$_FTP');
     });
   }
 
@@ -335,8 +374,36 @@ class _WorkoutPage extends State<WorkoutPage> {
       // ),
       backgroundColor: Colors.black26,
       floatingActionButton:
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        FloatingActionButton(
+        Row( children: [
+          Container(
+            height: 60.0,
+            width: 60.0,
+            child: Visibility(
+              visible: pauseWorkout == true,
+              child: FloatingActionButton(
+                heroTag: "endride",
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                child: Container(width: 20, height: 20, child: Image(image: AssetImage('images/chequered-flag.png'))),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => _buildPopupDialog(context),
+                  );
+                  
+                },
+              ),
+             replacement: const SizedBox(
+              width:60
+             ),
+        ), 
+        transform: Matrix4.translationValues(
+              -5, 0.0, 0.0),
+        ),   
+        Container(
+          height: 60.0,
+          width: 60.0,
+          child: FloatingActionButton(
           heroTag: "playpause",
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -355,20 +422,8 @@ class _WorkoutPage extends State<WorkoutPage> {
           },
           child: Icon(pauseWorkout ? Icons.play_arrow : Icons.pause),
         ),
-        Visibility(
-          visible: pauseWorkout == true,
-          child: FloatingActionButton(
-            heroTag: "endride",
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            child: const Icon(Icons.delete),
-            onPressed: () {
-              //END WORKOUT!
-              stopWorkout = true;
-              ExerciseLogger.instance?.endWorkoutAndSaveLog();
-              Navigator.pop(context);
-            },
-          ),
+          transform: Matrix4.translationValues(
+              165, 0.0, 0.0),
         )
       ]),
       body: SafeArea(
@@ -475,7 +530,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                 ),
                 Row(children: [
                   SizedBox(
-                    width: 120,
+                    width: MediaQuery.of(context).size.width,
                     height: 20,
                     child:
                       Text(
@@ -484,6 +539,7 @@ class _WorkoutPage extends State<WorkoutPage> {
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
+                          textAlign: TextAlign.center,
                         ), 
                   )
                 ],),
@@ -498,14 +554,39 @@ class _WorkoutPage extends State<WorkoutPage> {
                           Icons.favorite,
                           color: Colors.white,
                         ),
-
-                        Text(
-                          "$myHR",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            hrSwitch = !hrSwitch;
+                            hrSwitch
+                                ? debugPrint("Switching to heart rate percentage")
+                                : debugPrint("Switching to heart rate");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: Column(
+                          children: hrSwitch
+                              ? [
+                            Text(
+                              "${(myHR / _maxHR * 100).round()}%",
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            Text(
+                              "$myHR",
+                              style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     )),
                 SizedBox(
@@ -517,29 +598,56 @@ class _WorkoutPage extends State<WorkoutPage> {
                           Icons.flash_on,
                           color: Colors.white,
                         ),
-
-                        Text(
-                          "$myPower",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            powerSwitch = !powerSwitch;
+                            powerSwitch
+                                ? debugPrint("Switching to power percentage")
+                                : debugPrint("Switching to power");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: Column(
+                          children: powerSwitch
+                              ? [
+                            Text(
+                              "${(myPower / _FTP * 100).round()}%",
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            Text(
+                              "$myPower",
+                              style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     )),
               ],
             ),
             Row(children: [
-                  Align(
-                  alignment: Alignment.center,
-                   child: Text(
-                          "Partner name",
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 20,
+                    child:
+                      Text(
+                          RiderData.partnerName.replaceAll(RegExp("{|}"), ""),
                           style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
+                          textAlign: TextAlign.center,
                         ), 
-
                   )
                 ],),
             Row(

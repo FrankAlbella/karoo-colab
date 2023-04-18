@@ -9,7 +9,7 @@ import '../bluetooth_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../logging/exercise_logger.dart';
 import '../rider_data.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 class SoloWorkout extends StatefulWidget {
   final String title;
   final FlutterReactiveBle flutterReactiveBle;
@@ -32,40 +32,70 @@ class _SoloWorkout extends State<SoloWorkout> {
   int myCadence = 0;
   double mySpeed = 0;
   String _name = "";
-  String _HR = "";
-  String _FTP = "";
+  int _maxHR = 120;
+  int _FTP = 150;
   Duration duration = Duration();
   Timer? timer;
   double distance = 0;
   bool pauseWorkout = false;
   bool stopWorkout = false;
   bool distanceSwitch = false;
+  bool hrSwitch = false;
+  bool powerSwitch = false;
   Position? currentPosition;
   Position? initialPosition;
   late StreamSubscription<Position> positionStreamSubscription;
 
   final RiderData data = RiderData();
 
+  Widget _buildPopupDialog(BuildContext context) {
+  return AlertDialog(
+    title: Text('Are you sure you want to end the ride?', style: TextStyle(fontSize: 14)),
+    //contentPadding: EdgeInsets.zero,
+    actionsPadding: EdgeInsets.zero,
+    actions: <Widget>[
+      TextButton(
+          onPressed: () {
+            //END WORKOUT!
+            stopWorkout = true;
+            ExerciseLogger.instance?.endWorkoutAndSaveLog();
+            Fluttertoast.showToast(
+              msg: "Workout logged and sent!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
+            int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
+          },
+          child: const Text('Yes'),
+        ),
+        TextButton(
+          onPressed: () {
+            //back to workout
+            Navigator.pop(context);
+          },
+          child: const Text('No'),
+        ),
+    ],
+  );
+}
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      if((prefs.getString('name') ?? "Name").length < 4)
-      {
+
         _name = (prefs.getString('name') ?? "Name");
-      }
-      else
-      {
-        _name = (prefs.getString('name') ?? "Name").substring(0, 4);
-      }
-      
       print("Is this okay: {$_name}");
     });
     setState(() {
-      _HR = (prefs.getString('maxHR') ?? "Max HR");
-      print('$_HR');
+      _maxHR = (prefs.getInt('maxHR') ?? _maxHR);
+      print('$_maxHR');
     });
     setState(() {
-      _FTP = (prefs.getString('FTP') ?? "FTP");
+      _FTP = (prefs.getInt('FTP') ?? _FTP);
       print('$_FTP');
     });
   }
@@ -258,8 +288,36 @@ class _SoloWorkout extends State<SoloWorkout> {
     return Scaffold(
       backgroundColor: Colors.black26,
       floatingActionButton:
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        FloatingActionButton(
+        Row( children: [
+          Container(
+            height: 60.0,
+            width: 60.0,
+            child: Visibility(
+              visible: pauseWorkout == true,
+              child: FloatingActionButton(
+                heroTag: "endride",
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                child: Container(width: 20, height: 20, child: Image(image: AssetImage('images/chequered-flag.png'))),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => _buildPopupDialog(context),
+                  );
+                  
+                },
+              ),
+             replacement: const SizedBox(
+              width:60
+             ),
+        ), 
+        transform: Matrix4.translationValues(
+              -5, 0.0, 0.0),
+        ),   
+        Container(
+          height: 60.0,
+          width: 60.0,
+          child: FloatingActionButton(
           heroTag: "playpause",
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -278,170 +336,222 @@ class _SoloWorkout extends State<SoloWorkout> {
           },
           child: Icon(pauseWorkout ? Icons.play_arrow : Icons.pause),
         ),
-        Visibility(
-          visible: pauseWorkout == true,
-          child: FloatingActionButton(
-            heroTag: "endride",
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            child: const Icon(Icons.delete),
-            onPressed: () {
-              //END WORKOUT!
-              stopWorkout = true;
-              ExerciseLogger.instance?.endWorkoutAndSaveLog();
-              Navigator.pop(context);
-            },
-          ),
+          transform: Matrix4.translationValues(
+              165, 0.0, 0.0),
         )
       ]),
       body: SafeArea(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                    height: 80,
-                    width: MediaQuery.of(context).size.width / 3,
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Duration:",
-                          style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                        height: 30,
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Duration:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '$minutes:$seconds',
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 30,
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            distanceSwitch = !distanceSwitch;
+                            distanceSwitch
+                                ? debugPrint("Switching to km")
+                                : debugPrint("Switching to mi");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: Column(
+                          children: distanceSwitch
+                              ? [
+                            const Text(
+                              "Distance:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "${(distance / 1000).floor()}km",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            const Text(
+                              "Distance:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "${(distance / 1609.34).floor()}mi",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '$minutes:$seconds',
+                      ),
+                    ),
+                    // SizedBox(
+                    //     height: 80,
+                    //     width: MediaQuery.of(context).size.width / 3,
+                    //     child: Column(
+                    //       children: const [
+                    //         Text(
+                    //           "Speed:",
+                    //           style: TextStyle(
+                    //               fontSize: 10,
+                    //               color: Colors.white,
+                    //               fontWeight: FontWeight.w600),
+                    //         ),
+                    //         Text(
+                    //           "",
+                    //           style: TextStyle(
+                    //               fontSize: 15,
+                    //               color: Colors.white,
+                    //               fontWeight: FontWeight.w600),
+                    //         ),
+                    //       ],
+                    //     )),
+                  ],
+                ),
+                Row(children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 20,
+                    child:
+                      Text(
+                          "$_name",
                           style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                               fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    )),
-                SizedBox(
-                  height: 80,
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        distanceSwitch = !distanceSwitch;
-                        distanceSwitch
-                            ? debugPrint("Switching to km")
-                            : debugPrint("Switching to mi");
-                      });
-                    },
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                    child: Column(
-                      children: distanceSwitch
-                          ? [
-                              const Text(
-                                "Distance:",
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                "${(distance / 1000.00).floor()}km",
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ]
-                          : [
-                              const Text(
-                                "Distance:",
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                "${(distance / 1609.34).floor()}mi",
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                    ),
-                  ),
-                ),
-                // SizedBox(
-                //     height: 80,
-                //     width: MediaQuery.of(context).size.width / 3,
-                //     child: Column(
-                //       children: const [
-                //         Text(
-                //           "Speed:",
-                //           style: TextStyle(
-                //               fontSize: 10,
-                //               color: Colors.white,
-                //               fontWeight: FontWeight.w600),
-                //         ),
-                //         Text(
-                //           "", //TODO Add speed
-                //           style: TextStyle(
-                //               fontSize: 15,
-                //               color: Colors.white,
-                //               fontWeight: FontWeight.w600),
-                //         ),
-                //       ],
-                //     )
-                // ),
-              ],
-            ),
+                          textAlign: TextAlign.center,
+                        ), 
+                  )
+                ],),
             Row(
               children: [
-                SizedBox.square(
-                    dimension: 120,
+                SizedBox(
+                    width: 120,
+                    height: 100,
                     child: Column(
                       children: [
-                         Text(
-                          "$_name\'s HR:",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        Icon(                         
+                          Icons.favorite,
+                          color: Colors.white,
                         ),
-                        Text(
-                          "$myHR",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            hrSwitch = !hrSwitch;
+                            hrSwitch
+                                ? debugPrint("Switching to heart rate percentage")
+                                : debugPrint("Switching to heart rate");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: Column(
+                          children: hrSwitch
+                              ? [
+                            Text(
+                              "${(myHR / _maxHR * 100).round()}%",
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            Text(
+                              "$myHR",
+                              style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     )),
-                SizedBox.square(
-                    dimension: 120,
+                SizedBox(
+                    width: 120,
+                    height: 100,
                     child: Column(
                       children: [
-                         Text(
-                          "$_name\'s Power:",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        Icon(                         
+                          Icons.flash_on,
+                          color: Colors.white,
                         ),
-                        Text(
-                          "$myPower",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            powerSwitch = !powerSwitch;
+                            powerSwitch
+                                ? debugPrint("Switching to power percentage")
+                                : debugPrint("Switching to power");
+                          });
+                        },
+                        style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                        child: Column(
+                          children: powerSwitch
+                              ? [
+                            Text(
+                              "${(myPower / _FTP * 100).round()}%",
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ]
+                              : [
+                            Text(
+                              "$myPower",
+                              style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     )),
               ],
             ),
-          ])),
+              ],
+            ),
+          ),
     );
   }
 }
