@@ -208,10 +208,11 @@ class _SettingsPage extends State<SettingsPage> {
                 icon: const Icon(
                   Icons.person,
                 ),
-                label: const Align(
+                label: Align(
                     alignment: Alignment.centerLeft,
                     child: ListTile(
                         title: Text("Name"),
+                        subtitle: Text('$_name'),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
                 onPressed: () {
@@ -230,10 +231,11 @@ class _SettingsPage extends State<SettingsPage> {
                 icon: const Icon(
                   Icons.mail,
                 ),
-                label: const Align(
+                label: Align(
                     alignment: Alignment.centerLeft,
                     child: ListTile(
                         title: Text("Email"),
+                        subtitle: Text('$_email'),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
               onPressed: () {
@@ -252,10 +254,11 @@ class _SettingsPage extends State<SettingsPage> {
               icon: const Icon(
                 Icons.motorcycle,
               ),
-              label: const Align(
+              label: Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("FTP"),
+                      subtitle: Text('$_ftp'),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
             TextButton.icon(
@@ -279,10 +282,11 @@ class _SettingsPage extends State<SettingsPage> {
               icon: const Icon(
                 Icons.heart_broken,
               ),
-              label: const Align(
+              label:  Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("Max Heart Rate"),
+                      subtitle: Text('$_hr'),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
           ],

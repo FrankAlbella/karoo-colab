@@ -65,10 +65,10 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const HostPage(
-                                                    title: 'Host Workout')));
+                                                    title: 'Start a session')));
                                   },
                                   child: const ListTile(
-                                    title: Text("HOST WORKOUT",
+                                    title: Text("START A SESSION",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
@@ -94,10 +94,10 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const JoinPage(
-                                                    title: 'Join Workout')));
+                                                    title: 'Join existing session')));
                                   },
                                   child: const ListTile(
-                                    title: Text("JOIN WORKOUT",
+                                    title: Text("JOIN EXISTING SESSION",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
