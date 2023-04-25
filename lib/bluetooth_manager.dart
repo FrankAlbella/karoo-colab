@@ -273,6 +273,8 @@ class BluetoothManager {
     // Get Name
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String name = prefs.getString('name') ?? "Unknown";
+    int maxHr = prefs.getInt("maxHR") ?? 120;
+    int ftp = prefs.getInt('FTP') ?? 250;
 
     // Get device info
     var deviceInfo = (await DeviceInfoPlugin().androidInfo);
@@ -280,7 +282,7 @@ class BluetoothManager {
     String? serialNum = deviceInfo.serialNumber;
 
     // Send to devices
-    String str = "name:{$name}:device_id:$deviceId:serial_number:$serialNum";
+    String str = "name:{$name}:device_id:$deviceId:serial_number:$serialNum:max_hr:$maxHr:ftp:$ftp";
     broadcastString(str);
   }
 
@@ -298,6 +300,8 @@ class BluetoothManager {
             map['serial_number'] ?? "Unknown");
 
         RiderData.partnerName = map['name'] ?? "Partner";
+        RiderData.partnerMaxHR = int.parse(map['max_hr'] ?? "120");
+        RiderData.partnerFtp = int.parse(map['ftp'] ?? "250");
 
         Logger.root.info('Closing partner data stream...');
         subscription.cancel();
