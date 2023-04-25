@@ -92,7 +92,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     else if(id.contains(_cyclingPowerServiceUUID.toString()) == true)
     {
-      return Icon(Icons.power, color: Colors.black,);
+      return Icon(Icons.flash_on, color: Colors.black,);
     }
     return Icon(Icons.bluetooth, color: Colors.black,);
   }
@@ -158,7 +158,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                           isConnecting = false;
                                         });
                                       Fluttertoast.showToast(
-                                      msg: "Device Connected!",
+                                      msg: "Sensors Connected!",
                                       toastLength: Toast.LENGTH_SHORT,
                                       gravity: ToastGravity.CENTER,
                                       timeInSecForIosWeb: 1,

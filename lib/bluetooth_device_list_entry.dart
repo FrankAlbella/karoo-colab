@@ -12,8 +12,8 @@ class BluetoothDeviceListEntry extends ListTile {
     onTap: onTap,
     onLongPress: onLongPress,
     enabled: enabled,
-    leading:
-    Icon(Icons.devices), // @TODO . !BluetoothClass! class aware icon
+    leading:Icon(Icons.devices), // @TODO . !BluetoothClass! class aware icon
+    tileColor:device.isConnected ? Colors.blue : Colors.white,
     title: Text(device.name ?? ""),
     subtitle: Text(device.address.toString()),
     trailing: Row(

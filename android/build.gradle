@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.8.0'
+    ext.kotlin_version = '1.8.20'
     repositories {
         google()
         mavenCentral()
@@ -28,4 +28,21 @@ subprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+buildscript {
+    ext {
+        compileSdkVersion = 31
+        targetSdkVersion = 31
+        androidXCore = "1.6.0"
+    }
+}
+
+allprojects {
+
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core-ktx:1.6.0','com.faccebook.react:react-native:0.70.5'
+        }
+    }
 }

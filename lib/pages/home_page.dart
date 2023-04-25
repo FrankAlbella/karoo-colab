@@ -109,10 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const PartnerWorkout(
-                                        title: 'Paired Workout')));
+                                        title: 'Workout with a partner')));
                           },
                           child: const ListTile(
-                            title: Text("PAIRED WORKOUT",
+                            title: Text("WORKOUT WITH A PARTNER",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 flutterReactiveBle, RiderData.connectedDevices, ""));
                           },
                           child: const ListTile(
-                            title: Text("SOLO WORKOUT",
+                            title: Text("WORKOUT BY YOURSELF",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
