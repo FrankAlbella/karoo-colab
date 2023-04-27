@@ -38,7 +38,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
   late StreamSubscription<ConnectionStateUpdate> _connection;
   //List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
   Color _colorTile = Colors.white;
-  bool isConnecting = false;
+  //bool isConnecting = false;
 
   @override
   void initState() {
@@ -85,8 +85,8 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     return result;
   }
-    bool iConnecting(String id) {
-    bool result = widget.connectedDevices.firstWhereOrNull((element) => element.deviceId==id) != null;
+    bool isConnecting(String id) {
+    bool result = connectingDevices.firstWhereOrNull((element) => element.deviceId==id) != null;
     if (result) {
       debugPrint("Connecting now");
     }
@@ -141,7 +141,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                               tileColor: !isConnected(device.id) ?
                               Colors.white10 : Color.fromARGB(255, 14, 112, 158),                            // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                              trailing: !isConnecting ? null : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
+                              trailing: !isConnecting(device.id) ? !isConnected(device.id)? null: Icon(Icons.link) : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
                               onTap: () async {
                                 debugPrint("tappin");
                                 //connect
@@ -159,13 +159,31 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                     if(update.connectionState == (DeviceConnectionState.connecting))
                                     {
                                       setState(() {
-                                      isConnecting = true;
+                                      if ((device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())) == true) {
+                                    connectedSensor = BleSensorDevice(
+                                      type: 'HR',
+                                      flutterReactiveBle: flutterReactiveBle,
+                                      deviceId: device.id,
+                                      serviceId: _heartRateServiceUUID,
+                                      characteristicId: _heartRateCharacteristicUUID,
+                                    );
+                                  }
+                                  else {
+                                    connectedSensor = BleSensorDevice(
+                                      type: 'POWER',
+                                      flutterReactiveBle: flutterReactiveBle,
+                                      deviceId: device.id,
+                                      serviceId: _cyclingPowerServiceUUID,
+                                      characteristicId: _cyclingPowerCharacteristicUUID,
+                                    );
+                                  }
+                                  connectingDevices.add(connectedSensor);
                                     });
                                     }
                                     else if(update.connectionState == (DeviceConnectionState.connected))
                                     {
                                     setState(() {
-                                          isConnecting = false;
+                                          connectingDevices.removeWhere((element) => element.deviceId == device.id);
                                         });
                                       Fluttertoast.showToast(
                                       msg: "Sensors Connected!",
@@ -204,7 +222,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                 else {
                                   print("remove device");
                                   setState(() {
-                                    isConnecting = false;
+                                    connectingDevices.removeWhere((element) => element.deviceId == device.id);
                                   });
                                   _connection.cancel();
                                   widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
