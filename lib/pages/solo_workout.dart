@@ -336,7 +336,7 @@ class _SoloWorkout extends State<SoloWorkout> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               SizedBox(
                   height: 30,
-                  width: MediaQuery.of(context).size.width / 3,
+                  width: MediaQuery.of(context).size.width,
                   child: Column(
                     children: [
                       const Text(
@@ -354,14 +354,19 @@ class _SoloWorkout extends State<SoloWorkout> {
                             fontWeight: FontWeight.w600),
                       ),
                     ],
-                  )),
+                  ))
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               SizedBox(
                 height: 30,
-                width: MediaQuery.of(context).size.width / 3,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
                       distanceSwitch = !distanceSwitch;
+                      distanceSwitch
+                          ? debugPrint("Switching to km")
+                          : debugPrint("Switching to mi");
                     });
                   },
                   style:
@@ -405,7 +410,7 @@ class _SoloWorkout extends State<SoloWorkout> {
               ),
               SizedBox(
                 height: 30,
-                width: MediaQuery.of(context).size.width / 3,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -420,6 +425,13 @@ class _SoloWorkout extends State<SoloWorkout> {
                   child: Column(
                     children: distanceSwitch
                         ? [
+                            const Text(
+                              "Speed:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
                       Text(
                         "${distance == 0 ? '0' : ((distance / 1000) / (duration.inSeconds / 3600)).toStringAsFixed(2)} km/h",
                         style: const TextStyle(
@@ -427,22 +439,22 @@ class _SoloWorkout extends State<SoloWorkout> {
                             color: Colors.white,
                             fontWeight: FontWeight.w600),
                       ),
-                    ]
+                          ]
                         : [
-                      const Text(
-                        "Speed:",
-                        style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "${distance == 0 ? '0' : ((distance / 1609.34) / (duration.inSeconds / 3600)).toStringAsFixed(2)} mi/h",
-                        style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600),
-                      ),
+                            const Text(
+                              "Speed:",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "${distance == 0 ? '0' : ((distance / 1609.34) / (duration.inSeconds / 3600)).toStringAsFixed(2)} mi/h",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
                           ],
                   ),
                 ),

@@ -55,6 +55,8 @@ class _WorkoutPage extends State<WorkoutPage> {
   bool distanceSwitch = false;
   bool hrSwitch = false;
   bool powerSwitch = false;
+  bool partnerHrSwitch = false;
+  bool partnerpowerSwitch = false;
   Position? currentPosition;
   Position? initialPosition;
   late StreamSubscription<Position> positionStreamSubscription;
@@ -408,7 +410,7 @@ class _WorkoutPage extends State<WorkoutPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               SizedBox(
                   height: 30,
-                  width: MediaQuery.of(context).size.width / 3,
+                  width: MediaQuery.of(context).size.width,
                   child: Column(
                     children: [
                       const Text(
@@ -426,10 +428,12 @@ class _WorkoutPage extends State<WorkoutPage> {
                             fontWeight: FontWeight.w600),
                       ),
                     ],
-                  )),
+                  ))
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               SizedBox(
                 height: 30,
-                width: MediaQuery.of(context).size.width / 3,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -480,7 +484,7 @@ class _WorkoutPage extends State<WorkoutPage> {
               ),
               SizedBox(
                 height: 30,
-                width: MediaQuery.of(context).size.width / 3,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -666,12 +670,39 @@ class _WorkoutPage extends State<WorkoutPage> {
                           Icons.favorite,
                           color: Colors.white,
                         ),
-                        Text(
-                          "$partnerHR",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              partnerHrSwitch = !partnerHrSwitch;
+                              partnerHrSwitch
+                                  ? debugPrint(
+                                      "Switching to heart rate percentage")
+                                  : debugPrint("Switching to heart rate");
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black),
+                          child: Column(
+                            children: partnerHrSwitch
+                                ? [
+                                    Text(
+                                      "${(partnerHR/RiderData.partnerMaxHR * 100).round()}%",
+                                      style: const TextStyle(
+                                          fontSize: 25,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ]
+                                : [
+                                    Text(
+                                      "$partnerHR",
+                                      style: const TextStyle(
+                                          fontSize: 50,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                          ),
                         ),
                       ],
                     )),
@@ -684,12 +715,38 @@ class _WorkoutPage extends State<WorkoutPage> {
                           Icons.flash_on,
                           color: Colors.white,
                         ),
-                        Text(
-                          "$partnerPower",
-                          style: const TextStyle(
-                              fontSize: 50,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              partnerpowerSwitch = !partnerpowerSwitch;
+                              partnerpowerSwitch
+                                  ? debugPrint("Switching to power percentage")
+                                  : debugPrint("Switching to power");
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black),
+                          child: Column(
+                            children: partnerpowerSwitch
+                                ? [
+                                    Text(
+                                      "${(partnerPower/RiderData.partnerFtp * 100).round()}%",
+                                      style: const TextStyle(
+                                          fontSize: 25,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ]
+                                : [
+                                    Text(
+                                      "$partnerPower",
+                                      style: const TextStyle(
+                                          fontSize: 50,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                          ),
                         ),
                       ],
                     )),
