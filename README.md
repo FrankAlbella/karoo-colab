@@ -1,7 +1,7 @@
 # Karoo Collab
 A [Flutter](https://flutter.dev/) application intended to be deployed on the [Hammerhead Karoo 2](https://www.hammerhead.io/pages/karoo2). The Karoo 2 runs a modified version of Android 8.0, so the SDK target for the project is Android SDK level 26.
 ## Files
-### lib/main.dart
+### [lib/main.dart](./lib/main.dart
 Entry point into the application. Does two main things: initialize the `UploadManager`, and put the main app instead of a widget that will allow the app to persist while minimized. This was done while the Karoo SDK was still being used.
 ### lib/bluetooth_manager.dart
 Handles the connections between different Karoo or smart devices. Currently the app has only been tested between two different Karoo devices, but assuming the formatting of the string messages is consistent between apps, there would be no problem communicating between them.
