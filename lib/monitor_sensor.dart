@@ -144,6 +144,23 @@ class _MonitorConnectState extends State<MonitorConnect> {
                               trailing: !isConnecting(device.id) ? !isConnected(device.id)? null: Icon(Icons.link) : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
                               onTap: () async {
                                 debugPrint("tappin");
+                                if(connectingDevices.isEmpty)
+                                {
+                                  final snackBar = SnackBar(
+                                      content: const Text('Please do not exit screen while device is connecting'),
+                                      duration: Duration(days: 365),
+                                      action: SnackBarAction(
+                                        label: 'Ok',
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                        },
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                }
+                                else{
+                                  ScaffoldMessenger.of(context).clearSnackBars();
+                                }
                                 //connect
                                 BleSensorDevice connectedSensor;
                                 if (!isConnected(device.id)) {
@@ -178,6 +195,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                     );
                                   }
                                   connectingDevices.add(connectedSensor);
+                                  
                                     });
                                     }
                                     else if(update.connectionState == (DeviceConnectionState.connected))
@@ -193,6 +211,18 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                       backgroundColor: Colors.green,
                                       textColor: Colors.white,
                                       fontSize: 16.0);
+                                      ScaffoldMessenger.of(context).clearSnackBars();
+                                      final snackBar = SnackBar(
+                                      content: const Text('Connected to a sensor, keep connecting or go back to home screen to start a workout'),
+                                      duration: Duration(days: 365),
+                                      action: SnackBarAction(
+                                        label: 'Ok',
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                        },
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                     }
                                   });
                                   // debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
@@ -248,6 +278,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
   void dispose() {
     //widget.callback()
     scanSubscription?.cancel();
+    ScaffoldMessenger.of(context).clearSnackBars();
     super.dispose();
   }
 
