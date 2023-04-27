@@ -1,21 +1,77 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:karoo_collab/pages/paired_workout.dart';
 import 'package:karoo_collab/pages/settings_page.dart';
 import 'package:karoo_collab/pages/solo_workout.dart';
-import 'profile_page.dart';
+import '../ble_sensor_device.dart';
+import '../logging/exercise_logger.dart';
+import '../logging/logger_constants.dart';
+import '../rider_data.dart';
 import 'sensor_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
+  static bool openLogged = false;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+Future<void> _testLogger() async {
+  ExerciseLogger.instance?.logAppLaunched("pageName");
+  ExerciseLogger.instance?.logAppClosed("pageName");
+  ExerciseLogger.instance?.logButtonPressed("buttonName");
+  ExerciseLogger.instance?.logPageNavigate("prev", "current");
+  ExerciseLogger.instance?.logSettingChanged("settingName", "previousValue", "currentValue");
+  ExerciseLogger.instance?.logWorkoutStarted(WorkoutType.cycling);
+  ExerciseLogger.instance?.logWorkoutEnded(WorkoutType.cycling);
+  ExerciseLogger.instance?.logWorkoutPaused();
+  ExerciseLogger.instance?.logWorkoutUnpaused();
+  ExerciseLogger.instance?.logPartnerConnected("partnerName", "partnerDeviceId", "partnerSerialNum");
+  ExerciseLogger.instance?.logPartnerDisconnected("partnerName", "partnerId");
+  ExerciseLogger.instance?.logBluetoothInit();
+  ExerciseLogger.instance?.logBluetoothConnect("deviceConnectedName");
+  ExerciseLogger.instance?.logBluetoothDisconnect("deviceDisconnectedName");
+  ExerciseLogger.instance?.logHeartRateData(1);
+  ExerciseLogger.instance?.logPowerData(2);
+  ExerciseLogger.instance?.logDistanceData(3);
+  ExerciseLogger.instance?.endWorkoutAndSaveLog();
+}
+
 class _MyHomePageState extends State<MyHomePage> {
+
+  // Obtain FlutterReactiveBle instance for entire app.
+  final flutterReactiveBle = FlutterReactiveBle();
+
+  Future<void> initLogger() async{
+    await ExerciseLogger.create(DeviceType.karoo);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initLogger();
+
+    if(!MyHomePage.openLogged)
+      {
+        ExerciseLogger.instance?.logAppLaunched("home_page");
+      }
+  }
+
+  Route _createRoute(FlutterReactiveBle ble,
+      List<BleSensorDevice>? connectedDevices, String type) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SoloWorkout(
+          flutterReactiveBle: ble,
+          deviceList: connectedDevices,
+          title: "Active Run"),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             child: const Icon(Icons.arrow_back_rounded),
             onPressed: () {
+              ExerciseLogger.instance?.logButtonPressed("CloseAppButton");
+              ExerciseLogger.instance?.logAppClosed("home_page");
               exit(0); //Might need better method of exiting app
             },
           ),
@@ -46,14 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("PairedWorkoutsButton");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const PartnerWorkout(
-                                        title: 'Paired Workout')));
+                                        title: 'Workout with a partner')));
                           },
                           child: const ListTile(
-                            title: Text("PAIRED WORKOUT",
+                            title: Text("WORKOUT WITH A PARTNER",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
@@ -71,14 +130,40 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SoloWorkoutsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "solo_workout");
+                            Navigator.of(context).push(_createRoute(
+                                flutterReactiveBle, RiderData.connectedDevices, ""));
+                          },
+                          child: const ListTile(
+                            title: Text("WORKOUT BY YOURSELF",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                )),
+                          )))),
+              SizedBox(
+                  height: 65,
+                  width: 10,
+                  child: Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              padding: const EdgeInsets.all(0)),
+                          onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SensorsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "sensors_page");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SoloWorkout(
-                                        title: 'Solo Workout')));
+                                    builder: (context) => const SensorPage(
+                                        title: 'Sensors')));
                           },
                           child: const ListTile(
-                            title: Text("SOLO WORKOUT",
+                            title: Text("SENSORS",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
@@ -96,6 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   borderRadius: BorderRadius.circular(30)),
                               padding: const EdgeInsets.all(0)),
                           onPressed: () {
+                            ExerciseLogger.instance?.logButtonPressed("SettingsButton");
+                            ExerciseLogger.instance?.logPageNavigate("home_page", "settings_page");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -110,31 +197,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.white,
                                 )),
                           )))),
-              SizedBox(
-                  height: 65,
-                  width: 10,
-                  child: Center(
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              padding: const EdgeInsets.all(0)),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SensorPage(
-                                        title: 'Sensors')));
-                          },
-                          child: const ListTile(
-                            title: Text("SENSORS",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                )),
-                          )))),
+              // SizedBox(
+              //     height: 65,
+              //     width: 10,
+              //     child: Center(
+              //         child: ElevatedButton(
+              //             style: ElevatedButton.styleFrom(
+              //                 backgroundColor: Colors.blue,
+              //                 shape: RoundedRectangleBorder(
+              //                     borderRadius: BorderRadius.circular(30)),
+              //                 padding: const EdgeInsets.all(0)),
+              //             onPressed: () {
+              //              _testLogger();
+              //             },
+              //             child: const ListTile(
+              //               title: Text("Test Logging!",
+              //                   textAlign: TextAlign.center,
+              //                   style: TextStyle(
+              //                     fontSize: 12,
+              //                     color: Colors.white,
+              //                   )),
+              //             ))))
+
             ],
             ),
           ),

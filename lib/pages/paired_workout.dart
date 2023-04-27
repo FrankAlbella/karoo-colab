@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'profile_page.dart';
+import '../logging/exercise_logger.dart';
 import 'sensor_page.dart';
 import 'host_page.dart';
 import 'join_page.dart';
@@ -34,6 +34,8 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             child: const Icon(Icons.arrow_back_rounded),
             onPressed: () {
+              ExerciseLogger.instance?.logButtonPressed("BackButton");
+              ExerciseLogger.instance?.logPageNavigate("paired_workout", "home_page");
               Navigator.pop(context);
             },
           ),
@@ -56,15 +58,17 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                               BorderRadius.circular(30)),
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
+                                    ExerciseLogger.instance?.logButtonPressed("HostWorkoutButton");
+                                    ExerciseLogger.instance?.logPageNavigate("paired_workout", "host_page");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const HostPage(
-                                                    title: 'Host Workout')));
+                                                    title: 'Start a session')));
                                   },
                                   child: const ListTile(
-                                    title: Text("HOST WORKOUT",
+                                    title: Text("START A SESSION",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
@@ -83,15 +87,17 @@ class _PartnerWorkout extends State<PartnerWorkout> {
                                               BorderRadius.circular(30)),
                                       padding: const EdgeInsets.all(0)),
                                   onPressed: () {
+                                    ExerciseLogger.instance?.logButtonPressed("JoinWorkoutButton");
+                                    ExerciseLogger.instance?.logPageNavigate("paired_workout", "join_workout");
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const JoinPage(
-                                                    title: 'Join Workout')));
+                                                    title: 'Join existing session')));
                                   },
                                   child: const ListTile(
-                                    title: Text("JOIN WORKOUT",
+                                    title: Text("JOIN EXISTING SESSION",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,

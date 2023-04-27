@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
-import 'package:karoo_collab/bluetooth_provider.dart';
 import 'package:logging/logging.dart';
 import 'workout_page.dart';
-import '../bluetooth_device_list_entry.dart';
 import '../bluetooth_manager.dart';
 import '../rider_data.dart';
 import '../ble_sensor_device.dart';
@@ -52,8 +50,8 @@ class _HostPage extends State<HostPage> {
   @override
   void initState() {
     super.initState();
-    //startBluetoothServer();
-    //startBluetoothListening();
+    startBluetoothServer();
+    BluetoothManager.instance.startPartnerInfoListening();
   }
 
   void startBluetoothListening() {

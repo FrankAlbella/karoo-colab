@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
-import 'package:karoo_collab/bluetooth_provider.dart';
 import 'package:logging/logging.dart';
+import '../logging/exercise_logger.dart';
 import 'workout_page.dart';
 import '../bluetooth_device_list_entry.dart';
 import '../bluetooth_manager.dart';
@@ -53,6 +53,7 @@ class _JoinPage extends State<JoinPage> {
   void initState() {
     super.initState();
     startScan();
+    BluetoothManager.instance.startPartnerInfoListening();
     //startBluetoothListening();
   }
 
@@ -104,7 +105,7 @@ class _JoinPage extends State<JoinPage> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateMyHR();
       _updateMyPower();
-
+      _updateList();
       final RiderData data = RiderData();
       data.heartRate = myHR;
       data.power = myPower;
@@ -136,43 +137,52 @@ class _JoinPage extends State<JoinPage> {
     }
   }
 
-  //starts scanning for other nearby bluetooth devices
-  void startScan() async {
-    if(scanning) {
-      return;
-    }
-
-    discoveryStream = await BluetoothManager.instance.startDeviceDiscovery();
-
+  Future<void> _updateList() async{
     final subscription = discoveryStream?.listen((event) {
+     try {
       setState(() {
         final device = event.device;
         final deviceName = device.name ?? "没有名字";
         final address = device.address;
 
 
-        final textWidget = BluetoothDeviceListEntry(
+        Widget textWidget = BluetoothDeviceListEntry(
           device: event.device,
           rssi: event.rssi,
-          onTap: () {
-            BluetoothManager.instance.connectToDevice(event.device);
-          },
+          onTap: () => setState(() =>{
+            BluetoothManager.instance.connectToDevice(event.device)
+            
+          },)
         );
         if(deviceName.contains("Karoo")) {
           devices = [...devices, textWidget];
         }
       });
+    } on PlatformException catch (e) {
+      Logger.root.severe('Failed to update list: $e');
+    }
     }, onDone: () {
       setState(() {
         Logger.root.info("Scanning set to false");
         scanning = false;
       });
     });
+    
+  }
 
+  //starts scanning for other nearby bluetooth devices
+  void startScan() async {
+    if(scanning) {
+      return;
+    }
+    discoveryStream = await BluetoothManager.instance.startDeviceDiscovery();
+    _updateList();
     //set state to now scanning
     setState(() {
       Logger.root.info("Scanning set to true");
       scanning = true;
+      ExerciseLogger.instance?.logBluetoothInit();
+
     });
   }
 

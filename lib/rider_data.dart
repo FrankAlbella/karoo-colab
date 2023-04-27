@@ -11,5 +11,9 @@ class RiderData {
   String maxHR = "122";
   String FTPvalue = "122";
 
+  static String partnerName = "Unknown";
+  static int partnerMaxHR = 120;
+  static int partnerFtp = 250;
+
   static List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
 }

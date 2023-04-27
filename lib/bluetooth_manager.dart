@@ -3,14 +3,19 @@ For apps targeting Build.VERSION_CODES#R or lower, this requires the Manifest.pe
 For apps targeting Build.VERSION_CODES#S or or higher, this requires the Manifest.permission#BLUETOOTH_CONNECT permission which can be gained with Activity.requestPermissions(String[], int).
 */
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:karoo_collab/rider_data.dart';
 import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'logging/exercise_logger.dart';
 
 class BluetoothManager {
   static final BluetoothManager _instance = BluetoothManager._();
@@ -92,16 +97,6 @@ class BluetoothManager {
 
       _connections[lastConnectionId] = connection;
 
-      Fluttertoast.showToast(
-          msg: "Connected to device",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
-
       // Subscribe to data updates
       StreamSubscription? subscription = connection.input?.listen((data) {
         updateDeviceData(lastConnectionId, data);
@@ -114,9 +109,19 @@ class BluetoothManager {
         _subscriptions[lastConnectionId] = subscription;
       }
       lastConnectionId++;
+      ExerciseLogger.instance?.logBluetoothConnect("$device.name");
+      Fluttertoast.showToast(
+          msg: "Connected to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
       return true;
     } catch (e) {
-      Logger.root.severe('Error connecting to device: $e');
+      Logger.root.severe('Unable to connect to device: $e');
 
       Fluttertoast.showToast(
           msg: "Unable to connect to device",
@@ -154,9 +159,31 @@ class BluetoothManager {
         _subscriptions[lastConnectionId] = subscription;
       }
       lastConnectionId++;
+
+      Fluttertoast.showToast(
+          msg: "Connected to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+
       return true;
+
     } catch (e) {
       Logger.root.severe('Error connecting to device: $e');
+
+      Fluttertoast.showToast(
+          msg: "Error connecting to device",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
       return false;
     }
   }
@@ -239,5 +266,46 @@ class BluetoothManager {
       Permission.bluetoothConnect,
       Permission.bluetoothScan
     ].request();
+  }
+
+  /// Sends personal info to connected devices needed for identification
+  Future<void> sendPersonalInfo() async {
+    // Get Name
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString('name') ?? "Unknown";
+    int maxHr = prefs.getInt("maxHR") ?? 120;
+    int ftp = prefs.getInt('FTP') ?? 250;
+
+    // Get device info
+    var deviceInfo = (await DeviceInfoPlugin().androidInfo);
+    String? deviceId = deviceInfo.id;
+    String? serialNum = deviceInfo.serialNumber;
+
+    // Send to devices
+    String str = "name:{$name}:device_id:$deviceId:serial_number:$serialNum:max_hr:$maxHr:ftp:$ftp";
+    broadcastString(str);
+  }
+
+  // Listens for partner info to arrive, then closes the stream
+  void startPartnerInfoListening() {
+    late StreamSubscription<Map<int, Map<String, String>>> subscription;
+    subscription = BluetoothManager.instance.deviceDataStream.listen((event) {
+      Logger.root.info('got data from a connection: $event');
+      final map = event.values.first;
+
+      if(map['name'] != null) {
+        Logger.root.info('Got partner data: $event');
+        ExerciseLogger.instance?.logPartnerConnected(map['name'] ?? "Unknown",
+            map['device_id'] ?? "Unknown",
+            map['serial_number'] ?? "Unknown");
+
+        RiderData.partnerName = map['name'] ?? "Partner";
+        RiderData.partnerMaxHR = int.parse(map['max_hr'] ?? "120");
+        RiderData.partnerFtp = int.parse(map['ftp'] ?? "250");
+
+        Logger.root.info('Closing partner data stream...');
+        subscription.cancel();
+      }
+    });
   }
 }

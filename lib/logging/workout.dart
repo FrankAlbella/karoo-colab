@@ -7,10 +7,11 @@ class Workout {
   late int _startTime;
 
   late String _heartRateUnits;
-  late int _heartRateMax;
+  late int _heartRateTarget;
   final List<Map<String, int>> _heartRateData = [];
 
   late String _powerUnits;
+  late int _maxFTP;
   final List<Map<String, int>> _powerData = [];
 
   late String _cadenceUnits;
@@ -31,7 +32,7 @@ class Workout {
   late String _locationUnits;
   final List <Map<String, dynamic>> _locationData = [];
 
-  Workout({WorkoutType workoutType = WorkoutType.cycling, int maxHeartRate = 120}) {
+  Workout({WorkoutType workoutType = WorkoutType.cycling, int targetHeartRate = 120, int maxFTP = 250}) {
     start(workoutType);
 
     _heartRateUnits = LoggerConstants.valueBPM;
@@ -43,7 +44,8 @@ class Workout {
     _speedUnits = LoggerConstants.valueKPH;
     _locationUnits = LoggerConstants.valueLatLong;
 
-    _heartRateMax = maxHeartRate;
+    _heartRateTarget = targetHeartRate;
+    _maxFTP = 250;
   }
 
   void start(WorkoutType workoutType) {
@@ -51,8 +53,12 @@ class Workout {
     _workoutType = workoutType;
   }
 
-  void setMaxHeartRate(int max) {
-    _heartRateMax = max;
+  void setTargetHeartRate(int target) {
+    _heartRateTarget = target;
+  }
+
+  void setMaxFTP(int max) {
+    _maxFTP = max;
   }
 
   // TODO: make enum of heart rate units
@@ -185,7 +191,7 @@ class Workout {
     if( _heartRateData.isNotEmpty) {
       Map<String, dynamic> heartRateMap = {};
       heartRateMap[LoggerConstants.fieldUnits] = _heartRateUnits;
-      heartRateMap[LoggerConstants.fieldMaxHeartRate] = _heartRateMax;
+      heartRateMap[LoggerConstants.fieldTargetHeartRate] = _heartRateTarget;
       heartRateMap[LoggerConstants.fieldData] = _heartRateData;
       map[LoggerConstants.fieldHeartRate] = heartRateMap;
     }
@@ -194,6 +200,7 @@ class Workout {
       Map<String, dynamic> powerMap = {};
       powerMap[LoggerConstants.fieldUnits] = _powerUnits;
       powerMap[LoggerConstants.fieldData] = _powerData;
+      powerMap[LoggerConstants.fieldMaxFTP] = _maxFTP;
       map[LoggerConstants.fieldPower] = powerMap;
     }
 

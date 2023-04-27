@@ -45,7 +45,7 @@ class LoggerConstants {
   static const fieldData = "data";
   static const fieldPartners = "partners";
   static const fieldHeartRate = "heart_rate";
-  static const fieldMaxHeartRate = "max_heart_rate";
+  static const fieldTargetHeartRate = "target_heart_rate";
   static const fieldDistance = "distance";
   static const fieldPower = "power";
   static const fieldCalories = "calories";
@@ -53,6 +53,7 @@ class LoggerConstants {
   static const fieldLocation = "location";
   static const fieldSpeed = "speed";
   static const fieldCadence = "cadence";
+  static const fieldMaxFTP = "max_ftp";
 
   static const valueBPM = "beats_per_minute";
   static const valueMeters = "meters";

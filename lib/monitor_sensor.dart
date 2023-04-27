@@ -6,6 +6,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'ble_sensor_device.dart';
 import 'package:collection/collection.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MonitorConnect extends StatefulWidget {
   final FlutterReactiveBle flutterReactiveBle;
@@ -32,10 +33,12 @@ class _MonitorConnectState extends State<MonitorConnect> {
 
   late final FlutterReactiveBle flutterReactiveBle;
   List<DiscoveredDevice> devices = <DiscoveredDevice>[];
+  List<BleSensorDevice> connectingDevices = <BleSensorDevice>[];
   StreamSubscription? scanSubscription;
   late StreamSubscription<ConnectionStateUpdate> _connection;
   //List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
   Color _colorTile = Colors.white;
+  //bool isConnecting = false;
 
   @override
   void initState() {
@@ -82,6 +85,27 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     return result;
   }
+    bool isConnecting(String id) {
+    bool result = connectingDevices.firstWhereOrNull((element) => element.deviceId==id) != null;
+    if (result) {
+      debugPrint("Connecting now");
+    }
+    else {
+      debugPrint("Not connecting now");
+    }
+    return result;
+  }
+  Icon deviceIcon(String id) {
+    if(id.contains(_heartRateServiceUUID.toString()) == true)
+    {
+      return Icon(Icons.heart_broken, color: Colors.black,);
+    }
+    else if(id.contains(_cyclingPowerServiceUUID.toString()) == true)
+    {
+      return Icon(Icons.flash_on, color: Colors.black,);
+    }
+    return Icon(Icons.bluetooth, color: Colors.black,);
+  }
 
   // TODO: ListView is scrolling into the Positioned elements.
   @override
@@ -113,13 +137,30 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                       height: 1.7,
                                       color: Colors.black
                                   )),
-                              leading: const Icon(Icons.bluetooth, color: Colors.black,),
+                              leading: deviceIcon(device.serviceUuids.toString()),
                               tileColor: !isConnected(device.id) ?
-                              Colors.white10 : Colors.green,
-                              // minVerticalPadding: widget.dialogWidth * .03,
+                              Colors.white10 : Color.fromARGB(255, 14, 112, 158),                            // minVerticalPadding: widget.dialogWidth * .03,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                              trailing: !isConnecting(device.id) ? !isConnected(device.id)? null: Icon(Icons.link) : Container(width: 20, height: 20, child: Image(image: AssetImage('images/loading-buffering.gif'))),
                               onTap: () async {
                                 debugPrint("tappin");
+                                if(connectingDevices.isEmpty)
+                                {
+                                  final snackBar = SnackBar(
+                                      content: const Text('Please do not exit screen while device is connecting'),
+                                      duration: Duration(days: 365),
+                                      action: SnackBarAction(
+                                        label: 'Ok',
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                        },
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                }
+                                else{
+                                  ScaffoldMessenger.of(context).clearSnackBars();
+                                }
                                 //connect
                                 BleSensorDevice connectedSensor;
                                 if (!isConnected(device.id)) {
@@ -132,10 +173,61 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   ).listen((update) {
                                     debugPrint('Connection state update: ${update
                                         .connectionState}');
+                                    if(update.connectionState == (DeviceConnectionState.connecting))
+                                    {
+                                      setState(() {
+                                      if ((device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())) == true) {
+                                    connectedSensor = BleSensorDevice(
+                                      type: 'HR',
+                                      flutterReactiveBle: flutterReactiveBle,
+                                      deviceId: device.id,
+                                      serviceId: _heartRateServiceUUID,
+                                      characteristicId: _heartRateCharacteristicUUID,
+                                    );
+                                  }
+                                  else {
+                                    connectedSensor = BleSensorDevice(
+                                      type: 'POWER',
+                                      flutterReactiveBle: flutterReactiveBle,
+                                      deviceId: device.id,
+                                      serviceId: _cyclingPowerServiceUUID,
+                                      characteristicId: _cyclingPowerCharacteristicUUID,
+                                    );
+                                  }
+                                  connectingDevices.add(connectedSensor);
+                                  
+                                    });
+                                    }
+                                    else if(update.connectionState == (DeviceConnectionState.connected))
+                                    {
+                                    setState(() {
+                                          connectingDevices.removeWhere((element) => element.deviceId == device.id);
+                                        });
+                                      Fluttertoast.showToast(
+                                      msg: "Sensors Connected!",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.green,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                      ScaffoldMessenger.of(context).clearSnackBars();
+                                      final snackBar = SnackBar(
+                                      content: const Text('Connected to a sensor, keep connecting or go back to home screen to start a workout'),
+                                      duration: Duration(days: 365),
+                                      action: SnackBarAction(
+                                        label: 'Ok',
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                        },
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    }
                                   });
-                                  debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
-                                  debugPrint("uid? ${device.serviceUuids}");
-                                  debugPrint("hr? $_heartRateServiceUUID");
+                                  // debugPrint("is uid hr? ${device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())}");
+                                  // debugPrint("uid? ${device.serviceUuids}");
+                                  // debugPrint("hr? $_heartRateServiceUUID");
                                   if ((device.serviceUuids.toString().contains(_heartRateServiceUUID.toString())) == true) {
                                     debugPrint("Oh my god please");
                                     connectedSensor = BleSensorDevice(
@@ -158,11 +250,15 @@ class _MonitorConnectState extends State<MonitorConnect> {
                                   widget.connectedDevices.add(connectedSensor);
                                 }
                                 else {
+                                  print("remove device");
+                                  setState(() {
+                                    connectingDevices.removeWhere((element) => element.deviceId == device.id);
+                                  });
                                   _connection.cancel();
                                   widget.connectedDevices.removeWhere((element) => element.deviceId == device.id);
                                 }
                                 setState(() {
-                                  _colorTile = _colorTile == Colors.black ? Colors.green : Colors.black;
+                                  _colorTile = _colorTile == Colors.black ? Colors.blue : Colors.black;
                                 });
                                 widget.callback(widget.connectedDevices);
                               },
@@ -182,6 +278,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
   void dispose() {
     //widget.callback()
     scanSubscription?.cancel();
+    ScaffoldMessenger.of(context).clearSnackBars();
     super.dispose();
   }
 

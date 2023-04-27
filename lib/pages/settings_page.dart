@@ -1,36 +1,62 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:karoo_collab/pages/workout_page.dart';
-import 'package:karoo_collab/rider_data.dart';
-import '../bluetooth_manager.dart';
-import 'pairing_page.dart';
-import '../monitor_sensor.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import '../ble_sensor_device.dart';
+import '../logging/exercise_logger.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-Widget _buildPopupDialog(
-    BuildContext context, String funcType, TextEditingController _controller) {
+Widget _buildPopupDialog(BuildContext context, String funcType,
+    String currentValue, TextEditingController controller) {
   return AlertDialog(
-    //title: Text('Enter ' + funcType, style: TextStyle(fontSize: 14)),
-    //contentPadding: EdgeInsets.zero,
+    title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
+    contentPadding: EdgeInsets.zero,
     content: SingleChildScrollView(
         child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TextField(
-          controller: _controller,
-          style: TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            hintText: funcType,
-          ),
+          controller: controller,
+          style: const TextStyle(fontSize: 14),
+          //decoration: InputDecoration(hintText: currentValue),
+        ),
+      ],
+    )),
+    actionsPadding: EdgeInsets.zero,
+    actions: <Widget>[
+      Center(
+        child: TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Confirm'),
+        ),
+      ),
+    ],
+  );
+}
+
+// TODO: Find better solution then copy and pasting this function
+Widget _buildNumberPopupDialog(BuildContext context, String funcType,
+    String currentValue, TextEditingController controller) {
+  return AlertDialog(
+    title: Text('Enter $funcType', style: TextStyle(fontSize: 14)),
+    contentPadding: EdgeInsets.zero,
+    content: SingleChildScrollView(
+        child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        TextField(
+          controller: controller,
+          style: const TextStyle(fontSize: 14),
+          // decoration: InputDecoration(
+          //   hintText: currentValue,
+          // ),
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
         ),
       ],
     )),
@@ -67,62 +93,73 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
-  final TextEditingController name_controller = TextEditingController();
-  final TextEditingController email_controller = TextEditingController();
-  final TextEditingController FTP_controller = TextEditingController();
-  final TextEditingController HR_controller = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController ftpController = TextEditingController();
+  final TextEditingController hrController = TextEditingController();
 
   String _name = "";
   String _email = "";
-  String _HR = "";
-  String _FTP = "";
+  int _hr = 120;
+  int _ftp = 250;
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _name = (prefs.getString('name') ?? "Name");
-      print('$_name');
+      print(_name);
     });
     setState(() {
       _email = (prefs.getString('email') ?? "Email");
-      print('$_email');
+      print(_email);
     });
     setState(() {
-      _HR = (prefs.getString('maxHR') ?? "Max HR");
-      print('$_HR');
+      _hr = (prefs.getInt('maxHR') ?? 120);
+      print('$_hr');
     });
     setState(() {
-      _FTP = (prefs.getString('FTP') ?? "FTP");
-      print('$_FTP');
+      _ftp = (prefs.getInt('FTP') ?? 250);
+      print('$_ftp');
     });
   }
 
   Future<void> _updateSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    if(name_controller.text!="")
-    {
+    if (nameController.text != "") {
+      String prevValue = prefs.getString('name') ?? "";
       setState(() {
-      prefs.setString('name', name_controller.text);
-    });
+        prefs.setString('name', nameController.text);
+      });
+      ExerciseLogger.instance?.setUserName(nameController.text);
+      ExerciseLogger.instance
+          ?.logSettingChanged("name", prevValue, nameController.text);
     }
-    if(email_controller.text!="")
-    {
+    if (emailController.text != "") {
+      String prevValue = prefs.getString('email') ?? "";
       setState(() {
-      prefs.setString('email', email_controller.text);
-    });
+        prefs.setString('email', emailController.text);
+      });
+      ExerciseLogger.instance
+          ?.logSettingChanged("email", prevValue, emailController.text);
     }
-    if(HR_controller.text!="")
-    {
+    if (hrController.text != "") {
+      String prevValue = prefs.getInt('maxHR').toString() ?? "";
       setState(() {
-      prefs.setString('maxHR', HR_controller.text);
-    });
+        prefs.setInt('maxHR', int.parse(hrController.text));
+      });
+      ExerciseLogger.instance?.setTargetHeartRate(int.parse(hrController.text));
+      ExerciseLogger.instance
+          ?.logSettingChanged("maxHR", prevValue, hrController.text);
     }
-    if(FTP_controller.text!="")
-    {
+    if (ftpController.text != "") {
+      String prevValue = prefs.getInt('FTP').toString() ?? "";
       setState(() {
-      prefs.setString('FTP', FTP_controller.text);
-    });
-    }  
+        prefs.setInt('FTP', int.parse(ftpController.text));
+      });
+      ExerciseLogger.instance?.setMaxFTP(int.parse(ftpController.text));
+      ExerciseLogger.instance
+          ?.logSettingChanged("FTP", prevValue, ftpController.text);
+    }
   }
 
   @override
@@ -133,9 +170,9 @@ class _SettingsPage extends State<SettingsPage> {
 
   @override
   void dispose() {
-    name_controller.dispose();
-    FTP_controller.dispose();
-    HR_controller.dispose();
+    nameController.dispose();
+    ftpController.dispose();
+    hrController.dispose();
     super.dispose();
   }
 
@@ -156,69 +193,100 @@ class _SettingsPage extends State<SettingsPage> {
           children: <Widget>[
             TextButton.icon(
                 onPressed: () {
+                  nameController.value = TextEditingValue(
+                text: _name.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _name.toString().length),
+                ),
+              );
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _name, name_controller),
+                    builder: (BuildContext context) => _buildPopupDialog(
+                        context, "name", _name, nameController),
                   );
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.person,
                 ),
-                label: const Align(
+                label: Align(
                     alignment: Alignment.centerLeft,
                     child: ListTile(
                         title: Text("Name"),
+                        subtitle: Text('$_name'),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
                 onPressed: () {
+                  emailController.value = TextEditingValue(
+                text: _email.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _email.toString().length),
+                ),
+              );
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) =>
-                        _buildPopupDialog(context, _email, email_controller),
+                    builder: (BuildContext context) => _buildPopupDialog(
+                        context, "email address", _email, emailController),
                   );
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.mail,
                 ),
-                label: const Align(
+                label: Align(
                     alignment: Alignment.centerLeft,
                     child: ListTile(
                         title: Text("Email"),
+                        subtitle: Text('$_email'),
                         trailing: Icon(Icons.keyboard_arrow_right)))),
             TextButton.icon(
               onPressed: () {
+                ftpController.value = TextEditingValue(
+                text: _ftp.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _ftp.toString().length),
+                ),
+              );
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _FTP, FTP_controller),
+                  builder: (BuildContext context) => _buildNumberPopupDialog(
+                      context, "FTP", _ftp.toString(), ftpController),
                 );
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.motorcycle,
               ),
-              label: const Align(
+              label: Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("FTP"),
+                      subtitle: Text('$_ftp'),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
             TextButton.icon(
               onPressed: () {
+                hrController.value = TextEditingValue(
+                text: _hr.toString(),
+                selection: TextSelection.fromPosition(
+                  TextPosition(offset: _hr.toString().length),
+                ),
+              );
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) =>
-                      _buildPopupDialog(context, _HR, HR_controller),
+                  builder: (BuildContext context) => _buildNumberPopupDialog(
+                      context,
+                      "max heart rate",
+                      _hr.toString(),
+                      hrController),
                 );
-                print(HR_controller.text);
+                print(hrController.text);
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.heart_broken,
               ),
-              label: const Align(
+              label:  Align(
                   alignment: Alignment.centerLeft,
                   child: ListTile(
                       title: Text("Max Heart Rate"),
+                      subtitle: Text('$_hr'),
                       trailing: Icon(Icons.keyboard_arrow_right))),
             ),
           ],
@@ -228,6 +296,7 @@ class _SettingsPage extends State<SettingsPage> {
         IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () {
+            ExerciseLogger.instance?.logButtonPressed("BackButton");
             Navigator.pop(context);
           },
           alignment: Alignment.bottomLeft,
@@ -236,6 +305,7 @@ class _SettingsPage extends State<SettingsPage> {
         IconButton(
           icon: const Icon(Icons.check),
           onPressed: () {
+            ExerciseLogger.instance?.logButtonPressed("SettingsUpdate");
             _updateSettings();
             Fluttertoast.showToast(
                 msg: "Updated Settings!",

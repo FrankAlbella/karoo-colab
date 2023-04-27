@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:karoo_collab/logging/upload_manager.dart';
 import 'package:karoo_collab/pages/home_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  UploadManager.instance.init();
+
   runApp(const MyApp());
 }
 
