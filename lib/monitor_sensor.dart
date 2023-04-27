@@ -33,6 +33,7 @@ class _MonitorConnectState extends State<MonitorConnect> {
 
   late final FlutterReactiveBle flutterReactiveBle;
   List<DiscoveredDevice> devices = <DiscoveredDevice>[];
+  List<BleSensorDevice> connectingDevices = <BleSensorDevice>[];
   StreamSubscription? scanSubscription;
   late StreamSubscription<ConnectionStateUpdate> _connection;
   //List<BleSensorDevice> connectedDevices = <BleSensorDevice>[];
@@ -84,7 +85,16 @@ class _MonitorConnectState extends State<MonitorConnect> {
     }
     return result;
   }
-  
+    bool iConnecting(String id) {
+    bool result = widget.connectedDevices.firstWhereOrNull((element) => element.deviceId==id) != null;
+    if (result) {
+      debugPrint("Connecting now");
+    }
+    else {
+      debugPrint("Not connecting now");
+    }
+    return result;
+  }
   Icon deviceIcon(String id) {
     if(id.contains(_heartRateServiceUUID.toString()) == true)
     {
